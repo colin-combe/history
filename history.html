@@ -1,48 +1,48 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-			<title>History Page</title>
-			<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-			<meta name="description" content="common platform for downstream analysis of CLMS data" />
-			<meta name="keywords" content="biologists, mass-spectrometrists, cross-linking, protein, complexes, 3d, models, rappsilber, software" />	
-			<meta name="viewport" content="width=device-width, initial-scale=1">
-			<meta name="apple-mobile-web-app-capable" content="yes">
-			<meta name="apple-mobile-web-app-status-bar-style" content="black">
-			<link rel="stylesheet" href="css/reset.css" />
-			<link rel="stylesheet" href="css/style.css" />
-			<link rel="stylesheet" href="css/dynamic_table.css" />
-   <script type="text/javascript" src="./vendor/zepto.js"></script>
-			<script type="text/javascript" src="./vendor/dynamic_table.js"></script>
-     <script type="text/javascript" src="./vendor/d3.js"></script>
+        <title>History Page</title>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta name="description" content="common platform for downstream analysis of CLMS data" />
+        <meta name="keywords" content="biologists, mass-spectrometrists, cross-linking, protein, complexes, 3d, models, rappsilber, software" />	
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="stylesheet" href="css/reset.css" />
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/dynamic_table.css" />
+        <script type="text/javascript" src="./vendor/zepto.js"></script>
+        <script type="text/javascript" src="./vendor/dynamic_table.js"></script>
+        <script type="text/javascript" src="./vendor/d3.js"></script>
 	</head>
 
 	<body>
 
 		<div class="container">
 			<h1 class="page-header">
-			<span class="headerLabel" style="font-weight:bold;">&nbsp;</span>
+                <span class="headerLabel" id="username" style="font-weight:bold;"></span>
 					
-					<input type="radio" name="mineOrAll" value="mySearches" id="mySearches" checked onchange="loadSearchList();">
-					<span class="headerLabel">My Searches</span>
-					<input type="radio" name="mineOrAll" value="allSearches" id="allSearches" onchange="loadSearchList();">
-					<span class="headerLabel" >All Searches</span>
-										
-					<button class='btn btn-1 btn-1a' onclick='window.location = "../searchSubmit/submitSearch.html";'>
-						New Search
-					</button>	
+                <input type="radio" name="mineOrAll" value="mySearches" id="mySearches" checked onchange="loadSearchList();">
+                <span class="headerLabel">My Searches</span>
+                <input type="radio" name="mineOrAll" value="allSearches" id="allSearches" onchange="loadSearchList();">
+                <span class="headerLabel" >All Searches</span>
+
+                <button onclick="window.location = '../searchSubmit/submitSearch.html';">
+                    New Search
+                </button>	
+
+                <button onclick="window.location = '../util/logout.php';">
+                    Log Out
+                </button>
 					
-					<button class='btn btn-1 btn-1a' onclick='window.location = "../util/logout.php";'>
-						Log Out
-					</button>
-					
-				<div style='float:right'>
-					<button class='btn btn-1 btn-1a' onclick='aggregate();'>Aggregate</button>
+				<div style="float:right">
+					<button onclick="aggregate();">Aggregate</button>
 				</div>
 
 			</h1>
 			<div class="tableContainer">
-				<table id='t1'>
-					<tbody id='tb1'>
+				<table id="t1">
+					<tbody id="tb1">
 
 					</tbody>
 				</table>
@@ -53,19 +53,19 @@
 			//<![CDATA[
 			
 			var dynTable;
-                 
-			
-			function loadSearchList(){		
-
+                 	
+			function loadSearchList() {		
+                
+                d3.selectAll("button").classed("btn btn-1 btn-1a", true);
 				DynamicTable.destroy("t1");
-				document.getElementById("t1").innerHTML = "";
+				d3.select("#t1").html("");
 				
 				var params;
-				//~ console.log('^'+xlv.sid+'^');
-				if (document.getElementById('mySearches').checked){
+
+				if (d3.select('#mySearches').property("checked")){
 					params =  "searches=MINE";
 					var opt1 = {
-						colTypes: ["alpha","alpha","none", "alpha", "alpha","number","none", "clearCheckboxes"],
+						colTypes: ["alpha","alpha","none", "alpha", "alpha","number","none", "clearCheckboxes", "none"],
 						pager: {
 						rowsCount: 20
 						}
@@ -74,127 +74,126 @@
 				else {
 					params =  "searches=ALL";
 					var opt1 = {
-						colTypes: ["alpha","alpha","none", "alpha", "alpha","number","alpha", "clearCheckboxes"],
+						colTypes: ["alpha","alpha","none", "alpha", "alpha","number","alpha", "clearCheckboxes", "none"],
 						pager: {
 						rowsCount: 20
 						}
 					}
 				}
-       console.log ("params", params);
-       $.ajax({
-            type:"POST",
-            url:"./php/searches.php", 
-            data: params,
-            contentType: "application/x-www-form-urlencoded",
-            dataType: 'json',
-            success: function(response, responseType, xmlhttp){
-                console.log ("response", response.length);
-                console.log (arguments);
-                if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    //~ console.log(xmlhttp.responseText);
-                    var d3sel = d3.select("#t1");
-                    console.log ("d3serl", d3sel);
-                    d3sel.html(""); //
-                    var tbody = d3sel.append("tbody");
-                    /*
-                    var rows = tbody.selectAll("tr").data(response)
-                        .enter()
-                        .append("tr")
-                    ;
-                    console.log ("rows", rows);
-                    
-                    var makeLink = function (id, sid) {
-                         return "<a id='"+id+"' href='.validate.php?sid="+sid+"'>"+label+"</a>";
+                
+               $.ajax({
+                    type:"POST",
+                    url:"./php/searches.php", 
+                    data: params,
+                    contentType: "application/x-www-form-urlencoded",
+                    dataType: 'json',
+                    success: function(response, responseType, xmlhttp){
+                        if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                            var d3sel = d3.select("#t1");
+                            d3sel.html(""); //
+                            var tbody = d3sel.append("tbody");
+
+                            d3.select("#username").text(response.user);
+                            var userOnly = d3.select('#mySearches').property("checked");
+
+                            var rows = tbody.selectAll("tr").data(response.data)
+                                .enter()
+                                .append("tr")
+                            ;
+                            console.log ("rows", rows);
+
+                            var makeLink = function (id, sid, php, label) {
+                                 return "<a id='"+id+"' href='./"+php+"?sid="+sid+"'>"+label+"</a>";
+                            }
+
+                            var modifiers = {
+                                name: function(d) { 
+                                    return makeLink(d.name, d.id+"-"+d.random_id, "network.php", d.name) + " ["+d.status+"]"; 
+                                },
+                                notes: function (d) {
+                                    return d.notes ? d.notes.substring(0,16)+"<div style='display:none'>"+d.notes+"</div>" : "";
+                                },
+                                validate: function(d) {
+                                    return makeLink(d.name, d.id+"-"+d.random_id, "validate.php", "validate");
+                                },
+                                file_name: function (d) {
+                                    return d.file_name;
+                                },
+                                submit_date: function(d) {
+                                    return d.submit_date.substring(0, d.submit_date.indexOf("."));
+                                },
+                                id: function(d) { return d.id; },
+                                user_name: function(d) { return !userOnly ? d.user_name : ""; },
+                                aggregate: function(d) {
+                                    return "<input type='text' pattern='\\d*' class='aggregateCheckbox' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1'>";
+                                },
+                                delete: function(d) {
+                                    return d.user_name === response.user ? "<button class='deleteButton'>Delete</button>" : "";
+                                }
+                            };
+
+                            var cells = rows.selectAll("td").data(function(d) { 
+                                var cs = d3.entries(modifiers);
+                                cs.forEach(function(entry) { entry.value = d; });
+                                return cs;
+                            });
+                            cells.enter()
+                                .append("td")
+                                .html (function(d) { return modifiers[d.key](d.value); })
+                                .classed ("centre", function(d) { return d.key === "aggregate"; })
+                                .filter (function(d) { return d.key === "notes"; })
+                                .attr("title", function(d) {
+                                    return d.value[d.key];
+                                })
+                            ;
+
+                            dynTable = new DynamicTable("t1", opt1);
+                            d3.selectAll(".tool-7").style("width", userOnly ? "0px" : "90px");
+                            d3.selectAll("tr").select("button.deleteButton")
+                                .classed("btn btn-1 btn-1a", true)
+                                .on ("click", function(d) {
+                                    // stick in an are you sure dialog
+                                    $.ajax({
+                                        type: "POST",
+                                        url:"./php/deleteSearch.php", 
+                                        data: {searchID: d.id},
+                                        dataType: 'json',
+                                        success: function (response, responseType, xmlhttp) {
+                                            // delete row from table somehow
+                                        }
+                                    });
+                                })
+                            ;
+                        }
                     }
-                    
-                    var modifiers = {
-                        name: function(d) { 
-                            return makeUrl(d.name, d.urlPart, d.name)+"<strong>"+d.status+"</strong>"; 
-                        },
-                        notes: function (d) {
-                            return d.notes.substring(0,16)+"<div style='display:none'>"+d.notes+"</div>";
-                        },
-                        validate: function(d) {
-                            return makeUrl(d.name, d.urlPart, "validate");
-                        },
-                        file_name: function (d) {
-                            return d.file_name;
-                        },
-                        submit_date: function(d) {
-                            return d.submit_date.substring(0, d.submit_date.indexOf("."));
-                        },
-                        id: function(d) { return d.id; },
-                        user_name: function(d) { return !document.getElementById('mySearches').checked ? d.user_name : ""; },
-                        aggregate: function(d) {
-                            return "<input type='text' class='aggregateCheckbox' id='agg_"+d.urlPart+"' maxlength='1'>";
-                        },
-                    };
-                    
-                    var cells = rows.selectAll("td").data(function(d) { 
-                        return d3.entries(modifiers).map(function(entry) { entry.value = d; }); 
-                    });
-                    cells.enter()
-                        .append("td")
-                        .html (function(d) { return modifiers[d.key](d.value); })
-                    ;
-                        
-                    
-                    //document.getElementById("t1").innerHTML = response;
-                    dynTable = new DynamicTable("t1", opt1);
-                    if (document.getElementById('mySearches').checked){
-                        document.getElementsByClassName("tool-7")[0].setAttribute("style", "width:0px;");
-                    }
-                    else {
-                        document.getElementsByClassName("tool-7")[0].setAttribute("style", "width:90px;");
-                    }
-                    */
-					           }
-            }
-       });
-       /*
-				xmlhttp.open("POST", url, true);
-				//Send the proper header information along with the request
-				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				xmlhttp.onreadystatechange = function() {//Call a function when the state changes.
-					if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-						//~ console.log(xmlhttp.responseText);
-						document.getElementById("t1").innerHTML = xmlhttp.responseText;
-						dynTable = new DynamicTable("t1", opt1);
-						if (document.getElementById('mySearches').checked){
-							document.getElementsByClassName("tool-7")[0].setAttribute("style", "width:0px;");
-						}
-						else {
-							document.getElementsByClassName("tool-7")[0].setAttribute("style", "width:90px;");
-						}
-					}
-				}
-				xmlhttp.send(params);
-    */
+               });
 			}
+            
 			loadSearchList();
 				
             function aggregate(){
-				var inputs = document.getElementsByClassName('aggregateCheckbox');
-                var values = new Array();
-                for (var i = 0; i < inputs.length; i++) {
-                    if (inputs[i].value != "") {
-						if (isNaN(inputs[i].value)) {
-							alert("Group identifiers must be a single digit.");
-						}
-                        values.push(inputs[i].getAttribute("id").substring(4) + "-" + inputs[i].value);
-                    }
-                }
-                if (values.length === 0) alert ("Cannot aggregate: no selection - use text field in right most table column.");
+                var values = [];
+                d3.selectAll(".aggregateCheckbox")
+                    .each (function () {
+                        var val = this.value;
+                        if (val) {
+                            if (isNaN(val)) {
+                                alert("Group identifiers must be a single digit.");
+                            } else {
+                                values.push(this.id.substring(4) + "-" + val);
+                            }
+                        }
+                    })
+                ;
+                if (!values.length) alert ("Cannot aggregate: no selection - use text field in right most table column.");
                 else {
+                    //console.log ("vals", values.join(","));
                     window.open("./network.php?sid="+values.join(','), "_self");
                 }
             }
 
-            function clearAggregationCheckboxes(){
-				var inputs = document.getElementsByClassName('aggregateCheckbox');
-                for (var i = 0; i < inputs.length; i++) {
-                    inputs[i].value = "";
-                }
+            function clearAggregationCheckboxes() {
+                d3.selectAll(".aggregateCheckbox").property("value", "");
 			}
 
             //]]>
