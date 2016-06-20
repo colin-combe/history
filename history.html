@@ -8,12 +8,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        
         <link rel="stylesheet" href="css/reset.css" />
         <link rel="stylesheet" href="css/style.css" />
         <link rel="stylesheet" href="css/dynamic_table.css" />
-        <script type="text/javascript" src="./vendor/zepto.js"></script>
-        <script type="text/javascript" src="./vendor/dynamic_table.js"></script>
-        <script type="text/javascript" src="./vendor/d3.js"></script>
+        <link rel="stylesheet" href="vendor/css/jquery-ui.css" />
+        
+        <!-- <script type="text/javascript" src="./vendor/js/zepto.js"></script> -->
+        <script type="text/javascript" src="./vendor/js/dynamic_table.js"></script>
+        <script type="text/javascript" src="./vendor/js/d3.js"></script>
+        <script src="vendor/js/jquery-2.2.0.js"></script>
+        <script src="vendor/js/jquery-ui.js"></script>
+        <script type="text/javascript" src="./js/dialogs.js"></script>
 	</head>
 
 	<body>
@@ -22,12 +28,14 @@
 			<h1 class="page-header">
                 <span class="headerLabel" id="username" style="font-weight:bold;"></span>
 					
-                <input type="radio" name="mineOrAll" value="mySearches" id="mySearches" checked onchange="loadSearchList();">
-                <span class="headerLabel">My Searches</span>
-                <input type="radio" name="mineOrAll" value="allSearches" id="allSearches" onchange="loadSearchList();">
-                <span class="headerLabel" >All Searches</span>
+                <span id="scopeOptions">
+                    <input type="radio" name="mineOrAll" value="mySearches" id="mySearches" checked onchange="loadSearchList();">
+                    <span class="headerLabel">My Searches</span>
+                    <input type="radio" name="mineOrAll" value="allSearches" id="allSearches" onchange="loadSearchList();">
+                    <span class="headerLabel" >All Searches</span>
+                </span>
 
-                <button onclick="window.location = '../searchSubmit/submitSearch.html';">
+                <button id="newSearch" onclick="window.location = '../searchSubmit/submitSearch.html';">
                     New Search
                 </button>	
 
@@ -92,15 +100,18 @@
                             var d3sel = d3.select("#t1");
                             d3sel.html(""); //
                             var tbody = d3sel.append("tbody");
+                            //console.log ("rights", response.userRights);
 
                             d3.select("#username").text(response.user);
+                            d3.select("#newSearch").style("display", response.userRights.canAddNewSearch ? null : "none");
+                            d3.select("#scopeOptions").style("display", response.userRights.canSeeAll ? null : "none");
+                            
                             var userOnly = d3.select('#mySearches').property("checked");
-
+                            //console.log ("data", response.data);
                             var rows = tbody.selectAll("tr").data(response.data)
                                 .enter()
                                 .append("tr")
                             ;
-                            console.log ("rows", rows);
 
                             var makeLink = function (id, sid, php, label) {
                                  return "<a id='"+id+"' href='./"+php+"?sid="+sid+"'>"+label+"</a>";
@@ -128,7 +139,7 @@
                                     return "<input type='text' pattern='\\d*' class='aggregateCheckbox' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1'>";
                                 },
                                 delete: function(d) {
-                                    return d.user_name === response.user ? "<button class='deleteButton'>Delete</button>" : "";
+                                    return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton'>Delete</button>" : "";
                                 }
                             };
 
@@ -148,20 +159,41 @@
                             ;
 
                             dynTable = new DynamicTable("t1", opt1);
+                            //console.log ("dynTable", dynTable);
                             d3.selectAll(".tool-7").style("width", userOnly ? "0px" : "90px");
-                            d3.selectAll("tr").select("button.deleteButton")
+                            d3.selectAll("tbody tr").select("button.deleteButton")
                                 .classed("btn btn-1 btn-1a", true)
                                 .on ("click", function(d) {
-                                    // stick in an are you sure dialog
-                                    $.ajax({
-                                        type: "POST",
-                                        url:"./php/deleteSearch.php", 
-                                        data: {searchID: d.id},
-                                        dataType: 'json',
-                                        success: function (response, responseType, xmlhttp) {
-                                            // delete row from table somehow
+
+                                    var deleteRowVisibly = function (d) {
+                                        // delete row from table somehow
+                                        var thisID = d.id;
+                                        var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
+
+                                        // dynTable has internal object 'rows' which maintains list of rows
+                                        // - we need to remove the node from that array and from the dom (using d3)
+                                        // as dynTable.pager reads rows from the dom to calculate a new page
+                                        var dynRowIndex = dynTable.rows.indexOf (selRows.node());
+                                        if (dynRowIndex >= 0) {
+                                            dynTable.rows.splice (dynRowIndex, 1);
+                                            selRows.remove();
+                                            dynTable.pager (dynTable.currentPage);
                                         }
-                                    });
+                                    }
+                                    //deleteRowVisibly (d); // for testing without doing database delete
+                                   
+                                     var doDelete = function() {
+                                        $.ajax({
+                                            type: "POST",
+                                            url:"./php/deleteSearch.php", 
+                                            data: {searchID: d.id},
+                                            dataType: 'json',
+                                            success: function (response, responseType, xmlhttp) {
+                                                deleteRowVisibly (d);
+                                            }
+                                        });
+                                    };
+                                    CLMSUI.jqdialogs.areYouSureDialog ("popErrorDialog", "Deleting this search cannot be undone (by yourself).<br>Are You Sure?", "Please Confirm", "Delete this Search", "Cancel this Action", doDelete);
                                 })
                             ;
                         }

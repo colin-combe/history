@@ -6,7 +6,7 @@
 		exit;
 	}
 	include('../../connectionString.php');
-    include('./rights.php');
+    include('./utils.php');
 
 	//open connection
 	$dbconn = pg_connect($connectionString)
@@ -23,7 +23,8 @@
         $searchUserID = $row["uploadedby"];
 
         if ($searchUserID === $_SESSION['user_id'] || $userRights["isSuperUser"]){
-            pg_prepare ($dbconn, "deleteSearch", "DELETE FROM search WHERE id = $1");
+            //pg_prepare ($dbconn, "deleteSearch", "DELETE FROM search WHERE id = $1");
+            pg_prepare ($dbconn, "deleteSearch", "UPDATE search SET hidden = true WHERE id = $1");
             $result = pg_execute($dbconn, "deleteSearch", [$_POST["searchID"]]);
         }
         
