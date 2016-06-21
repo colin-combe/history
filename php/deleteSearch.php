@@ -32,7 +32,7 @@
         echo json_encode (array("status"=>"success"));
     } catch (Exception $e) {
         pg_query("ROLLBACK");
-        echo (json_encode(array ("status"=>"fail", "error"=> array("An Error occurred when attempting to delete search id", $_POST["searchID"]))));
+        echo (json_encode(array ("status"=>"fail", "error"=> "An Error occurred when attempting to delete search id<br>".$_POST["searchID"])));
     }
 
     //close connection
