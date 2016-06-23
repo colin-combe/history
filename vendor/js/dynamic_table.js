@@ -98,7 +98,7 @@ function DynamicTable(obj, options){
 			clearBtn.innerHTML = "Clear";
 			clearBtn.className = "btn btn-1 btn-1a clearChx";
 			clearBtn.onclick = function (){
-				clearAggregationCheckboxes();
+				CLMSUI.history.clearAggregationCheckboxes();
 			}
 			colTools.appendChild(clearBtn);
 				
