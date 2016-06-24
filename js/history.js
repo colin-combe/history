@@ -3,30 +3,30 @@ var CLMSUI = CLMSUI || {};
 CLMSUI.history = { 			
 		
 			loadSearchList: function () {		
-        var dynTable;
-        d3.selectAll("button").classed("btn btn-1 btn-1a", true);
-				    DynamicTable.destroy("t1");
-				    d3.select("#t1").html("");
-				
-        var params;
+                var dynTable;
+                d3.selectAll("button").classed("btn btn-1 btn-1a", true);
+                        DynamicTable.destroy("t1");
+                        d3.select("#t1").html("");
 
-        if (d3.select('#mySearches').property("checked")){
-         params =  "searches=MINE";
-         var opt1 = {
-          colTypes: ["alpha","alpha","none", "alpha", "alpha","number","none", "clearCheckboxes", "none"],
-          pager: {
-          rowsCount: 20
-          }
-         }
-        }
-        else {
-         params =  "searches=ALL";
-         var opt1 = {
-          colTypes: ["alpha","alpha","none", "alpha", "alpha","number","alpha", "clearCheckboxes", "none"],
-          pager: {
-          rowsCount: 20
-          }
-         }
+                var params;
+                var opt1;
+                if (d3.select('#mySearches').property("checked")){
+                 params =  "searches=MINE";
+                    opt1 = {
+                  colTypes: ["alpha","alpha","none", "alpha", "alpha","number","clearCheckboxes", "none"],
+                  pager: {
+                  rowsCount: 20
+                  }
+                 };
+                }
+                else {
+                 params =  "searches=ALL";
+                 opt1 = {
+                  colTypes: ["alpha","alpha","none", "alpha", "alpha","number","alpha", "clearCheckboxes", "none"],
+                  pager: {
+                  rowsCount: 20
+                  }
+                 };
         }
                 
        $.ajax({
@@ -55,20 +55,27 @@ CLMSUI.history = {
 
                     var makeLink = function (id, sid, php, label) {
                          return "<a id='"+id+"' href='./"+php+"?sid="+sid+"'>"+label+"</a>";
-                    }
+                    };
 
+                    var tooltips = d3.map ([
+                        {name: "notes", func: function(d) { return d.value["notes"]; }},
+                        {name: "name", func: function(d) { return d.value["status"]; }},
+                    ], function (d) { return d.name; });
                     var cellStyles = {
                         aggregate: "center",
                         name: "varWidthCell",
                         //file_name: "varWidthCell"
-                    }
+                    };
                     var modifiers = {
                         name: function(d) { 
                             var name = d.status === "completed"
                                 ? makeLink(d.name, d.id+"-"+d.random_id, "network.php", d.name)
                                 : "<span class='unviewableSearch'>"+d.name+"</span>"
                             ;
-                            return name + " ["+d.status+"]"; 
+                            var error = d.status.substring(0,4) === "XiDB";
+                            var sp1 = error ? "<span class='xierror'>" : "";
+                            var sp2 = error ? "</span>" : "";
+                            return name + sp1 + " ["+d.status.substring(0,16)+"]" + sp2 + "<div style='display:none'>"+d.status+"</div>"; 
                         },
                         notes: function (d) {
                             return d.notes ? d.notes.substring(0,16)+"<div style='display:none'>"+d.notes+"</div>" : "";
@@ -88,31 +95,38 @@ CLMSUI.history = {
                             return "<input type='text' pattern='\\d*' class='aggregateCheckbox' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1'>";
                         },
                         delete: function(d) {
-                            return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton'>Delete</button>" : "";
+                            return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>Delete</button>" : "";
                         }
                     };
+                    
+                    // make d3 entry style list of above, removing user_name if just user's own searches
+                    var cellFunctions = d3.entries(modifiers);
+                    if (userOnly) {
+                        cellFunctions.splice (6, 1);
+                    }
 
                     var cells = rows.selectAll("td").data(function(d) { 
-                        var cs = d3.entries(modifiers);
-                        cs.forEach(function(entry) { entry.value = d; });
-                        return cs;
+                        return cellFunctions.map(function(entry) { return {key: entry.key, value: d}; });
                     });
                     cells.enter()
                         .append("td")
                         .html (function(d) { return modifiers[d.key](d.value); })
                         .attr ("class", function(d) { return cellStyles[d.key]; })
-                        .filter (function(d) { return d.key === "notes"; })
+                        .filter (function(d) { return tooltips.has (d.key); })
                         .attr("title", function(d) {
-                            return d.value[d.key];
+                            return d.value["id"]+": "+tooltips.get(d.key).func(d);
                         })
                     ;
 
                     dynTable = new DynamicTable("t1", opt1);
                     //console.log ("dynTable", dynTable);
-                    d3.selectAll("th").data(d3.entries(modifiers))
-                        .attr ("class", function(d) { return cellStyles[d.key]; })
+                    d3.selectAll("th").data(cellFunctions)
+                        .filter (function(d) { return cellStyles[d.key]; })
+                        .each (function(d) {
+                            var klass = cellStyles[d.key];
+                            d3.select(this).classed (klass, true);
+                        })
                     ;
-                    d3.selectAll(".tool-7").style("width", userOnly ? "0px" : "90px");
                     d3.selectAll("tbody tr").select("button.deleteButton")
                         .classed("btn btn-1 btn-1a", true)
                         .on ("click", function(d) {

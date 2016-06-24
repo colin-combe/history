@@ -96,7 +96,7 @@ function DynamicTable(obj, options){
 			var clearBtn = document.createElement("button");
 			//~ toolBtn.src = blank_image_src;
 			clearBtn.innerHTML = "Clear";
-			clearBtn.className = "btn btn-1 btn-1a clearChx";
+			clearBtn.className = "btn btn-1 btn-1a clearChx unpadButton";
 			clearBtn.onclick = function (){
 				CLMSUI.history.clearAggregationCheckboxes();
 			}

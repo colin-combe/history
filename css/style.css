@@ -109,8 +109,7 @@ tbody tr {
 }
 tbody tr:hover, .spectrumShown {
     background-color: #091D42;
-    /
-        -webkit-transition: all 300ms ease;
+    -webkit-transition: all 300ms ease;
     -moz-transition: all 300ms ease;
     -ms-transition: all 300ms ease;
     -o-transition: all 300ms ease;
@@ -259,13 +258,25 @@ body, input, select, textarea {
 
 .clearChx{
 	background:#091D42;
-	width:70px;
+	/*width:70px;*/
+}
+.clearChx: hover {
+	background:#293D62;
 }
 .dynamic-table-filter{
 	margin:auto;
 }
 .aggregateCheckbox{
-	width:20px;
+	width:2em;
+    line-height: 1.2em;
+    margin-left: 3px;
+}
+.unpadButton {
+    padding: 0px 6px;
+    margin: 2px 0px;
+}
+.xierror {
+    color: red;
 }
 /* network page */
 #main {
