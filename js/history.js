@@ -190,7 +190,7 @@ CLMSUI.history = {
         if (!values.length) alert ("Cannot aggregate: no selection - use text field in right most table column.");
         else {
             //console.log ("vals", values.join(","));
-            window.open("./network.php?sid="+values.join(','), "_self");
+            window.open("../xi3/network.php?sid="+values.join(','), "_self");
         }
     },
 
