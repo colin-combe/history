@@ -53,8 +53,14 @@ CLMSUI.history = {
                         .append("tr")
                     ;
 
-                    var makeLink = function (id, sid, php, label) {
-                         return "<a id='"+id+"' href='./"+php+"?sid="+sid+"'>"+label+"</a>";
+                    var makeResultsLink = function (id, sid, php, label) {
+                         return "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"'>"+label+"</a> "
+                         + "<a id='"+id+"FDR' href='../xi3/"+php+"?sid="+sid+"&decoys=1&unval=1'>(with FDR)</a>";
+                    };
+
+					var makeValidationLink = function (id, sid, php, label) {
+                         return "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"&unval=1'>"+label+"</a> "
+                          + "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"&unval=1&linears=1'>(with Linears)</a>";
                     };
 
                     var tooltips = d3.map ([
@@ -69,7 +75,7 @@ CLMSUI.history = {
                     var modifiers = {
                         name: function(d) { 
                             var name = d.status === "completed"
-                                ? makeLink(d.name, d.id+"-"+d.random_id, "network.php", d.name)
+                                ? makeResultsLink(d.name, d.id+"-"+d.random_id, "network.php", d.name)
                                 : "<span class='unviewableSearch'>"+d.name+"</span>"
                             ;
                             var error = d.status.substring(0,4) === "XiDB";
@@ -81,7 +87,7 @@ CLMSUI.history = {
                             return d.notes ? d.notes.substring(0,16)+"<div style='display:none'>"+d.notes+"</div>" : "";
                         },
                         validate: function(d) {
-                            return makeLink(d.name, d.id+"-"+d.random_id, "validate.php", "validate");
+                            return makeValidationLink(d.name, d.id+"-"+d.random_id, "validate.php", "validate");
                         },
                         file_name: function (d) {
                             return d.file_name;
@@ -184,7 +190,7 @@ CLMSUI.history = {
         if (!values.length) alert ("Cannot aggregate: no selection - use text field in right most table column.");
         else {
             //console.log ("vals", values.join(","));
-            window.open("./network.php?sid="+values.join(','), "_self");
+            window.open("../xi3/network.php?sid="+values.join(','), "_self");
         }
     },
 
