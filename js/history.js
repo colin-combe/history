@@ -33,7 +33,6 @@ CLMSUI.history = {
             d3.select(".container")
                 .append("div")
                 .attr ("id", "clmsErrorBox")
-                .style ("display", "block")
                 .style ("transform", "scale(0.5)")
                 .text("You Currently Have No Searches in the Xi Database.")
             ;
@@ -48,7 +47,7 @@ CLMSUI.history = {
             dataType: 'json',
             success: function(response, responseType, xmlhttp) {
                 if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    console.log ("response", response, responseType);
+                    //console.log ("response", response, responseType);
                     if (response.redirect) {
                         window.location.replace (response.redirect);
                     }
