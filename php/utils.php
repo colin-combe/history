@@ -44,4 +44,16 @@
         return $arr;
     }
 
+    function ajaxBootOut () {
+        if (!isset($_SESSION['session_name'])) {
+            // https://github.com/Rappsilber-Laboratory/xi3-issue-tracker/issues/94
+            // Within an ajax call, calling php header() just returns the contents of login.html, not redirect to it.
+            // And since we're usually requesting a json object returning html will cause an error anyways.
+            // Thus we return a simple json object with a redirect field for the ajax javascript call to handle
+            echo json_encode ((object) ['redirect' => '../../xi3/login.html']);
+            //header("location:../../xi3/login.html");
+            exit;
+        }
+    }
+
 ?>

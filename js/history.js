@@ -29,14 +29,30 @@ CLMSUI.history = {
                  };
         }
                 
+        if (d3.select(".container #clmsErrorBox").empty()) {
+            d3.select(".container")
+                .append("div")
+                .attr ("id", "clmsErrorBox")
+                .style ("display", "block")
+                .style ("transform", "scale(0.5)")
+                .text("You Currently Have No Searches in the Xi Database.")
+            ;
+        }
+                
+                
        $.ajax({
             type:"POST",
             url:"./php/searches.php", 
             data: params,
             contentType: "application/x-www-form-urlencoded",
             dataType: 'json',
-            success: function(response, responseType, xmlhttp){
+            success: function(response, responseType, xmlhttp) {
                 if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    console.log ("response", response, responseType);
+                    if (response.redirect) {
+                        window.location.replace (response.redirect);
+                    }
+                    
                     var d3sel = d3.select("#t1");
                     d3sel.html(""); //
                     var tbody = d3sel.append("tbody");
@@ -124,7 +140,11 @@ CLMSUI.history = {
                         })
                     ;
 
-                    dynTable = new DynamicTable("t1", opt1);
+                    if (response.data) {
+                        dynTable = new DynamicTable("t1", opt1);
+                    }
+                    d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
+                    
                     //console.log ("dynTable", dynTable);
                     d3.selectAll("th").data(cellFunctions)
                         .filter (function(d) { return cellStyles[d.key]; })
@@ -152,7 +172,7 @@ CLMSUI.history = {
                                     dynTable.pager (dynTable.currentPage);
                                 }
                             }
-                            //deleteRowVisibly (d); // for testing without doing database delete
+                            //deleteRowVisibly (d); // alternative to following code for testing without doing database delete
 
                              var doDelete = function() {
                                 $.ajax({
@@ -169,7 +189,11 @@ CLMSUI.history = {
                         })
                     ;
                 }
-            }
+            }, 
+           error: function (response) {
+                console.log ("error", arguments);
+               //window.location.href = "../../xi3/login.html";
+           }
        });
 			},
 				
@@ -196,6 +220,5 @@ CLMSUI.history = {
 
     clearAggregationCheckboxes: function () {
         d3.selectAll(".aggregateCheckbox").property("value", "");
-			 }
-
+    }
 };

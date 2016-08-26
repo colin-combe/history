@@ -1,13 +1,10 @@
 <?php
 	session_start();
-	//you could comment out following 4 lines and have no login authentication. 
-	if (!$_SESSION['session_name']) {
-		header("location:../../xi3/login.html");
-		exit;
-	}
-	include('../../connectionString.php');
     include('./utils.php');
+	//you could comment out the following line and have no login authentication. 
+	ajaxBootOut();
 
+	include('../../connectionString.php');
 	//open connection
 	$dbconn = pg_connect($connectionString)
 		or die('Could not connect: ' . pg_last_error());
