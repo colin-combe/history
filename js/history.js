@@ -196,7 +196,7 @@ CLMSUI.history = {
        });
 			},
 				
-    aggregate: function () {
+    aggregate: function (unvalAndDecoys) {
         var values = [];
         d3.selectAll(".aggregateCheckbox")
             .each (function () {
@@ -212,8 +212,11 @@ CLMSUI.history = {
         ;
         if (!values.length) alert ("Cannot aggregate: no selection - use text field in right most table column.");
         else {
-            //console.log ("vals", values.join(","));
-            window.open("../xi3/network.php?sid="+values.join(','), "_self");
+            var url = "../xi3/network.php?sid="+values.join(',');
+            if (unvalAndDecoys) {
+				url = url + "&unval=1&decoys=1";
+			}
+            window.open(url, "_self");
         }
     },
 
