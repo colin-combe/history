@@ -22,18 +22,21 @@
         WHERE "
     ;
 
-    $qPart2 = "
+    $qPart2 = "COALESCE (search.private, FALSE) = FALSE AND ";  // if can_see_all but not a superuser insert this clause
+
+    $qPart3 = "
         COALESCE (search.hidden, FALSE) = FALSE
         GROUP BY search.id, user_name
         ORDER BY (CASE WHEN status = 'queuing' THEN 0 WHEN is_executing THEN 1 ELSE 2 END) ASC, search.id DESC ;"
     ;
 	
 	if ($searches == "MINE" || !$userRights["canSeeAll"]){
-		pg_prepare($dbconn, "my_query", $qPart1."search.uploadedby = $1 AND ".$qPart2);
+		pg_prepare($dbconn, "my_query", $qPart1."search.uploadedby = $1 AND ".$qPart3);
 		$result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
 	}
 	else {
-        $q = $qPart1.$qPart2;
+        $privateClause = $userRights["isSuperUser"] ? "" : $qPart2;
+        $q = $qPart1.$privateClause.$qPart3;
         $result = pg_query($q) or die('Query failed: ' . pg_last_error());
     }
 
