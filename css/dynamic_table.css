@@ -136,3 +136,12 @@
   text-align: center;
 } 
 
+.dynamic-table-pagerbar span.pageInput:before {
+    content: "Page Number ";
+}
+.dynamic-table-pagerbar span.pageInput:after {
+    content: " of ";
+}
+.dynamic-table-pagerbar {
+    font-size: 1.1em;
+}

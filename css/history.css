@@ -210,6 +210,14 @@ body, input, select, textarea {
     display: table;
 }
 
+.tableContainer table tbody {
+    font-size: 13px;
+}
+
+.tableContainer table input {
+    font-size: 13px;
+}
+
 .tableContainer a, .tableContainer tbody tr td .unviewableSearch {
     color:#091D42;
     
@@ -263,6 +271,16 @@ body, input, select, textarea {
 .dynamic-table-filter{
 	margin:auto;
 }
+.tableContainer .dynamic-table-namebar th {
+    text-transform: capitalize;
+    color: #444;
+    font-size: 1.1em;
+    background: #f8f8ff;
+}
+.tableContainer .dynamic-table-namebar th:not(:first-child) {
+    border-left: 1px solid black;
+}
+
 .aggregateCheckbox{
 	width:2em;
     line-height: 1.2em;

@@ -13,18 +13,20 @@ CLMSUI.history = {
                 if (d3.select('#mySearches').property("checked")){
                  params =  "searches=MINE";
                     opt1 = {
+                 colNames: ["View Search", "Notes", "Validate", "Sequence", "Submit Date", "ID", "Agg Group", "Delete"],
                   colTypes: ["alpha","alpha","none", "alpha", "alpha","number","clearCheckboxes", "none"],
                   pager: {
-                  rowsCount: 20
+                    rowsCount: 20
                   }
                  };
                 }
                 else {
                  params =  "searches=ALL";
                  opt1 = {
+                  colNames: ["View Search", "Notes", "Validate", "Sequence", "Submit Date", "ID", "User", "Agg Group", "Delete"],
                   colTypes: ["alpha","alpha","none", "alpha", "alpha","number","alpha", "clearCheckboxes", "none"],
                   pager: {
-                  rowsCount: 20
+                    rowsCount: 20
                   }
                  };
         }
@@ -47,27 +49,17 @@ CLMSUI.history = {
             dataType: 'json',
             success: function(response, responseType, xmlhttp) {
                 if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    //console.log ("response", response, responseType);
+                    console.log ("response", response, responseType);
                     if (response.redirect) {
                         window.location.replace (response.redirect);
                     }
                     
-                    var d3sel = d3.select("#t1");
-                    d3sel.html(""); //
-                    var tbody = d3sel.append("tbody");
-                    //console.log ("rights", response.userRights);
-
                     d3.select("#username").text(response.user);
                     d3.select("#newSearch").style("display", response.userRights.canAddNewSearch ? null : "none");
                     d3.select("#scopeOptions").style("display", response.userRights.canSeeAll ? null : "none");
 
                     var userOnly = d3.select('#mySearches').property("checked");
-                    //console.log ("data", response.data);
-                    var rows = tbody.selectAll("tr").data(response.data)
-                        .enter()
-                        .append("tr")
-                    ;
-
+                    
                     var makeResultsLink = function (id, sid, php, label) {
                          return "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"'>"+label+"</a> "
                          + "<a id='"+id+"FDR' href='../xi3/"+php+"?sid="+sid+"&decoys=1&unval=1'>(with FDR)</a>";
@@ -77,16 +69,18 @@ CLMSUI.history = {
                          return "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"&unval=1'>"+label+"</a> "
                           + "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"&unval=1&linears=1'>(with Linears)</a>";
                     };
-
+                    
                     var tooltips = d3.map ([
                         {name: "notes", func: function(d) { return d.value["notes"]; }},
                         {name: "name", func: function(d) { return d.value["status"]; }},
                     ], function (d) { return d.name; });
+
                     var cellStyles = {
                         aggregate: "center",
                         name: "varWidthCell",
                         //file_name: "varWidthCell"
                     };
+      
                     var modifiers = {
                         name: function(d) { 
                             var name = d.status === "completed"
@@ -120,6 +114,22 @@ CLMSUI.history = {
                         }
                     };
                     
+
+                    
+                    d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
+                    
+                    var d3sel = d3.select("#t1");
+                    d3sel.html(""); //
+                    var tbody = d3sel.append("tbody");
+                    //console.log ("rights", response.userRights);
+
+
+                    //console.log ("data", response.data);
+                    var rows = tbody.selectAll("tr").data(response.data)
+                        .enter()
+                        .append("tr")
+                    ;
+                    
                     // make d3 entry style list of above, removing user_name if just user's own searches
                     var cellFunctions = d3.entries(modifiers);
                     if (userOnly) {
@@ -142,7 +152,7 @@ CLMSUI.history = {
                     if (response.data) {
                         dynTable = new DynamicTable("t1", opt1);
                     }
-                    d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
+                    
                     
                     //console.log ("dynTable", dynTable);
                     d3.selectAll("th").data(cellFunctions)
@@ -189,7 +199,7 @@ CLMSUI.history = {
                     ;
                 }
             }, 
-           error: function (response) {
+           error: function () {
                 console.log ("error", arguments);
                //window.location.href = "../../xi3/login.html";
            }

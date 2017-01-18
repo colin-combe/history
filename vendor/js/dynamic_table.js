@@ -40,8 +40,9 @@ function DynamicTable(obj, options){
     // allows to use "this"
     var oThis = this;
     this._toolbarClick = function(evt){	oThis.toolbarClick(evt); }
-    this._filterRows = function(evt){ oThis.filterRows(evt); }
+    this._filterRows = function(evt){ oThis.filterRows(evt); };
     this._pagerClick = function(evt){ oThis.pagerClick(evt); };
+    this._pagerInput = function(evt){ oThis.pagerInput(evt); };
 
     // table rows 
     this.rows = [];
@@ -54,6 +55,7 @@ function DynamicTable(obj, options){
     // option parsing
     this.opt = {};
     this.opt.colTypes = [];
+    this.opt.colNames = [];
 
     if (options != undefined){
 	if (options.filterFunction != undefined){
@@ -67,6 +69,8 @@ function DynamicTable(obj, options){
 	    if (options.pager.currentPage != undefined)
 		this.currentPage = options.pager.currentPage;
 	}
+    if (options.colNames != undefined)
+        this.opt.colNames = options.colNames;
 	if (options.colTypes != undefined)
 	    this.opt.colTypes = options.colTypes;
 	if (options.customTypes != undefined)
@@ -79,11 +83,24 @@ function DynamicTable(obj, options){
     // fill the rest of colTypes with default type
     for (var i = this.opt.colTypes.length, cl = this.cols.length; i < cl; i++)
 	this.opt.colTypes.push("alpha");
+    
+    // fill the rest of colNames with empty string
+    for (var i = this.opt.colNames.length, cl = this.cols.length; i < cl; i++)
+	this.opt.colNames.push("");
 
+    
+    this.namebar = document.createElement("tr");
+    this.namebar.className = "dynamic-table-namebar";
+    for (var i = 0; i < this.cols.length; i++){
+		var colName = document.createElement("th");
+        colName.innerHTML = this.opt.colNames[i];
+        this.namebar.appendChild(colName);
+    }
+    
     // toolbar
     this.toolbar = document.createElement("tr");
     this.toolbar.className = "dynamic-table-toolbar";
-
+    
     this.filters = [];
 
     // fill the toolbar
@@ -129,32 +146,36 @@ function DynamicTable(obj, options){
 
     // insert to table header at first place (using effects by options)
     if (this.opt.fadeCreate){
-	var tb = this.toolbar;
-	tb.style.visibility = "hidden";
+        var tb = this.toolbar;
+        tb.style.visibility = "hidden";
 
-	if (this.table.tHead)
-	    this.table.tHead.insertBefore(tb, this.table.tHead.rows[0]);
-	else {
-	    var thead = document.createElement("thead");
-	    this.table.tBodies[0].parentNode.insertBefore(thead, this.table.tBodies[0]);
-	    thead.appendChild(tb);
-	}
-	//	this.table.rows[0].parentNode.insertBefore(tb, this.table.rows[0]);
-	var sensitivity = (this.opt.fadeCreate.sensitivity) ? this.opt.fadeCreate.sensitivity : 1;
-	var opacity = (this.opt.fadeCreate.opacity) ? this.opt.fadeCreate.opacity : 10;
-	var duration = (this.opt.fadeCreate.duration) ? this.opt.fadeCreate.duration : 20;
-	DynamicTable.setOpacity(tb.style, opacity);
-	tb.style.visibility = "visible";
-	DynamicTable.fadeObject(tb.style, opacity, sensitivity, duration);
+        if (this.table.tHead) {
+            this.table.tHead.insertBefore(tb, this.table.tHead.rows[0]);
+            this.table.tHead.insertBefore(this.namebar, this.table.tHead.rows[0]);
+        } else {
+            var thead = document.createElement("thead");
+            this.table.tBodies[0].parentNode.insertBefore(thead, this.table.tBodies[0]);
+            thead.appendChild(this.namebar);
+            thead.appendChild(tb);
+        }
+        //	this.table.rows[0].parentNode.insertBefore(tb, this.table.rows[0]);
+        var sensitivity = (this.opt.fadeCreate.sensitivity) ? this.opt.fadeCreate.sensitivity : 1;
+        var opacity = (this.opt.fadeCreate.opacity) ? this.opt.fadeCreate.opacity : 10;
+        var duration = (this.opt.fadeCreate.duration) ? this.opt.fadeCreate.duration : 20;
+        DynamicTable.setOpacity(tb.style, opacity);
+        tb.style.visibility = "visible";
+        DynamicTable.fadeObject(tb.style, opacity, sensitivity, duration);
     } else {
-	if (this.table.tHead)
-	    this.table.tHead.insertBefore(this.toolbar, this.table.tHead.rows[0]);
-	else {
-	    var thead = document.createElement("thead");
-	    this.table.tBodies[0].parentNode.insertBefore(thead, this.table.tBodies[0]);
-	    thead.appendChild(this.toolbar);
-	}
-	//	this.table.rows[0].parentNode.insertBefore(this.toolbar, this.table.rows[0]);
+        if (this.table.tHead) {
+            this.table.tHead.insertBefore(this.toolbar, this.table.tHead.rows[0]);
+            this.table.tHead.insertBefore(this.namebar, this.table.tHead.rows[0]);
+        } else {
+            var thead = document.createElement("thead");
+            this.table.tBodies[0].parentNode.insertBefore(thead, this.table.tBodies[0]);
+            thead.appendChild(this.namebar);
+            thead.appendChild(this.toolbar);
+        }
+        //	this.table.rows[0].parentNode.insertBefore(this.toolbar, this.table.rows[0]);
     }
 
     // insert pager navigation as next row in Footage or create new Footage
@@ -164,11 +185,30 @@ function DynamicTable(obj, options){
 	    t_foot = this.table.tFoot;
 	else
 	    t_foot = this.table.createTFoot();
+        
+    
 	this.pagerBar = document.createElement("tr");
 	var pbTD = document.createElement("td");
 	pbTD.className = "dynamic-table-pagerbar";
 	//    pbTD.colspan = "" + this.cols.length;	// is not working
 	pbTD.setAttribute("colspan", this.cols.length);
+      
+    var span = document.createElement("span");
+    span.setAttribute ("class", "pageInput");
+    var input = document.createElement("input");
+    input.setAttribute ("type", "number"); 
+    input.setAttribute ("length", 3);
+    input.setAttribute ("min", 1);
+    input.setAttribute ("value", 1);
+    span.appendChild(input);
+    var totSpan = document.createElement("span");
+    totSpan.setAttribute ("class", "pageTotal");
+        
+    DynamicTableEvent.observe(input, "input", this._pagerInput);
+    pbTD.appendChild(span);
+    pbTD.appendChild(totSpan);
+        
+    /*
 	var a = null;
 	for (var i = 0, rl = Math.ceil(this.rows.length / this.maxRowCount); i < rl; ++i){
 	    a = document.createElement("a");
@@ -176,8 +216,10 @@ function DynamicTable(obj, options){
 	    a.appendChild(document.createTextNode(i + 1));
 	    a.href = "#dt_page_" + (i + 1);
 	    DynamicTableEvent.observe(a, "click", this._pagerClick);
+        
 	    pbTD.appendChild(a);
 	}
+    */
 
 	//!//TODO: element to change number of rows for pager dynamically
 	//    var td = document.createElement("input");
@@ -186,7 +228,9 @@ function DynamicTable(obj, options){
 	//    pbTD.appendChild(td);
 
 	this.pagerBar.appendChild(pbTD);
-	t_foot.appendChild(this.pagerBar);
+    //var pageHolder = t_foot;
+    var pageHolder = this.table.tHead;
+	pageHolder.insertBefore(this.pagerBar, pageHolder.firstChild);
 
 	this.pager(this.currentPage);
     }
@@ -198,7 +242,7 @@ DynamicTable.prototype.tableMouseOut = function(evt){
     if (el.tagName != "TABLE")
 	return;
     DynamicTable.destroy(this);	
-}
+};
 
 /**
  * Browser recognizer
@@ -246,7 +290,17 @@ DynamicTable.prototype.pagerClick = function(evt){
     var el = evt.target || evt.srcElement;
     this.currentPage = parseInt(el.href.substring(el.href.lastIndexOf("dt_page_") + "dt_page_".length));
     this.pager(this.currentPage);
-}
+};
+
+/* Pager input number handler */
+DynamicTable.prototype.pagerInput = function(evt){
+    var el = evt.target || evt.srcElement;
+    var val = el.value;
+    if (val) {
+        this.currentPage = +val;
+        this.pager(this.currentPage);
+    }
+};
 
 /**
  * @return
@@ -286,15 +340,20 @@ DynamicTable.prototype.pager = function(page){
     var p_count = Math.ceil(this.rows.length / this.maxRowCount);	// pages count
     var p_cur_count = Math.ceil(showed_rows_count / this.maxRowCount);	// current pages count
 
-    for (var i = 0; i < p_count; i++){
-	this.pagerBar.childNodes[0].childNodes[i].style.visibility = "visible";
-	this.pagerBar.childNodes[0].childNodes[i].className = "dynamic-table-page-selector";	// set old class to all selectors
-	if (i >= p_cur_count || p_cur_count == 1)
-	    this.pagerBar.childNodes[0].childNodes[i].style.visibility = "hidden";
-    }
+    var pageTotalSpans = this.table.getElementsByClassName("pageTotal");
+    pageTotalSpans[0].innerHTML = p_cur_count.toString();
+    
+    var pageInput = this.table.getElementsByClassName("pageInput")[0].childNodes[0].value = page;
+    
+   // for (var i = 0; i < p_count; i++){
+	//this.pagerBar.childNodes[0].childNodes[i].style.visibility = "visible";
+	//this.pagerBar.childNodes[0].childNodes[i].className = "dynamic-table-page-selector";	// set old class to all selectors
+	//if (i >= p_cur_count || p_cur_count == 1)
+	//    this.pagerBar.childNodes[0].childNodes[i].style.visibility = "hidden";
+   // }
 
     // "selected" class for selected selector
-    this.pagerBar.childNodes[0].childNodes[this.currentPage - 1].className = "dynamic-table-page-selected";
+    //this.pagerBar.childNodes[0].childNodes[this.currentPage - 1].className = "dynamic-table-page-selected";
 }
 
 /**
@@ -322,10 +381,12 @@ DynamicTable.prototype.filterRows = function(evt){
 	    for (var j = 0, fl = this.filters.length; j < fl; j++){
 		if (this.filters[j] == "none")
 		    continue;
-		var text = this.rowCells(tRows[i])[j].innerHTML;
-		if (this.filterFunction(text, this.filters[j].value) == -1)
+		  var text = this.rowCells(tRows[i])[j].innerHTML;
+		  if (this.filterFunction(text, this.filters[j].value) == -1) {
 		    bPush = false;
-	    }
+            break;
+          }
+	   }
 	    if (bPush)
 		newRows.push(tRows[i]);		
 	    else
