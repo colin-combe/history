@@ -19,7 +19,7 @@ var dTables = [];
  *   a table element itself
  * @param options custom options
  */
-function DynamicTable(obj, options){
+function DynamicTable (obj, options){
     this.table = (typeof obj == "string") ? document.getElementById(obj) : obj;
     // prevent of creating more than one DynamicTables on same element 
     for (var i = 0, dtl = dTables.length; i < dtl; i++)
@@ -88,6 +88,7 @@ function DynamicTable(obj, options){
     for (var i = this.opt.colNames.length, cl = this.cols.length; i < cl; i++)
 	this.opt.colNames.push("");
 
+    this.opt.pagerElem = options.pagerElem;
     
     this.namebar = document.createElement("tr");
     this.namebar.className = "dynamic-table-namebar";
@@ -108,17 +109,9 @@ function DynamicTable(obj, options){
 		var colTools = document.createElement("th");
 		colTools.className = "tool-" + (i + 1);
 		
-		if (this.opt.colTypes[i] == "clearCheckboxes"){
-			// button to clear aggregation checkboxes
-			var clearBtn = document.createElement("button");
-			//~ toolBtn.src = blank_image_src;
-			clearBtn.innerHTML = "Clear";
-			clearBtn.className = "btn btn-1 btn-1a clearChx unpadButton";
-			clearBtn.onclick = function (){
-				CLMSUI.history.clearAggregationCheckboxes();
-			}
-			colTools.appendChild(clearBtn);
-				
+  var possBespokeSetup = options.bespokeColumnSetups ? options.bespokeColumnSetups [this.opt.colTypes[i]] : null;
+		if (possBespokeSetup) {
+      possBespokeSetup (this, colTools);	
 		}
 		else if (this.opt.colTypes[i] != "none"){
 			// input filter
@@ -180,59 +173,58 @@ function DynamicTable(obj, options){
 
     // insert pager navigation as next row in Footage or create new Footage
     if (options && options.pager){
-	var t_foot = null;
-	if (this.table.tFoot)
-	    t_foot = this.table.tFoot;
-	else
-	    t_foot = this.table.createTFoot();
-        
+         var t_foot = null;
+         if (this.table.tFoot)
+             t_foot = this.table.tFoot;
+         else
+             t_foot = this.table.createTFoot();
     
-	this.pagerBar = document.createElement("tr");
-	var pbTD = document.createElement("td");
-	pbTD.className = "dynamic-table-pagerbar";
-	//    pbTD.colspan = "" + this.cols.length;	// is not working
-	pbTD.setAttribute("colspan", this.cols.length);
-      
-    var span = document.createElement("span");
-    span.setAttribute ("class", "pageInput");
-    var input = document.createElement("input");
-    input.setAttribute ("type", "number"); 
-    input.setAttribute ("length", 3);
-    input.setAttribute ("min", 1);
-    input.setAttribute ("value", 1);
-    span.appendChild(input);
-    var totSpan = document.createElement("span");
-    totSpan.setAttribute ("class", "pageTotal");
-        
-    DynamicTableEvent.observe(input, "input", this._pagerInput);
-    pbTD.appendChild(span);
-    pbTD.appendChild(totSpan);
-        
-    /*
-	var a = null;
-	for (var i = 0, rl = Math.ceil(this.rows.length / this.maxRowCount); i < rl; ++i){
-	    a = document.createElement("a");
-	    a.className = "dynamic-table-page-selector";
-	    a.appendChild(document.createTextNode(i + 1));
-	    a.href = "#dt_page_" + (i + 1);
-	    DynamicTableEvent.observe(a, "click", this._pagerClick);
-        
-	    pbTD.appendChild(a);
-	}
-    */
+         this.pagerBar = document.createElement("tr");
+         var pbTD = document.createElement("td");
+         pbTD.className = "dynamic-table-pagerbar";
+         //    pbTD.colspan = "" + this.cols.length;	// is not working
+         pbTD.setAttribute("colspan", this.cols.length);
 
-	//!//TODO: element to change number of rows for pager dynamically
-	//    var td = document.createElement("input");
-	//    td.id = "numberOfRows";
-	//    td.value = "10";
-	//    pbTD.appendChild(td);
+        var span = document.createElement("span");
+        span.setAttribute ("class", "pageInput");
+        var input = document.createElement("input");
+        input.setAttribute ("type", "number"); 
+        input.setAttribute ("length", 3);
+        input.setAttribute ("min", 1);
+        input.setAttribute ("value", 1);
+        span.appendChild(input);
+        var totSpan = document.createElement("span");
+        totSpan.setAttribute ("class", "pageTotal");
 
-	this.pagerBar.appendChild(pbTD);
-    //var pageHolder = t_foot;
-    var pageHolder = this.table.tHead;
-	pageHolder.insertBefore(this.pagerBar, pageHolder.firstChild);
+        DynamicTableEvent.observe(input, "input", this._pagerInput);
+        pbTD.appendChild(span);
+        pbTD.appendChild(totSpan);
 
-	this.pager(this.currentPage);
+            /*
+         var a = null;
+         for (var i = 0, rl = Math.ceil(this.rows.length / this.maxRowCount); i < rl; ++i){
+             a = document.createElement("a");
+             a.className = "dynamic-table-page-selector";
+             a.appendChild(document.createTextNode(i + 1));
+             a.href = "#dt_page_" + (i + 1);
+             DynamicTableEvent.observe(a, "click", this._pagerClick);
+
+             pbTD.appendChild(a);
+         }
+            */
+
+         //!//TODO: element to change number of rows for pager dynamically
+         //    var td = document.createElement("input");
+         //    td.id = "numberOfRows";
+         //    td.value = "10";
+         //    pbTD.appendChild(td);
+
+         this.pagerBar.appendChild(pbTD);
+         // insert into pagerElem if defined or else tfoot.
+         var pageHolder = this.opt.pagerElem ? this.opt.pagerElem : this.table.tFoot;
+         pageHolder.insertBefore (this.pagerBar, pageHolder.firstChild);
+
+         this.pager(this.currentPage);
     }
 }
 
@@ -340,10 +332,10 @@ DynamicTable.prototype.pager = function(page){
     var p_count = Math.ceil(this.rows.length / this.maxRowCount);	// pages count
     var p_cur_count = Math.ceil(showed_rows_count / this.maxRowCount);	// current pages count
 
-    var pageTotalSpans = this.table.getElementsByClassName("pageTotal");
+    var pageAncestor = this.opt.pagerElem ? this.opt.pagerElem : this.table;
+    var pageTotalSpans = pageAncestor.getElementsByClassName("pageTotal");
     pageTotalSpans[0].innerHTML = p_cur_count.toString();
-    
-    var pageInput = this.table.getElementsByClassName("pageInput")[0].childNodes[0].value = page;
+    var pageInput = pageAncestor.getElementsByClassName("pageInput")[0].childNodes[0].value = page;
     
    // for (var i = 0; i < p_count; i++){
 	//this.pagerBar.childNodes[0].childNodes[i].style.visibility = "visible";

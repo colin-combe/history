@@ -6,13 +6,27 @@ CLMSUI.history = {
        var dynTable;
        d3.selectAll("button").classed("btn btn-1 btn-1a", true);
        DynamicTable.destroy("t1");
-       d3.select("#t1").html("");
+       d3.selectAll("#t1, #pagerTable").html("");
 
        var params;
        var opt1 = {
            pager: {rowsCount: 20},
+           pagerElem: d3.select("#pagerTable").node(),
            colNames: ["View Search", "Notes", "Validate", "Sequence", "Submit Date", "ID", "User", "Agg Group", "Delete"],
            colTypes: ["alpha", "alpha", "none", "alpha", "alpha", "number", "alpha", "clearCheckboxes", "none"],
+           bespokeColumnSetups: {
+               clearCheckboxes: function (dynamicTable, elem) {
+                    // button to clear aggregation checkboxes
+                   d3.select(elem)
+                        .append("button")
+                        .text ("Clear")
+                        .attr ("class", "btn btn-1 btn-1a clearChx unpadButton")
+                        .on ("click", function () {
+                            CLMSUI.history.clearAggregationCheckboxes();
+                        })
+                   ;
+               }
+           },
        };
        
        if (d3.select('#mySearches').property("checked")){
@@ -58,7 +72,7 @@ CLMSUI.history = {
                          + "<a id='"+id+"FDR' href='../xi3/"+php+"?sid="+sid+"&decoys=1&unval=1'>(with FDR)</a>";
                     };
 
-					var makeValidationLink = function (id, sid, php, label) {
+					               var makeValidationLink = function (id, sid, php, label) {
                          return "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"&unval=1'>"+label+"</a> "
                           + "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"&unval=1&linears=1'>(with Linears)</a>";
                     };
@@ -66,12 +80,26 @@ CLMSUI.history = {
                     var tooltips = d3.map ([
                         {name: "notes", func: function(d) { return d.value["notes"]; }},
                         {name: "name", func: function(d) { return d.value["status"]; }},
+                        {name: "file_name", func: function(d) { return d.value["file_name"]; }},
                     ], function (d) { return d.name; });
 
                     var cellStyles = {
                         aggregate: "center",
                         name: "varWidthCell",
-                        //file_name: "varWidthCell"
+                        validate: "varWidthCell2",
+                        file_name: "varWidthCell2",
+                    };
+                    
+                    var cellWidths = {
+                        //name: "20em",
+                        notes: "8em",
+                        //validate: "10em",
+                        //file_name: "15em",
+                        submit_date: "10em",
+                        id: "4em",
+                        user_name: "6em",
+                        aggregate: "6em",
+                        delete: "5em",
                     };
       
                     var modifiers = {
@@ -92,7 +120,7 @@ CLMSUI.history = {
                             return makeValidationLink(d.name, d.id+"-"+d.random_id, "validate.php", "validate");
                         },
                         file_name: function (d) {
-                            return d.file_name;
+                            return d.file_name.slice(1,-1); // remove brackets returned by sql query
                         },
                         submit_date: function(d) {
                             return d.submit_date.substring(0, d.submit_date.indexOf("."));
@@ -153,6 +181,13 @@ CLMSUI.history = {
                         .each (function(d) {
                             var klass = cellStyles[d.key];
                             d3.select(this).classed (klass, true);
+                        })
+                    ;
+                    d3.selectAll("th").data(cellFunctions)
+                        .filter (function(d) { return cellWidths[d.key]; })
+                        .each (function(d) {
+                            var width = cellWidths[d.key];
+                            d3.select(this).style("width", width);
                         })
                     ;
                     d3.selectAll("tbody tr").select("button.deleteButton")
