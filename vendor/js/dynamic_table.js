@@ -373,24 +373,31 @@ DynamicTable.prototype.filterRows = function(evt){
 
 	var newRows = [];
 	this.rmRows = [];	// initialize rmRows
-
+    
+// Get active filters once, rather than per row
+ var activeFilters = [];
+ for (var j = 0, fl = this.filters.length; j < fl; j++){
+     if (this.filters[j] !== "none" && this.filters[j].value !== "") {
+         activeFilters.push ({filterVal: this.filters[j].value.toLowerCase(), colIndex: j});
+     }
+ }
+    
 	for (var i = 0, trl = tRows.length; i < trl; i++){
 	    tRows[i].style.display = "";
 
 	    var bPush = true;
-	    for (var j = 0, fl = this.filters.length; j < fl; j++){
-		if (this.filters[j] == "none")
-		    continue;
-		  var text = this.rowCells(tRows[i])[j].innerHTML;
-		  if (this.filterFunction(text, this.filters[j].value) == -1) {
-		    bPush = false;
+	    for (var j = 0, fl = activeFilters.length; j < fl; j++){
+        var colIndex = activeFilters[j].colIndex;
+		      var text = this.rowCells(tRows[i])[colIndex].innerHTML;
+		      if (this.filterFunction (text, activeFilters[j].filterVal) == -1) {
+            bPush = false;
             break;
-          }
+        }
 	   }
-	    if (bPush)
-		newRows.push(tRows[i]);		
-	    else
-		this.rmRows.push(tRows[i]);
+	   if (bPush)
+		      newRows.push(tRows[i]);		
+	   else
+		      this.rmRows.push(tRows[i]);
 	}
 
 	// append not filtered rows to tree
@@ -689,8 +696,9 @@ DynamicTable.prototype.sortFunctions = {
 };
 
 // pre-defined function that filter rows
+// pass in b as already lowerCase (filter value) so it's done once rather than thousands of times
 DynamicTable.prototype.filterFunction = function(a, b){
-    return a.toLowerCase().search(b.toLowerCase());
+    return a.toLowerCase().search(b);
 }
 
 window.DynamicTable = DynamicTable;

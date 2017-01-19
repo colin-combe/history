@@ -3,33 +3,26 @@ var CLMSUI = CLMSUI || {};
 CLMSUI.history = { 			
 		
 			loadSearchList: function () {		
-                var dynTable;
-                d3.selectAll("button").classed("btn btn-1 btn-1a", true);
-                        DynamicTable.destroy("t1");
-                        d3.select("#t1").html("");
+       var dynTable;
+       d3.selectAll("button").classed("btn btn-1 btn-1a", true);
+       DynamicTable.destroy("t1");
+       d3.select("#t1").html("");
 
-                var params;
-                var opt1;
-                if (d3.select('#mySearches').property("checked")){
-                 params =  "searches=MINE";
-                    opt1 = {
-                 colNames: ["View Search", "Notes", "Validate", "Sequence", "Submit Date", "ID", "Agg Group", "Delete"],
-                  colTypes: ["alpha","alpha","none", "alpha", "alpha","number","clearCheckboxes", "none"],
-                  pager: {
-                    rowsCount: 20
-                  }
-                 };
-                }
-                else {
-                 params =  "searches=ALL";
-                 opt1 = {
-                  colNames: ["View Search", "Notes", "Validate", "Sequence", "Submit Date", "ID", "User", "Agg Group", "Delete"],
-                  colTypes: ["alpha","alpha","none", "alpha", "alpha","number","alpha", "clearCheckboxes", "none"],
-                  pager: {
-                    rowsCount: 20
-                  }
-                 };
-        }
+       var params;
+       var opt1 = {
+           pager: {rowsCount: 20},
+           colNames: ["View Search", "Notes", "Validate", "Sequence", "Submit Date", "ID", "User", "Agg Group", "Delete"],
+           colTypes: ["alpha", "alpha", "none", "alpha", "alpha", "number", "alpha", "clearCheckboxes", "none"],
+       };
+       
+       if (d3.select('#mySearches').property("checked")){
+           params = "searches=MINE";
+           var removeIndex = opt1.colNames.indexOf ("User");
+           opt1.colNames.splice (removeIndex, 1);
+           opt1.colTypes.splice (removeIndex, 1);
+       } else {
+           params = "searches=ALL";
+       }
                 
         if (d3.select(".container #clmsErrorBox").empty()) {
             d3.select(".container")
