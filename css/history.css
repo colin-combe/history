@@ -118,7 +118,7 @@ tbody tr:hover, .spectrumShown {
     transition: all 300ms ease;
     
 }
-tbody tr:hover, tbody tr:hover td, tbody tr:hover td a, .spectrumShown{
+tbody tr:hover, tbody tr:hover td, tbody tr:hover td a, tbody tr:hover td .unviewableSearch, .spectrumShown {
     color: #fff;
     
     -webkit-transition: all 300ms ease;
@@ -196,7 +196,7 @@ body, input, select, textarea {
     font-size: 0.75em;
 }
 
-.tableContainer a, .tableContainer tbody tr td .unviewableSearch {
+.tableContainer a, tbody tr td .unviewableSearch {
     color:#091D42;
     
     -webkit-transition: all 300ms ease-in-out;
@@ -206,7 +206,7 @@ body, input, select, textarea {
     transition: all 300ms ease-in-out;
 }
 
-.tableContainer tbody tr td,  .tableContainer tr th {
+.tableContainer tbody tr td, .tableContainer tr th {
      color:#aaa;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -234,18 +234,6 @@ body, input, select, textarea {
     /*max-width: 5em;*/
     white-space: nowrap;
 }
-
-.tableContainer tbody tr:hover td .unviewableSearch {
-    color: #fff;
-    /*background-color: #091D42;*/
-    
-    -webkit-transition: all 300ms ease-in-out;
-    -moz-transition: all 300ms ease-in-out;
-    -ms-transition: all 300ms ease-in-out;
-    -o-transition: all 300ms ease-in-out;
-    transition: all 300ms ease-in-out;
-}
-
 
 .clearChx{
 	background:#091D42;
