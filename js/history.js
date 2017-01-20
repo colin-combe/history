@@ -2,7 +2,7 @@ var CLMSUI = CLMSUI || {};
 
 CLMSUI.history = { 			
 		
-			loadSearchList: function () {		
+    loadSearchList: function () {		
        var dynTable;
        d3.selectAll("button").classed("btn btn-1 btn-1a", true);
        DynamicTable.destroy("t1");
@@ -115,11 +115,11 @@ CLMSUI.history = {
                             var error = d.status.substring(0,4) === "XiDB";
                             var sp1 = error ? "<span class='xierror'>" : "";
                             var sp2 = error ? "</span>" : "";
-                            return name + sp1 + " ["+d.status.substring(0,16)+"]" + sp2 + "<div style='display:none'>"+d.status+"</div>"; 
+                            return name + sp1 + " ["+d.status.substring(0,16)+"]" + sp2 + (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>"); 
                         },
                         fdr: function (d) {
-                            var error = d.status.substring(0,4) === "XiDB";
-                            return error || d.status !== "completed" ? "" : makeResultsLink (d.id+"-"+d.random_id, "&decoys=1&unval=1", "+FDR");
+                            var unuseable = d.status.substring(0,4) === "XiDB" || d.status !== "completed";
+                            return unuseable ? "" : makeResultsLink (d.id+"-"+d.random_id, "&decoys=1&unval=1", "+FDR");
                         },
                         notes: function (d) {
                             // Let fixed column width take care of only showing the first few characters
@@ -166,7 +166,7 @@ CLMSUI.history = {
                     // make d3 entry style list of above, removing user_name if just user's own searches
                     var cellFunctions = d3.entries(modifiers);
                     if (userOnly) {
-                        var removeIndex = opt1.colNames.indexOf ("User");
+                        var removeIndex = cellFunctions.map(function(cellf) { return cellf.key; }).indexOf ("user_name");
                         cellFunctions.splice (removeIndex, 1);
                     }
 
