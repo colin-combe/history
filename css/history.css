@@ -232,7 +232,7 @@ body, input, select, textarea {
     width: 15%;
     min-width: 2em;
     /*max-width: 5em;*/
-    white-space: normal;
+    white-space: nowrap;
 }
 
 .tableContainer tbody tr:hover td .unviewableSearch {
