@@ -32,20 +32,8 @@
     letter-spacing: 1px;
     font-weight: 300;
     outline: 0;
-    -webkit-transition: all .3s;
-    -moz-transition: all .3s;
-    -o-transition: all .3s;
-    transition: all .3s;
 }
-.btn:after {
-    content: '';
-    position: absolute;
-    z-index: -1;
-    -webkit-transition: all .3s;
-    -moz-transition: all .3s;
-    -o-transition: all .3s;
-    transition: all .3s;
-}
+
 .btn-1 {
     border: 1px solid #fff;
     color: #fff;
@@ -82,12 +70,6 @@ td{
 	padding-right:5px;
     vertical-align: middle; 
     text-align: left;
-    
-    -webkit-transition: all 1000ms ease;
-    -moz-transition: all 1000ms ease;
-    -ms-transition: all 1000ms ease;
-    -o-transition: all 1000ms ease;
-    transition: all 1000ms ease;
 }
 th:first-child{
 	padding-left:10px;
@@ -103,29 +85,12 @@ td:last-child{
 }
 tbody tr {
     background-color: #fff;
-        -webkit-transition: all 300ms ease;
-    -moz-transition: all 300ms ease;
-    -ms-transition: all 300ms ease;
-    -o-transition: all 300ms ease;
-    transition: all 300ms ease;
 }
-tbody tr:hover, .spectrumShown {
-    background-color: #091D42;
-    -webkit-transition: all 300ms ease;
-    -moz-transition: all 300ms ease;
-    -ms-transition: all 300ms ease;
-    -o-transition: all 300ms ease;
-    transition: all 300ms ease;
-    
+tbody tr:hover {
+    background-color: #091D42;   
 }
-tbody tr:hover, tbody tr:hover td, tbody tr:hover td a, tbody tr:hover td .unviewableSearch, .spectrumShown {
+tbody tr:hover, tbody tr:hover td, tbody tr:hover td a, tbody tr:hover td .unviewableSearch {
     color: #fff;
-    
-    -webkit-transition: all 300ms ease;
-    -moz-transition: all 300ms ease;
-    -ms-transition: all 300ms ease;
-    -o-transition: all 300ms ease;
-    transition: all 300ms ease;
 }
 
 
@@ -198,12 +163,6 @@ body, input, select, textarea {
 
 .tableContainer a, tbody tr td .unviewableSearch {
     color:#091D42;
-    
-    -webkit-transition: all 300ms ease-in-out;
-    -moz-transition: all 300ms ease-in-out;
-    -ms-transition: all 300ms ease-in-out;
-    -o-transition: all 300ms ease-in-out;
-    transition: all 300ms ease-in-out;
 }
 
 .tableContainer tbody tr td, .tableContainer tr th {
@@ -213,12 +172,6 @@ body, input, select, textarea {
     min-width: 5em;
     white-space: nowrap;
     vertical-align: top;
-    
-    -webkit-transition: all 300ms ease-in-out;
-    -moz-transition: all 300ms ease-in-out;
-    -ms-transition: all 300ms ease-in-out;
-    -o-transition: all 300ms ease-in-out;
-    transition: all 300ms ease-in-out;
 }
 
 .tableContainer tbody tr td.varWidthCell, .tableContainer tr th.varWidthCell {
