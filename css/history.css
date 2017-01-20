@@ -212,6 +212,7 @@ body, input, select, textarea {
     overflow: hidden;
     min-width: 5em;
     white-space: nowrap;
+    vertical-align: top;
     
     -webkit-transition: all 300ms ease-in-out;
     -moz-transition: all 300ms ease-in-out;
@@ -263,6 +264,10 @@ body, input, select, textarea {
 }
 .tableContainer .dynamic-table-namebar th:not(:first-child) {
     border-left: 1px solid black;
+}
+
+.tableContainer .dynamic-table-namebar th.dottedBorder {
+    border-left: 1px dashed black;
 }
 
 .aggregateCheckbox{

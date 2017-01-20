@@ -12,8 +12,8 @@ CLMSUI.history = {
        var opt1 = {
            pager: {rowsCount: 20},
            pagerElem: d3.select("#pagerTable").node(),
-           colNames: ["View Search", "Notes", "Validate", "Sequence", "Submit Date", "ID", "User", "Agg Group", "Delete"],
-           colTypes: ["alpha", "alpha", "none", "alpha", "alpha", "number", "alpha", "clearCheckboxes", "none"],
+           colNames: ["Visualise Search", "+FDR", "Notes", "Validate", "+Linears", "Sequence", "Submit Date", "ID", "User", "Agg Group", "Delete"],
+           colTypes: ["alpha", "none", "alpha", "none", "none", "alpha", "alpha", "number", "alpha", "clearCheckboxes", "none"],
            bespokeColumnSetups: {
                clearCheckboxes: function (dynamicTable, elem) {
                     // button to clear aggregation checkboxes
@@ -67,14 +67,12 @@ CLMSUI.history = {
 
                     var userOnly = d3.select('#mySearches').property("checked");
                     
-                    var makeResultsLink = function (id, sid, php, label) {
-                         return "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"'>"+label+"</a> "
-                         + "<a id='"+id+"FDR' href='../xi3/"+php+"?sid="+sid+"&decoys=1&unval=1'>(with FDR)</a>";
+                    var makeResultsLink = function (sid, params, label) {
+                         return "<a href='../xi3/network.php?sid="+sid+params+"'>"+label+"</a>";
                     };
 
-					               var makeValidationLink = function (id, sid, php, label) {
-                         return "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"&unval=1'>"+label+"</a> "
-                          + "<a id='"+id+"' href='../xi3/"+php+"?sid="+sid+"&unval=1&linears=1'>(with Linears)</a>";
+				    var makeValidationLink = function (sid, params, label) {
+                         return "<a href='../xi3/validate.php?sid="+sid+params+"'>"+label+"</a>";
                     };
                     
                     var tooltips = d3.map ([
@@ -85,15 +83,21 @@ CLMSUI.history = {
 
                     var cellStyles = {
                         aggregate: "center",
-                        name: "varWidthCell",
-                        validate: "varWidthCell2",
+                        name: "varWidthCell", 
                         file_name: "varWidthCell2",
+                    };
+                    
+                    var cellHeaderOnlyStyles = {
+                        fdr: "dottedBorder",  
+                        valLinears: "dottedBorder",
                     };
                     
                     var cellWidths = {
                         //name: "20em",
                         notes: "8em",
-                        //validate: "10em",
+                        fdr: "4em",
+                        validate: "5em",
+                        valLinears: "5em",
                         //file_name: "15em",
                         submit_date: "10em",
                         id: "4em",
@@ -105,7 +109,7 @@ CLMSUI.history = {
                     var modifiers = {
                         name: function(d) { 
                             var name = d.status === "completed"
-                                ? makeResultsLink(d.name, d.id+"-"+d.random_id, "network.php", d.name)
+                                ? makeResultsLink (d.id+"-"+d.random_id, "", d.name)
                                 : "<span class='unviewableSearch'>"+d.name+"</span>"
                             ;
                             var error = d.status.substring(0,4) === "XiDB";
@@ -113,11 +117,19 @@ CLMSUI.history = {
                             var sp2 = error ? "</span>" : "";
                             return name + sp1 + " ["+d.status.substring(0,16)+"]" + sp2 + "<div style='display:none'>"+d.status+"</div>"; 
                         },
+                        fdr: function (d) {
+                            var error = d.status.substring(0,4) === "XiDB";
+                            return error || d.status !== "completed" ? "" : makeResultsLink (d.id+"-"+d.random_id, "&decoys=1&unval=1", "+FDR");
+                        },
                         notes: function (d) {
-                            return d.notes ? d.notes.substring(0,16)+"<div style='display:none'>"+d.notes+"</div>" : "";
+                            // Let fixed column width take care of only showing the first few characters
+                            return d.notes; // ? d.notes.substring(0,16)+"<div style='display:none'>"+d.notes+"</div>" : "";
                         },
                         validate: function(d) {
-                            return makeValidationLink(d.name, d.id+"-"+d.random_id, "validate.php", "validate");
+                            return makeValidationLink (d.id+"-"+d.random_id, "&unval=1", "validate");
+                        },
+                        valLinears:  function(d) {
+                            return makeValidationLink (d.id+"-"+d.random_id, "&unval=1&linears=1", "+Linears");
                         },
                         file_name: function (d) {
                             return d.file_name.slice(1,-1); // remove brackets returned by sql query
@@ -154,7 +166,8 @@ CLMSUI.history = {
                     // make d3 entry style list of above, removing user_name if just user's own searches
                     var cellFunctions = d3.entries(modifiers);
                     if (userOnly) {
-                        cellFunctions.splice (6, 1);
+                        var removeIndex = opt1.colNames.indexOf ("User");
+                        cellFunctions.splice (removeIndex, 1);
                     }
 
                     var cells = rows.selectAll("td").data(function(d) { 
@@ -169,25 +182,33 @@ CLMSUI.history = {
                             return d.value["id"]+": "+tooltips.get(d.key).func(d);
                         })
                     ;
+                    
+                    /* Everything up to this point helps generates the dynamic table */
 
                     if (response.data) {
                         dynTable = new DynamicTable("t1", opt1);
                     }
                     
+                    /* Everything after this point includes content generated by the dynamic table */
                     
                     //console.log ("dynTable", dynTable);
-                    d3.selectAll("th").data(cellFunctions)
+                    var headers = d3.selectAll("th").data(cellFunctions);
+                    headers
                         .filter (function(d) { return cellStyles[d.key]; })
                         .each (function(d) {
-                            var klass = cellStyles[d.key];
-                            d3.select(this).classed (klass, true);
+                            d3.select(this).classed (cellStyles[d.key], true);
                         })
                     ;
-                    d3.selectAll("th").data(cellFunctions)
+                    headers
+                        .filter (function(d) { return cellHeaderOnlyStyles[d.key]; })
+                        .each (function(d) {
+                            d3.select(this).classed (cellHeaderOnlyStyles[d.key], true);
+                        })
+                    ;
+                    headers
                         .filter (function(d) { return cellWidths[d.key]; })
                         .each (function(d) {
-                            var width = cellWidths[d.key];
-                            d3.select(this).style("width", width);
+                            d3.select(this).style("width", cellWidths[d.key]);
                         })
                     ;
                     d3.selectAll("tbody tr").select("button.deleteButton")
