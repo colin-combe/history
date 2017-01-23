@@ -6,6 +6,8 @@ CLMSUI.history = {
        var dynTable;
        d3.selectAll("button").classed("btn btn-1 btn-1a", true);
        DynamicTable.destroy("t1");
+        
+        //$("#t1, #pagerTable").empty();
        d3.selectAll("#t1, #pagerTable").html("");
 
        var params;
@@ -75,11 +77,12 @@ CLMSUI.history = {
                          return "<a href='../xi3/validate.php?sid="+sid+params+"'>"+label+"</a>";
                     };
                     
-                    var tooltips = d3.map ([
-                        {name: "notes", func: function(d) { return d.value["notes"]; }},
-                        {name: "name", func: function(d) { return d.value["status"]; }},
-                        {name: "file_name", func: function(d) { return d.value["file_name"]; }},
-                    ], function (d) { return d.name; });
+                    
+                    var tooltips = {
+                        notes: function(d) { return d.value.notes; },
+                        name: function(d) { return d.value.status; },
+                        file_name: function(d) { return d.value.file_name; },
+                    };
 
                     var cellStyles = {
                         aggregate: "center",
@@ -108,14 +111,14 @@ CLMSUI.history = {
       
                     var modifiers = {
                         name: function(d) { 
-                            var name = d.status === "completed"
+                            var completed = d.status === "completed";
+                            var name = completed
                                 ? makeResultsLink (d.id+"-"+d.random_id, "", d.name)
                                 : "<span class='unviewableSearch'>"+d.name+"</span>"
                             ;
-                            var error = d.status.substring(0,4) === "XiDB";
-                            var sp1 = error ? "<span class='xierror'>" : "";
-                            var sp2 = error ? "</span>" : "";
-                            return name + sp1 + " ["+d.status.substring(0,16)+"]" + sp2 + (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>"); 
+                            var error = !completed && d.status.substring(0,4) === "XiDB";
+                            return name + (error ? "<span class='xierror'>" : "") + " ["+d.status.substring(0,16)+"]" + (error ? "</span>" : "") + 
+                                (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>"); 
                         },
                         fdr: function (d) {
                             var unuseable = d.status.substring(0,4) === "XiDB" || d.status !== "completed";
@@ -152,12 +155,12 @@ CLMSUI.history = {
                     d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
                     
                     var d3sel = d3.select("#t1");
-                    d3sel.html(""); //
+                    //d3sel.html(""); // commented out 'cos already empty
                     var tbody = d3sel.append("tbody");
+                    
                     //console.log ("rights", response.userRights);
-
-
                     //console.log ("data", response.data);
+                    
                     var rows = tbody.selectAll("tr").data(response.data)
                         .enter()
                         .append("tr")
@@ -175,11 +178,14 @@ CLMSUI.history = {
                     });
                     cells.enter()
                         .append("td")
-                        .html (function(d) { return modifiers[d.key](d.value); })
+                        .html (function(d) { 
+                                return modifiers[d.key](d.value);
+                        })
                         .attr ("class", function(d) { return cellStyles[d.key]; })
-                        .filter (function(d) { return tooltips.has (d.key); })
+                        .filter (function(d) { return tooltips[d.key]; })
                         .attr("title", function(d) {
-                            return d.value["id"]+": "+tooltips.get(d.key).func(d);
+                            var v = tooltips[d.key](d);
+                            return v ? d.value.id+": "+v : "";
                         })
                     ;
                     

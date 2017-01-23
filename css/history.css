@@ -51,7 +51,6 @@ table {
     position: relative;
     margin-left: auto;
     margin-right: auto;
-    border-collapse: collapse;
     background-color: rgba(255, 255, 255, 1);
     text-align: left;
 }
@@ -203,6 +202,8 @@ body, input, select, textarea {
     font-size: 1.1em;
     background: #f8f8ff;
 }
+
+/*
 .tableContainer .dynamic-table-namebar th:not(:first-child) {
     border-left: 1px solid black;
 }
@@ -210,6 +211,26 @@ body, input, select, textarea {
 .tableContainer .dynamic-table-namebar th.dottedBorder {
     border-left: 1px dashed black;
 }
+*/
+
+/* To get round a firefox table border bug, move padding to span, apply border to span */
+
+.tableContainer .dynamic-table-namebar th:not(:first-child) {
+    padding-left: 0;
+    padding-right: 0;
+} 
+
+.tableContainer .dynamic-table-namebar th:not(:first-child) span {
+    border-left: 1px solid black;
+    padding: 5px;
+}
+
+.tableContainer .dynamic-table-namebar th.dottedBorder span {
+    border-left: 1px dashed black;
+}
+
+
+
 
 .aggregateCheckbox{
 	width:2em;

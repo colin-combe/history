@@ -94,7 +94,9 @@ function DynamicTable (obj, options){
     this.namebar.className = "dynamic-table-namebar";
     for (var i = 0; i < this.cols.length; i++){
 		var colName = document.createElement("th");
-        colName.innerHTML = this.opt.colNames[i];
+        var spanName = document.createElement("span");
+        spanName.innerHTML = this.opt.colNames[i];
+        colName.appendChild (spanName);
         this.namebar.appendChild(colName);
     }
     
@@ -307,12 +309,12 @@ DynamicTable.prototype.pager = function(page){
     var mr = this.maxRowCount;
 
     //    this.pagerBar.style.display = "none";
-
-    var rows = this.table.tBodies[0].rows;
+    
+     var rows = this.table.tBodies[0].rows;
 
     // show all rows
-    for (var i = 0, trl = rows.length; i < trl; i++)
-	rows[i].style.display = "";
+    //for (var i = 0, trl = rows.length; i < trl; i++)
+	//rows[i].style.display = "";
 
     var from = cp * mr - mr;
     var to = ((from + mr) > this.rows.length) ? this.rows.length : from + mr;
@@ -321,12 +323,14 @@ DynamicTable.prototype.pager = function(page){
     //    alert(this.rows.length);
 
     // hide rows in other pages
-    for (var i = 0, rl = rows.length; i < rl; i++){
-	if (i < from || i >= to){
-	    rows[i].style.display = "none";
-	}
+    for (var i = 0, rl = rows.length; i < rl; i++) {
+        var hide = (i < from || i >= to);
+        rows[i].style.display = hide ? "none" : "";
+        //if (i < from || i >= to){
+        //    rows[i].style.display = "none";
+        //}
     }
-
+    
     // hide unnecessary page indexes
     var showed_rows_count = this.rows.length - this.rmRows.length;
     var p_count = Math.ceil(this.rows.length / this.maxRowCount);	// pages count
@@ -346,7 +350,7 @@ DynamicTable.prototype.pager = function(page){
 
     // "selected" class for selected selector
     //this.pagerBar.childNodes[0].childNodes[this.currentPage - 1].className = "dynamic-table-page-selected";
-}
+};
 
 /**
  * Filter rows by substring
@@ -391,18 +395,19 @@ DynamicTable.prototype.filterRows = function(evt){
 	   else
 		      this.rmRows.push(tRows[i]);
 	}
-
-	// append not filtered rows to tree
+    
+    // append not filtered rows to tree
 	for (var i = 0, nrl = newRows.length; i < nrl; i++){
 	    tTable.tBodies[0].appendChild(newRows[i]);
 	}
-
-	// delete filtered rows from the tree
-	this.removeRows(this.rmRows);
+    
+    // delete filtered rows from the tree
+	this.removeRows (this.rmRows);
+    
 	this.pager(1);	// goto first page
 
     //~ }//end (evt.keyCode == 13)
-}
+};
 
 /**
  * Get row TD cells using childNodes instead of cells (because of IE)
@@ -416,7 +421,7 @@ DynamicTable.prototype.rowCells = function(row){
 	    row.childNodes[i].tagName == 'TH')
 	    cells.push(row.childNodes[i]);
     return cells;
-}
+};
 
 
 /**
@@ -429,7 +434,7 @@ DynamicTable.prototype.sort = function(col){
     this.orderRows(this.sortFunctions[this.opt.colTypes[col]]);
     // update sort arrows
     this.toolbar.cells[this.sortColumn].lastChild.className = "dynamic-table-" + ((this.desc) ? "downarrow" : "uparrow");//"fa fa-arrow-circle-" + ((this.desc) ? "down" : "up");//
-}
+};
 
 /**
  * Order rows by sort function 
@@ -441,10 +446,10 @@ DynamicTable.prototype.orderRows = function(sortFnc){
     var _sortColumn = this.sortColumn;
     var _this = this;
     var _sortFnc = function(a, b){
-	var x = _this.rowCells(a)[_sortColumn];
-	var y = _this.rowCells(b)[_sortColumn];
-	return sortFnc(x.innerHTML, y.innerHTML);
-    }
+        var x = _this.rowCells(a)[_sortColumn];
+        var y = _this.rowCells(b)[_sortColumn];
+        return sortFnc(x.innerHTML, y.innerHTML);
+    };
 
     var _rows = this.rows;
     _rows.sort(_sortFnc);
@@ -459,7 +464,7 @@ DynamicTable.prototype.orderRows = function(sortFnc){
 
     this.removeRows(this.rmRows);
     this.pager(1);	// goto first page
-}
+};
 
 /**
  * Remove rows 
@@ -469,7 +474,7 @@ DynamicTable.prototype.removeRows = function(rows){
     for (var i = 0, rowsl = rmRows.length; i < rowsl; i++)
 	if (rmRows[i].parentNode)
 	    rmRows[i].parentNode.removeChild(rmRows[i]);	
-}
+};
 
 /**
  * Removes toolbar from the table (using effects from options)
