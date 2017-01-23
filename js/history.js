@@ -85,7 +85,6 @@ CLMSUI.history = {
                     };
 
                     var cellStyles = {
-                        aggregate: "center",
                         name: "varWidthCell", 
                         file_name: "varWidthCell2",
                     };

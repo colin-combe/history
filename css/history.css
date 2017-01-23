@@ -1,5 +1,5 @@
 @charset 'UTF-8';
-@import url("font-awesome.min.css");
+/* @import url("font-awesome.min.css"); */
 @font-face {
   font-family: 'Lato-Bold';
   src: url('../fonts/lato/bold/Lato-Bold.eot'); /* IE9 Compat Modes */
@@ -112,12 +112,7 @@ body, input, select, textarea {
     color: #888;
 	-webkit-text-stroke: .15px;
 }
-.centre {
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    vertical-align: middle; 
-}
+
 .container {
     margin: 10px;
 }
