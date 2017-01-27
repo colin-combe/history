@@ -226,11 +226,12 @@ body, input, select, textarea {
 
 
 
-
-.aggregateCheckbox{
-	width:2em;
+.aggregateCheckbox {
+    width: 2.5em;
     line-height: 1.2em;
     margin-left: 3px;
+    color: black;
+    font-weight: bold;
 }
 .unpadButton {
     padding: 0 6px;
@@ -238,6 +239,11 @@ body, input, select, textarea {
 }
 .xierror {
     color: red;
+}
+button:disabled {
+    color: #888;
+    border-color: #888;
+    /* display: none; */
 }
 
 /*

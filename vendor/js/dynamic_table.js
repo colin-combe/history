@@ -338,7 +338,9 @@ DynamicTable.prototype.pager = function(page){
 
     var pageAncestor = this.opt.pagerElem ? this.opt.pagerElem : this.table;
     var pageTotalSpans = pageAncestor.getElementsByClassName("pageTotal");
+    p_cur_count = Math.max (p_cur_count, 1); // because page 0 looks odd;
     pageTotalSpans[0].innerHTML = p_cur_count.toString();
+    this.maxPage (p_cur_count);
     var pageInput = pageAncestor.getElementsByClassName("pageInput")[0].childNodes[0].value = page;
     
    // for (var i = 0; i < p_count; i++){
@@ -350,6 +352,12 @@ DynamicTable.prototype.pager = function(page){
 
     // "selected" class for selected selector
     //this.pagerBar.childNodes[0].childNodes[this.currentPage - 1].className = "dynamic-table-page-selected";
+};
+    
+DynamicTable.prototype.maxPage = function (maxPage) {
+    var pageAncestor = this.opt.pagerElem ? this.opt.pagerElem : this.table;
+    var pageInput = pageAncestor.getElementsByClassName("pageInput")[0].childNodes[0];
+    pageInput.max = maxPage;
 };
 
 /**

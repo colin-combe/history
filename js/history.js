@@ -48,7 +48,8 @@ CLMSUI.history = {
                 .text("You Currently Have No Searches in the Xi Database.")
             ;
         }
-                
+              
+        CLMSUI.history.anyAggGroupsDefined (false);
                 
        $.ajax({
             type:"POST",
@@ -142,7 +143,7 @@ CLMSUI.history = {
                         id: function(d) { return d.id; },
                         user_name: function(d) { return !userOnly ? d.user_name : ""; },
                         aggregate: function(d) {
-                            return "<input type='text' pattern='\\d*' class='aggregateCheckbox' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1'>";
+                            return "<input type='number' pattern='\\d*' class='aggregateCheckbox' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'>";
                         },
                         delete: function(d) {
                             return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>Delete</button>" : "";
@@ -234,7 +235,7 @@ CLMSUI.history = {
                                     selRows.remove();
                                     dynTable.pager (dynTable.currentPage);
                                 }
-                            }
+                            };
                             //deleteRowVisibly (d); // alternative to following code for testing without doing database delete
 
                              var doDelete = function() {
@@ -249,6 +250,13 @@ CLMSUI.history = {
                                 });
                             };
                             CLMSUI.jqdialogs.areYouSureDialog ("popErrorDialog", "Deleting this search cannot be undone (by yourself).<br>Are You Sure?", "Please Confirm", "Delete this Search", "Cancel this Action", doDelete);
+                        })
+                    ;
+                    
+                    d3.selectAll(".aggregateCheckbox")
+                        .on ("input", function() {
+                            this.value = this.value.slice (0,1); // equiv to maxlength for text
+                            CLMSUI.history.anyAggGroupsDefined (this.value ? true : undefined);
                         })
                     ;
                 }
@@ -286,5 +294,14 @@ CLMSUI.history = {
 
     clearAggregationCheckboxes: function () {
         d3.selectAll(".aggregateCheckbox").property("value", "");
-    }
+        CLMSUI.history.anyAggGroupsDefined (false);
+    },
+    
+    anyAggGroupsDefined: function (anySelected) {
+        if (anySelected === undefined) {
+             anySelected = d3.selectAll(".aggregateCheckbox").filter (function() { return this.value; }).size() > 0;
+        }
+
+        d3.selectAll("#aggSearch,#aggFDRSearch").property("disabled", !anySelected);
+    },
 };
