@@ -30,7 +30,7 @@
         ORDER BY (CASE WHEN status = 'queuing' THEN 0 WHEN is_executing THEN 1 ELSE 2 END) ASC, search.id DESC ;"
     ;
 	
-	if ($searches == "MINE" || !$userRights["canSeeAll"]){
+	if ($searches == "MINE" || !$userRights["canSeeAll"]) {
 		pg_prepare($dbconn, "my_query", $qPart1."search.uploadedby = $1 AND ".$qPart3);
 		$result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
 	}
