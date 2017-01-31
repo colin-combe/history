@@ -30,7 +30,7 @@
         ORDER BY (CASE WHEN status = 'queuing' THEN 0 WHEN is_executing THEN 1 ELSE 2 END) ASC, search.id DESC ;"
     ;
 	
-	if (!$userRights["isSuperUser"]) {
+	if (!$userRights["isSuperUser"] || $searches == "MINE") {
      $privateClause = ($searches == "MINE" ? "search.uploadedby = $1 AND " : $qPart2);
 		  pg_prepare($dbconn, "my_query", $qPart1.$privateClause.$qPart3);
 		  $result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
