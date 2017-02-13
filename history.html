@@ -36,22 +36,18 @@
             <span class="headerLabel" >All Searches</span>
         </span>
 
-        <button id="newSearch" onclick="window.location = '../searchSubmit/submitSearch.html';">
-            New Search
-        </button>	
-
-        <button onclick="window.location = '../util/logout.php';">
-            Log Out
-        </button>
+        <button id="newSearch" onclick="window.location = '../searchSubmit/submitSearch.html';">New Search</button>	
+        <button id="userGUI" onclick="window.location = '../userGUI/userAdmin.html';">User Admin</button>
+        <button onclick="window.location = '../util/logout.php';">Log Out</button>
 					
-				<div style="float:right">
-					<button id="aggSearch" onclick="CLMSUI.history.aggregate(false);">Aggregate</button>
-					<button id="aggFDRSearch" onclick="CLMSUI.history.aggregate(true);" >Agg. for FDR</button>
-				</div>
+            <div style="float:right">
+                <button id="aggSearch" onclick="CLMSUI.history.aggregate(false);">Aggregate</button>
+                <button id="aggFDRSearch" onclick="CLMSUI.history.aggregate(true);" >Agg. for FDR</button>
+            </div>
 
 			</h1>
 			<div class="tableContainer">
-    <table id="pagerTable"></table> <!-- separate table for page control so it doesn't set widths for everything else -->
+                <table id="pagerTable"></table> <!-- separate table for page control so it doesn't set widths for everything else -->
 				<table id="t1">
 					<tbody id="tb1"></tbody>
 				</table>

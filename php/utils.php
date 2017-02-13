@@ -77,8 +77,17 @@
             $maxAAs = max($maxAAs, 1000);
             $maxSpectra = max($maxSpectra, 1000000);
         }
+        
+        // Test if searchSubmit exists as a sibling project
+        $doesSearchSubmitExist = file_exists ("../../searchSubmit/");
+        if ($doesSearchSubmitExist === false) {
+            $canAddNewSearch = false;
+        }
+        
+        // Test if userGUI exists as a sibling project
+        $doesUserGUIExist = file_exists ("../../userGUI/");
           
-        return array ("canSeeAll"=>$canSeeAll, "canAddNewSearch"=>$canAddNewSearch, "isSuperUser"=>$isSuperUser, "maxAAs"=>$maxAAs, "maxSpectra"=>$maxSpectra, "maxSearchLifetime"=>$maxSearchLifetime, "maxUserSearches"=>$maxSearchCount, "maxUserSearchesToday"=>$maxSearchesPerDay, "searchDenyReason"=>$searchDenyReason);
+        return array ("canSeeAll"=>$canSeeAll, "canAddNewSearch"=>$canAddNewSearch, "isSuperUser"=>$isSuperUser, "maxAAs"=>$maxAAs, "maxSpectra"=>$maxSpectra, "maxSearchLifetime"=>$maxSearchLifetime, "maxUserSearches"=>$maxSearchCount, "maxUserSearchesToday"=>$maxSearchesPerDay, "searchDenyReason"=>$searchDenyReason, "doesUserGUIExist"=>$doesUserGUIExist);
     }
 
     // Number of searches by a particular user performed today
