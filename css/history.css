@@ -30,7 +30,7 @@
     margin: 0 5px 0 5px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-weight: bold;
+    /* font-weight: 300; */
     outline: 0;
 }
 
