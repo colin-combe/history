@@ -22,7 +22,8 @@
         WHERE "
     ;
 
-    $qPart2 = "(COALESCE (search.private, FALSE) = FALSE OR search.uploadedby = $1) AND";  // if can_see_all but not a superuser insert this clause
+    // if can_see_all but not a superuser insert this clause
+    $qPart2 = "((COALESCE (search.private, FALSE) = FALSE AND COALESCE (users.hidden, FALSE) = FALSE) OR search.uploadedby = $1) AND";
 
     $qPart3 = "
         COALESCE (search.hidden, FALSE) = FALSE
