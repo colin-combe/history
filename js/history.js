@@ -65,9 +65,9 @@ CLMSUI.history = {
                     }
                     
                     d3.select("#username").text(response.user);
-                    d3.select("#newSearch").style("display", response.userRights.canAddNewSearch ? null : "none");
-                    d3.select("#userGUI").style("display", response.userRights.doesUserGUIExist ? null : "none");
-                    d3.select("#scopeOptions").style("display", response.userRights.canSeeAll ? null : "none");
+                    d3.selectAll("#newSearch").style("display", response.userRights.canAddNewSearch ? null : "none");
+                    d3.selectAll("#userGUI,#logout").style("display", response.userRights.doesUserGUIExist ? null : "none");
+                    d3.selectAll("#scopeOptions").style("display", response.userRights.canSeeAll ? null : "none");
 
                     var userOnly = d3.select('#mySearches').property("checked");
                     
