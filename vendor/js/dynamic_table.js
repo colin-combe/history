@@ -378,13 +378,28 @@ DynamicTable.prototype.filterRows = function(evt){
 	var newRows = [];
 	this.rmRows = [];	// initialize rmRows
     
-// Get active filters once, rather than per row
- var activeFilters = [];
- for (var j = 0, fl = this.filters.length; j < fl; j++){
-     if (this.filters[j] !== "none" && this.filters[j].value !== "") {
-         activeFilters.push ({filterVal: this.filters[j].value.toLowerCase(), colIndex: j});
-     }
- }
+	// Get active filters once, rather than per row
+	var activeFilters = [];
+	for (var j = 0, fl = this.filters.length; j < fl; j++){
+	     if (this.filters[j] !== "none" && this.filters[j].value !== "") {
+		 // turn the filter text into a regulare expression
+		 // could add potential conditions e.g.:
+		 // 	if filter starts with
+		 // 		"=" is excactly
+		 // 		"~" contains exactly (no splitting by space)
+		 // 		"/" interpret as regulare expression directly
+		 var reparts=this.filters[j].value.split(" ");
+		 var reString="";
+		 var s;
+		 // add lookahead statements for each word
+		 for (s =0; s<reparts.length; s++) {
+			 reString+="(?=.*?"+reparts[s]+")";
+		 }
+		 reString+="^.*$";
+
+  	       activeFilters.push ({filterRE: new RegExp(reString,"i"), colIndex: j});
+  	   }
+ 	}
     
 	for (var i = 0, trl = tRows.length; i < trl; i++){
 	    tRows[i].style.display = "";
@@ -393,7 +408,7 @@ DynamicTable.prototype.filterRows = function(evt){
 	    for (var j = 0, fl = activeFilters.length; j < fl; j++){
         var colIndex = activeFilters[j].colIndex;
 		      var text = this.rowCells(tRows[i])[colIndex].innerHTML;
-		      if (this.filterFunction (text, activeFilters[j].filterVal) == -1) {
+		      if (this.filterFunction (text, activeFilters[j].filterRE) == -1) {
             bPush = false;
             break;
         }
@@ -701,9 +716,9 @@ DynamicTable.prototype.sortFunctions = {
 };
 
 // pre-defined function that filter rows
-// pass in b as already lowerCase (filter value) so it's done once rather than thousands of times
+// pass in b as regular expression
 DynamicTable.prototype.filterFunction = function(a, b){
-    return a.toLowerCase().search(b);
+    return a.search(b);
 }
 
 window.DynamicTable = DynamicTable;
