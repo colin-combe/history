@@ -16,6 +16,7 @@ CLMSUI.history = {
            pagerElem: d3.select("#pagerTable").node(),
            colNames: ["Visualise Search", "+FDR", "Notes", "Validate", "+Linears", "Sequence", "Submit Date", "ID", "User", "Agg Group", "Delete"],
            colTypes: ["alpha", "none", "alpha", "none", "none", "alpha", "alpha", "number", "alpha", "clearCheckboxes", "none"],
+           colTooltips: ["", "Visualise search with decoys to allow False Discovery Rate calculations", "", "", "Validate including Linear peptides", "", "", "", "", "Use numbers to divide searches into groups within an aggregated search", ""],
            bespokeColumnSetups: {
                clearCheckboxes: function (dynamicTable, elem) {
                     // button to clear aggregation checkboxes
@@ -36,6 +37,7 @@ CLMSUI.history = {
            var removeIndex = opt1.colNames.indexOf ("User");
            opt1.colNames.splice (removeIndex, 1);
            opt1.colTypes.splice (removeIndex, 1);
+           opt1.colTooltips.splice (removeIndex, 1);
        } else {
            params = "searches=ALL";
        }
@@ -200,6 +202,9 @@ CLMSUI.history = {
                     
                     //console.log ("dynTable", dynTable);
                     var headers = d3.selectAll("th").data(cellFunctions);
+                    headers.attr("title", function (d,i) {
+                        return opt1.colTooltips[i];   
+                    });
                     headers
                         .filter (function(d) { return cellStyles[d.key]; })
                         .each (function(d) {
