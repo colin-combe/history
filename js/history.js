@@ -71,7 +71,7 @@ CLMSUI.history = {
                         d3.select("#logout")
                             .attr ("onclick", null)
                             .on ("click", function () {
-                                window.location.replace ("../../utils/php/logout.php");    
+                                window.location.replace ("../../util/logout.php");    
                             })
                         ;
                     }
