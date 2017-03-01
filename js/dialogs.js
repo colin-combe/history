@@ -49,5 +49,6 @@ CLMSUI.jqdialogs = {
                 { text: noText, click: hardClose }
             ]
         });
-    }
+    }, 
 };
+

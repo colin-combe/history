@@ -40,7 +40,9 @@
      $result = pg_execute($dbconn, "my_query", []);
     }
 
-    echo json_encode (array("user"=>$_SESSION['session_name'], "userRights"=>$userRights, "data"=>pg_fetch_all($result)));
+    $utilsLogout = file_exists ("../../utils/logout.php");
+
+    echo json_encode (array("user"=>$_SESSION['session_name'], "userRights"=>$userRights, "data"=>pg_fetch_all($result), "utilsLogout"=>$utilsLogout));
 
     //close connection
     pg_close($dbconn);

@@ -66,6 +66,16 @@ CLMSUI.history = {
                         window.location.replace (response.redirect);
                     }
                     
+                     // This is a catch until new usergui is rolled out */
+                    if (response.utilsLogout) {
+                        d3.select("#logout")
+                            .attr ("onclick", null)
+                            .on ("click", function () {
+                                window.location.replace ("../../utils/php/logout.php");    
+                            })
+                        ;
+                    }
+                    
                     d3.select("#username").text(response.user);
                     d3.selectAll("#newSearch").style("display", response.userRights.canAddNewSearch ? null : "none");
                     d3.selectAll("#userGUI,#logout").style("display", response.userRights.doesUserGUIExist ? null : "none");
