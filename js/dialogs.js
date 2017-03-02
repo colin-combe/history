@@ -2,12 +2,12 @@ var CLMSUI = CLMSUI || {};
 
 CLMSUI.jqdialogs = {
     constructDialogMessage: function (dialogID, msg, title) {
-        var dialogParas = d3.select("body").select("#"+dialogID);
-        if (dialogParas.empty()) {
-            dialogParas = d3.select("body").append("div").attr("id", dialogID);
+        var dialog = d3.select("body").select("#"+dialogID);
+        if (dialog.empty()) {
+            dialog = d3.select("body").append("div").attr("id", dialogID);
         }
-        dialogParas.selectAll("p").remove();
-        dialogParas
+        dialog.selectAll("p").remove();
+        dialog
             .attr("id", dialogID)
             .attr("title", title)
             .selectAll("p")
@@ -50,5 +50,30 @@ CLMSUI.jqdialogs = {
             ]
         });
     }, 
+    
+    choicesDialog: function (dialogID, msg, title, choices, links) {
+        CLMSUI.jqdialogs.constructDialogMessage (dialogID, msg, title || "Confirm");
+        
+        function redirect (link) {
+            window.location.href = link;
+        }
+        function hardClose () {
+             $(this).dialog("close").dialog("destroy").remove();
+        }
+        
+        var buttons = choices.map (function (choice, i) {
+            return {text: choice, click: function() { redirect (links[i]); } }    
+        });
+        buttons.push ({text: "Cancel", click: hardClose});
+        
+        $("#"+dialogID).dialog({
+            modal: true,
+            open: function () {
+                $('.ui-dialog :button').blur(); // http://stackoverflow.com/questions/1793592/jquery-ui-dialog-button-focus
+            },
+            buttons: buttons,
+            title: title,
+        });
+    }
 };
 

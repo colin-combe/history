@@ -14,9 +14,9 @@ CLMSUI.history = {
        var opt1 = {
            pager: {rowsCount: 20},
            pagerElem: d3.select("#pagerTable").node(),
-           colNames: ["Visualise Search", "+FDR", "Notes", "Validate", "+Linears", "Sequence", "Submit Date", "ID", "User", "Agg Group", "Delete"],
-           colTypes: ["alpha", "none", "alpha", "none", "none", "alpha", "alpha", "number", "alpha", "clearCheckboxes", "none"],
-           colTooltips: ["", "Visualise search with decoys to allow False Discovery Rate calculations", "", "", "Validate including Linear peptides", "", "", "", "", "Use numbers to divide searches into groups within an aggregated search", ""],
+           colNames: ["Visualise Search", "+FDR", "Notes", "Validate", "Sequence", "Submit Date", "ID", "User", "Agg Group", "Delete"],
+           colTypes: ["alpha", "none", "alpha", "none", "alpha", "alpha", "number", "alpha", "clearCheckboxes", "none"],
+           colTooltips: ["", "Visualise search with decoys to allow False Discovery Rate calculations", "", "", "", "", "", "", "Use numbers to divide searches into groups within an aggregated search", ""],
            bespokeColumnSetups: {
                clearCheckboxes: function (dynamicTable, elem) {
                     // button to clear aggregation checkboxes
@@ -87,8 +87,13 @@ CLMSUI.history = {
                          return "<a href='../xi3/network.php?sid="+sid+params+"'>"+label+"</a>";
                     };
 
-				    var makeValidationLink = function (sid, params, label) {
-                         return "<a href='../xi3/validate.php?sid="+sid+params+"'>"+label+"</a>";
+                    
+                    var makeValidationUrl = function (sid, params) {
+                         return "../xi3/validate.php?sid="+sid+params;
+                    };
+                    
+				                var makeValidationLink = function (sid, params, label) {
+                         return "<a href='"+makeValidationUrl(sid, params)+"'>"+label+"</a>";
                     };
                     
                     
@@ -142,11 +147,16 @@ CLMSUI.history = {
                             return d.notes; // ? d.notes.substring(0,16)+"<div style='display:none'>"+d.notes+"</div>" : "";
                         },
                         validate: function(d) {
+                            return "<span class='validateButton fauxLink'>Validate</span>";
+                        },
+                        /*
+                        validate: function(d) {
                             return makeValidationLink (d.id+"-"+d.random_id, "&unval=1", "validate");
                         },
                         valLinears:  function(d) {
                             return makeValidationLink (d.id+"-"+d.random_id, "&unval=1&linears=1", "+Linears");
                         },
+                        */
                         file_name: function (d) {
                             return d.file_name.slice(1,-1); // remove brackets returned by sql query
                         },
@@ -266,6 +276,21 @@ CLMSUI.history = {
                                 });
                             };
                             CLMSUI.jqdialogs.areYouSureDialog ("popErrorDialog", "Deleting this search cannot be undone (by yourself).<br>Are You Sure?", "Please Confirm", "Delete this Search", "Cancel this Action", doDelete);
+                        })
+                    ;
+                    
+                    d3.selectAll("tbody tr").select(".validateButton")
+                        //.classed("btn-1a", true)
+                        .on ("click", function (d) {
+                            var deltaUrls = ["", "&decoys=1", "&linears=1", "&decoys=1&linears=1"];
+                            var baseUrls = deltaUrls.map (function (deltaUrl) {
+                               return makeValidationUrl (d.id+"-"+d.random_id, "&unval=1"+deltaUrl);
+                            });
+                            
+                            CLMSUI.jqdialogs.choicesDialog ("popChoiceDialog", "Choose Option", "Validate "+d.id, 
+                                ["Validate", "Validate with Decoys", "Validate with Linears", "Validate with Decoys & Linears"], 
+                                baseUrls
+                            );
                         })
                     ;
                     

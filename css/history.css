@@ -89,7 +89,7 @@ tbody tr {
 tbody tr:hover {
     background-color: #091D42;   
 }
-tbody tr:hover, tbody tr:hover td, tbody tr:hover td a, tbody tr:hover td .unviewableSearch {
+tbody tr:hover, tbody tr:hover td, tbody tr:hover td a, tbody tr:hover td .unviewableSearch, tbody tr:hover td .fauxLink {
     color: #fff;
 }
 
@@ -156,7 +156,7 @@ body, input, select, textarea {
     font-size: 0.75em;
 }
 
-.tableContainer a, tbody tr td .unviewableSearch {
+.tableContainer a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
     color:#091D42;
 }
 
@@ -275,7 +275,25 @@ button:disabled {
     box-shadow: 10px 10px 5px 0 rgba(0,0,0,0.5);
 }
 
-/* Stop the text selection curso showing up */
+/* Stop the text selection cursor showing up */
 span, td, div {
     cursor: default;
+}
+
+
+#popChoiceDialog ~ div {
+    font-size: 0.8em;
+}
+
+#popChoiceDialog ~ div > div.ui-dialog-buttonset {
+    float: none;
+}
+
+#popChoiceDialog ~ div > div.ui-dialog-buttonset button {
+    display: block;
+}
+
+.fauxLink {
+    text-decoration: underline;
+    cursor: pointer;
 }
