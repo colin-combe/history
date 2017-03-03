@@ -1,6 +1,10 @@
 var CLMSUI = CLMSUI || {};
 
-CLMSUI.history = { 			
+CLMSUI.history = { 	
+                
+    makeResultsUrl: function (sid, params) {
+        return "../xi3/network.php?sid="+sid+params;
+    },
 		
     loadSearchList: function () {		
        var dynTable;
@@ -82,9 +86,10 @@ CLMSUI.history = {
                     d3.selectAll("#scopeOptions").style("display", response.userRights.canSeeAll ? null : "none");
 
                     var userOnly = d3.select('#mySearches').property("checked");
+    
                     
                     var makeResultsLink = function (sid, params, label) {
-                         return "<a href='../xi3/network.php?sid="+sid+params+"'>"+label+"</a>";
+                         return "<a href='"+CLMSUI.history.makeResultsUrl(sid, params)+"'>"+label+"</a>";
                     };
 
                     
@@ -92,7 +97,8 @@ CLMSUI.history = {
                          return "../xi3/validate.php?sid="+sid+params;
                     };
                     
-				                var makeValidationLink = function (sid, params, label) {
+                    
+				    var makeValidationLink = function (sid, params, label) {
                          return "<a href='"+makeValidationUrl(sid, params)+"'>"+label+"</a>";
                     };
                     
@@ -279,10 +285,11 @@ CLMSUI.history = {
                         })
                     ;
                     
+                    var lowScore = "&lowestScore=2";
                     d3.selectAll("tbody tr").select(".validateButton")
                         //.classed("btn-1a", true)
                         .on ("click", function (d) {
-                            var deltaUrls = ["", "&decoys=1", "&linears=1", "&decoys=1&linears=1"];
+                            var deltaUrls = ["", "&decoys=1"+lowScore, "&linears=1"+lowScore, "&decoys=1&linears=1"+lowScore];
                             var baseUrls = deltaUrls.map (function (deltaUrl) {
                                return makeValidationUrl (d.id+"-"+d.random_id, "&unval=1"+deltaUrl);
                             });
@@ -307,7 +314,7 @@ CLMSUI.history = {
                //window.location.href = "../../xi3/login.html";
            }
        });
-			},
+    },
 				
     aggregate: function (unvalAndDecoys) {
         var values = [];
@@ -325,10 +332,7 @@ CLMSUI.history = {
         ;
         if (!values.length) alert ("Cannot aggregate: no selection - use text field in right most table column.");
         else {
-            var url = "../xi3/network.php?sid="+values.join(',');
-            if (unvalAndDecoys) {
-				url = url + "&unval=1&decoys=1";
-			}
+            var url = CLMSUI.history.makeResultsUrl (values.join(','), unvalAndDecoys ? "&unval=1&decoys=1" : "");
             window.open(url, "_self");
         }
     },
