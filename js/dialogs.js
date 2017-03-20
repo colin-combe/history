@@ -55,7 +55,8 @@ CLMSUI.jqdialogs = {
         CLMSUI.jqdialogs.constructDialogMessage (dialogID, msg, title || "Confirm");
         
         function redirect (link) {
-            window.location.href = link;
+            window.open (link, '_blank');
+           // window.location.href = link;
         }
         function hardClose () {
              $(this).dialog("close").dialog("destroy").remove();
