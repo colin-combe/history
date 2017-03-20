@@ -55,16 +55,19 @@ CLMSUI.jqdialogs = {
         CLMSUI.jqdialogs.constructDialogMessage (dialogID, msg, title || "Confirm");
         
         function redirect (link) {
+            var dialog = $("#"+dialogID)[0];
+            console.log ("this", this, dialog);
+            hardClose.call(dialog);
             window.open (link, '_blank');
-           // window.location.href = link;
         }
         function hardClose () {
+            console.log ("cthis", this);
              $(this).dialog("close").dialog("destroy").remove();
         }
         
         var buttons = choices.map (function (choice, i) {
-            return {text: choice, click: function() { redirect (links[i]); } }    
-        });
+            return {text: choice, click: function(){ redirect (links[i]); } };
+        }, this);
         buttons.push ({text: "Cancel", click: hardClose});
         
         $("#"+dialogID).dialog({
