@@ -56,12 +56,10 @@ CLMSUI.jqdialogs = {
         
         function redirect (link) {
             var dialog = $("#"+dialogID)[0];
-            console.log ("this", this, dialog);
             hardClose.call(dialog);
             window.open (link, '_blank');
         }
         function hardClose () {
-            console.log ("cthis", this);
              $(this).dialog("close").dialog("destroy").remove();
         }
         
