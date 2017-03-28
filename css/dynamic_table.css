@@ -43,7 +43,8 @@
   background-image: url(down_arrow3.png);
   cursor: pointer;
   display: inline-block;
-  margin: 8px 0px;
+  /* margin: 8px 0px; */
+    vertical-align: middle;
 
 }
 #t1 .dynamic-table-uparrow { 
