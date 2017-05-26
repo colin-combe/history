@@ -356,4 +356,13 @@ CLMSUI.history = {
 
         d3.selectAll("#aggSearch,#aggFDRSearch").property("disabled", !anySelected);
     },
+    
+    anonForScreenshot: function () {
+        // Anon usernames, search names, currnt user. Remember to filter to completed searches only.
+        d3.select("tbody").selectAll("td:nth-child(8)").text(function() { return ["bert", "bob", "allan", "audrey", "fiona"][Math.floor(Math.random() * 5)]; });
+        d3.select("tbody").selectAll("td:nth-child(1) a").text(
+            function() { return "anonymised "+(d3.shuffle("abcdefghijklmnopqrstuvwxyz".split("")).join("").substring(Math.ceil(Math.random()*25))); }
+        );
+        d3.select("#username").text("A Xi User");
+    },
 };
