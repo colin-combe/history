@@ -305,3 +305,7 @@ span, td, div {
     text-decoration: underline;
     cursor: pointer;
 }
+
+#selectedCounter {
+    visibility: hidden;
+}
