@@ -27,29 +27,29 @@
 
 		<div class="container">
 			<h1 class="page-header">
-        <span class="headerLabel" id="username"></span>
+                <span class="headerLabel" id="username"></span>
 
-        <span id="scopeOptions">
-            <input type="radio" name="mineOrAll" value="mySearches" id="mySearches" checked onchange="CLMSUI.history.loadSearchList();">
-            <span class="headerLabel">My Searches</span>
-            <input type="radio" name="mineOrAll" value="allSearches" id="allSearches" onchange="CLMSUI.history.loadSearchList();">
-            <span class="headerLabel" >All Searches</span>
-        </span>
+                <span id="scopeOptions">
+                    <input type="radio" name="mineOrAll" value="mySearches" id="mySearches" checked onchange="CLMSUI.history.loadSearchList();">
+                    <span class="headerLabel">My Searches</span>
+                    <input type="radio" name="mineOrAll" value="allSearches" id="allSearches" onchange="CLMSUI.history.loadSearchList();">
+                    <span class="headerLabel" >All Searches</span>
+                </span>
 
-        <button id="newSearch" onclick="window.location = '../searchSubmit/submitSearch.html';">New Search</button>	
-        <button id="userGUI" onclick="window.location = '../userGUI/userAdmin.html';">User Admin</button>
-        <button id="logout" onclick="window.location = '../userGUI/php/logout.php';">Log Out</button>
+                <button id="newSearch" onclick="window.location = '../searchSubmit/submitSearch.html';">New Search</button>	
+                <button id="userGUI" onclick="window.location = '../userGUI/userAdmin.html';">User Admin</button>
+                <button id="logout" onclick="window.location = '../userGUI/php/logout.php';">Log Out</button>
 					
-            <div style="float:right">
-                <button id="aggSearch" title="Visualise Aggregate Search (use Agg Group controls)">Aggregate</button>
-                <button id="aggFDRSearch" title="Visualise Aggregate Search with decoys to allow FDR calcs">Agg. for FDR</button>
-                <br/>
-                <span id="selectedCounter">0 Selected</span>
-            </div>
-       
-       <div style="clear: both"></div>
-
+                <div style="float:right">
+                    <button id="aggSearch" title="Visualise Aggregate Search (use Agg Group controls)">Aggregate</button>
+                    <button id="aggFDRSearch" title="Visualise Aggregate Search with decoys to allow FDR calcs">Agg. for FDR</button>
+                </div>
 			</h1>
+            
+            <div id="fixedSelectionInfo">
+                    <span id="selectedCounter">0 Selected</span>
+            </div>
+            
 			<div class="tableContainer">
                 <table id="pagerTable"></table> <!-- separate table for page control so it doesn't set widths for everything else -->
 				<table id="t1">
