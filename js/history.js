@@ -78,6 +78,10 @@ CLMSUI.history = {
                         console.log ("yo");
                         window.location.replace (response.redirect);
                     }
+                    else if (response.status === "fail") {
+                        d3.select("#clmsErrorBox").text(response.error || "Database Error");
+                        console.log ("response error", response);
+                    }
                     else {
 
                          // This is a catch until new usergui is rolled out */
