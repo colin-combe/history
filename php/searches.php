@@ -7,6 +7,7 @@
 	include('../../connectionString.php');
 	//open connection
     try {
+        // @ suppresses non-connection throwing an uncatchable error, so we can generate our own error to catch
         $dbconn = @pg_connect($connectionString);    //or die('Could not connect: ' . pg_last_error());
 
         if ($dbconn) {
@@ -52,6 +53,9 @@
         }
     }
     catch (Exception $e) {
+        if ($dbconn) {
+            pg_close ($dbconn);
+        }
         $msg = $e->getMessage();
         echo (json_encode(array ("status"=>"fail", "error"=> "Error - ".$msg)));
     }

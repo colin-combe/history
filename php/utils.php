@@ -47,7 +47,7 @@
             WHERE users.id = $1");
             $result = pg_execute ($dbconn, "user_rights2", [$userID]);
             $row = pg_fetch_assoc ($result);
-            error_log (print_r ($row, true));
+            //error_log (print_r ($row, true));
             
             $maxSearchCount = (int)$row["max_search_count"];
             $maxSearchLifetime = (int)$row["max_search_lifetime"];
