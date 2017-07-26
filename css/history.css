@@ -155,10 +155,25 @@ body, input, select, textarea {
 
 #pagerTable {
     font-size: 0.75em;
+    width: auto;
+    margin: 10px 0 0 0;
 }
 
-#pagerTable td:first-child {
-    padding-top: 10px;
+#pagerTable td {
+    padding: 0px 5px 0px 10px;
+    font-size: 0.9rem;
+}
+
+#pagerTable tr td:not(:first-of-type) {
+    border-left: 1px solid #bbb;
+}
+
+#pagerTable td span {
+    vertical-align: middle;
+}
+
+#pagerTable .ms-parent {
+    margin-left: 0.5em;
 }
 
 .tableContainer a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
@@ -329,4 +344,8 @@ span, td, div {
     font-family: 'Lato-Regular';
     color: white;
     visibility: hidden;
+}
+
+.ms-drop li {
+    line-height: 1em;
 }

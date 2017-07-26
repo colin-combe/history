@@ -21,6 +21,7 @@
                 INNER JOIN users on search.uploadedby = users.id
                 INNER JOIN search_sequencedb on search.id = search_sequencedb.search_id
                 INNER JOIN sequence_file on search_sequencedb.seqdb_id = sequence_file.id 
+                INNER JOIN parameter_set on search.paramset_id = parameter_set.id
                 WHERE "
             ;
 
