@@ -24,11 +24,11 @@ CLMSUI.history = {
        var opt1 = {
            pager: {rowsCount: 20},
            pagerElem: d3.select("#pagerTable").node(),
-           colNames: ["Visualise Search", "+FDR", "Notes", "Validate", "Sequence", "Submit Date", "ID", "User", "Agg Group", "Delete"],
-           colTypes: ["alpha", "none", "alpha", "none", "alpha", "alpha", "number", "alpha", "clearCheckboxes", "none"],
-           colTooltips: ["", "Visualise search with decoys to allow False Discovery Rate calculations", "", "", "", "", "", "", "Use numbers to divide searches into groups within an aggregated search", ""],
-           colVisible: [true, true, true, true, true, true, true, true, true, true],
-           colRemovable: [true, true, true, true, true, true, true, true, false, true],
+           colNames: ["Visualise Search", "+FDR", "Notes", "Validate", "Sequence", "Enzyme", "Cross-Linkers", "Submit Date", "ID", "User", "Agg Group", "Delete"],
+           colTypes: ["alpha", "none", "alpha", "none", "alpha", "alpha", "alpha", "alpha", "number", "alpha", "clearCheckboxes", "none"],
+           colTooltips: ["", "Visualise search with decoys to allow False Discovery Rate calculations", "", "", "", "", "", "", "", "", "Use numbers to divide searches into groups within an aggregated search", ""],
+           colVisible: [true, true, true, true, true, false, false, true, true, true, true, true],
+           colRemovable: [true, true, true, true, true, true, true, true, true, true, false, true],
            bespokeColumnSetups: {
                clearCheckboxes: function (dynamicTable, elem) {
                     // button to clear aggregation checkboxes
@@ -74,9 +74,8 @@ CLMSUI.history = {
             dataType: 'json',
             success: function(response, responseType, xmlhttp) {
                 if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    console.log ("response", response, responseType);
+                    //console.log ("response", response, responseType);
                     if (response.redirect) {
-                        console.log ("yo");
                         window.location.replace (response.redirect);
                     }
                     else if (response.status === "fail") {
@@ -126,6 +125,8 @@ CLMSUI.history = {
                             notes: function(d) { return d.value.notes; },
                             name: function(d) { return d.value.status; },
                             file_name: function(d) { return d.value.file_name; },
+                            enzyme: function(d) { return d.value.enzyme; },
+                            crosslinkers: function(d) { return d.value.crosslinkers; },
                         };
 
                         var cellStyles = {
@@ -147,6 +148,8 @@ CLMSUI.history = {
                             //file_name: "15em",
                             submit_date: "10em",
                             id: "4em",
+                            enzyme: "5em",
+                            crosslinkers: "7em",
                             user_name: "6em",
                             aggregate: "6em",
                             delete: "5em",
@@ -183,8 +186,10 @@ CLMSUI.history = {
                             },
                             */
                             file_name: function (d) {
-                                return d.file_name.slice(1,-1); // remove brackets returned by sql query
+                                return d.file_name; // remove brackets returned by sql query
                             },
+                            enzyme: function (d) { return d.enzyme; },
+                            crosslinkers: function (d) { return d.crosslinkers.slice(1,-1); },
                             submit_date: function(d) {
                                 return d.submit_date.substring(0, d.submit_date.indexOf("."));
                             },

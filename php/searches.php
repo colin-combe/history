@@ -15,13 +15,52 @@
             //error_log (print_r ($_POST, true));
             $searches = $_POST["searches"];
             $userRights = getUserRights ($dbconn, $_SESSION['user_id']);
+            
+            $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, file_name, enzyme, crosslinkers from
 
-            $qPart1 = "SELECT search.id, search.notes, user_name as user_name, search.submit_date AS submit_date, search.name AS name, search.status AS status, search.random_id AS random_id, array_agg(sequence_file.file_name) AS file_name
+            (select search.id, search.is_executing, search.notes, user_name as user_name, search.submit_date AS submit_date, 
+            search.name AS name, search.status AS status, search.random_id AS random_id, 
+            sequence_file.file_name AS file_name
+            FROM search
+            INNER JOIN users on search.uploadedby = users.id
+            INNER JOIN search_sequencedb on search.id = search_sequencedb.search_id
+            INNER JOIN sequence_file on search_sequencedb.seqdb_id = sequence_file.id 
+            WHERE "
+            ;
+
+            // if can_see_all but not a superuser insert this clause
+            $canSeeOthersPublic = "((COALESCE (search.private, FALSE) = FALSE AND COALESCE (users.hidden, FALSE) = FALSE) OR search.uploadedby = $1) AND";
+            
+            $canSeeMineOnly = "search.uploadedby = $1 AND ";
+            $innerJoinMine = ($searches == "MINE" ? $canSeeMineOnly : "");
+
+            $qPart3 = "
+                COALESCE (search.hidden, FALSE) = FALSE
+            GROUP BY search.id, user_name, sequence_file.file_name) srch
+
+            inner join (select enzyme.name as enzyme, search.id as id2
+            from enzyme, search, parameter_set 
+            where ".$innerJoinMine."search.paramset_id = parameter_set.id and parameter_set.enzyme_chosen = enzyme.id) enz
+            on enz.id2 = srch.id
+
+            inner join (select array_agg(crosslinker.name) as crosslinkers, search.id as id3 
+            from crosslinker, chosen_crosslinker, search
+            where ".$innerJoinMine."search.paramset_id = chosen_crosslinker.paramset_id 
+            and chosen_crosslinker.crosslinker_id = crosslinker.id
+            group by search.id) xlinker
+            on xlinker.id3 = srch.id
+
+            ORDER BY (CASE WHEN status = 'queuing' THEN 0 WHEN is_executing THEN 1 ELSE 2 END) ASC, srch.id DESC ;
+            ";
+            
+            /*
+            $qPart1 = "SELECT search.id, search.notes, user_name as user_name, search.submit_date AS submit_date, search.name AS name, search.status AS status, search.random_id AS random_id, sequence_file.file_name AS file_name, enzyme.name AS enzyme
                 FROM search
                 INNER JOIN users on search.uploadedby = users.id
                 INNER JOIN search_sequencedb on search.id = search_sequencedb.search_id
                 INNER JOIN sequence_file on search_sequencedb.seqdb_id = sequence_file.id 
                 INNER JOIN parameter_set on search.paramset_id = parameter_set.id
+                INNER JOIN enzyme on parameter_set.enzyme_chosen = enzyme.id
                 WHERE "
             ;
 
@@ -30,12 +69,13 @@
 
             $qPart3 = "
                 COALESCE (search.hidden, FALSE) = FALSE
-                GROUP BY search.id, user_name
+                GROUP BY search.id, user_name, file_name, enzyme
                 ORDER BY (CASE WHEN status = 'queuing' THEN 0 WHEN is_executing THEN 1 ELSE 2 END) ASC, search.id DESC ;"
             ;
+            */
 
             if (!$userRights["isSuperUser"] || $searches == "MINE") {
-             $privateClause = ($searches == "MINE" ? "search.uploadedby = $1 AND " : $qPart2);
+             $privateClause = ($searches == "MINE" ? $canSeeMineOnly : $canSeeOthersPublic);
                   pg_prepare($dbconn, "my_query", $qPart1.$privateClause.$qPart3);
                   $result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
             } else {
