@@ -35,12 +35,12 @@
 }
 
 .btn-1 {
-    border: 1px solid #fff;
-    color: #fff;
+    border: 1px solid white;
+    color: white;
 }
 .btn-1a:active, .btn-1a:hover {
     color: #091D42;
-    background: #fff;
+    background: white;
 }
 
 /*tables*/
@@ -58,45 +58,41 @@ thead{
 	margin-top:10px;
 	margin-bottom:10px;
 }
-th{
+th, td {
 	padding-left:5px;
 	padding-right:5px;
     vertical-align: middle; 
     height: 30px;
     text-align: left;   /* Needs to be done specifically for ie11 */
 }
-td{
-	padding-left:5px;
-	padding-right:5px;
-    vertical-align: middle; 
-    text-align: left;
+
+th {
+    height: 30px;
 }
-th:first-child{
+th:first-child, td:first-child {
 	padding-left:10px;
 }
-th:last-child{
+th:last-child {
 	padding-right:10px;
 }
-td:first-child{
-	padding-left:10px;
+td:last-child {
+    padding-right: 0;
 }
-td:last-child{
-	padding-right:0px;
-}
+
 tbody tr {
-    background-color: #fff;
+    background-color: white;
 }
 tbody tr:hover {
     background-color: #091D42;   
 }
 tbody tr:hover, tbody tr:hover td, tbody tr:hover td a, tbody tr:hover td .unviewableSearch, tbody tr:hover td .fauxLink {
-    color: #fff;
+    color: white;
 }
 
 
 /* Common */
 body, html{
-    background: #fff;
+    background: white;
     /* height:100%; */
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -120,7 +116,7 @@ body, input, select, textarea {
 
 .page-header {
     background-color: #091D42;
-    color: #fff;
+    color: white;
     padding: 10px;
     /*margin-bottom: 10px;*/
     margin-top: 10px;
@@ -164,7 +160,7 @@ body, input, select, textarea {
 }
 
 #pagerTable td {
-    padding: 0px 5px 0px 10px;
+    padding: 0 5px 0 10px;
     font-size: 0.9rem;
 }
 
@@ -207,14 +203,14 @@ body, input, select, textarea {
     white-space: nowrap;
 }
 
-.clearChx{
+.clearChx {
 	background:#091D42;
-	/*width:70px;*/
 }
+
 .clearChx:hover {
-	background:fff; /*#293D62;*/
     border-color: #091D42;
 }
+
 .dynamic-table-filter{
 	margin:auto;
 }
@@ -233,15 +229,6 @@ body, input, select, textarea {
     border-top: 1px dotted #ddd;
 }
 
-/*
-.tableContainer .dynamic-table-namebar th:not(:first-child) {
-    border-left: 1px solid black;
-}
-
-.tableContainer .dynamic-table-namebar th.dottedBorder {
-    border-left: 1px dashed black;
-}
-*/
 
 /* To get round a firefox table border bug, move padding to span, apply border to span */
 
@@ -251,14 +238,13 @@ body, input, select, textarea {
 } 
 
 .tableContainer .dynamic-table-namebar th:not(:first-child) span {
-    border-left: 1px solid black;
+    border-left: 1px solid #091d42;
     padding: 5px;
 }
 
 .tableContainer .dynamic-table-namebar th.dottedBorder span {
-    border-left: 1px dashed black;
+    border-left: 1px dashed #091d42;
 }
-
 
 
 .aggregateCheckbox {
@@ -295,6 +281,9 @@ button:disabled {
 }
 */
 
+.container #clmsErrorBox {
+    transform: scale(0.5);
+}
 
 #clmsErrorBox {
     font-size: 2em;

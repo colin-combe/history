@@ -1,3 +1,4 @@
+/*jslint browser: true, white: true, stupid: true, vars: true*/
 var CLMSUI = CLMSUI || {};
 
 CLMSUI.history = { 	
@@ -46,7 +47,6 @@ CLMSUI.history = {
             d3.select(".container")
                 .append("div")
                 .attr ("id", "clmsErrorBox")
-                .style ("transform", "scale(0.5)")
                 .text("You Currently Have No Searches in the Xi Database.")
             ;
         }
@@ -98,13 +98,7 @@ CLMSUI.history = {
 
                         var makeValidationUrl = function (sid, params) {
                              return "../xi3/validate.php?sid="+sid+params;
-                        };
-
-
-                        var makeValidationLink = function (sid, params, label) {
-                             return "<a href='"+makeValidationUrl(sid, params)+"'>"+label+"</a>";
-                        };
-
+                        };  
 
                         var tooltips = {
                             notes: function(d) { return d.value.notes; },
@@ -141,8 +135,7 @@ CLMSUI.history = {
                         var modifiers = {
                             name: function(d) { 
                                 var completed = d.status === "completed";
-                                var name = completed
-                                    ? makeResultsLink (d.id+"-"+d.random_id, "", d.name)
+                                var name = completed ? makeResultsLink (d.id+"-"+d.random_id, "", d.name)
                                     : "<span class='unviewableSearch'>"+d.name+"</span>"
                                 ;
                                 var error = !completed && d.status.substring(0,4) === "XiDB";
@@ -157,14 +150,9 @@ CLMSUI.history = {
                                 // Let fixed column width take care of only showing the first few characters
                                 return d.notes; // ? d.notes.substring(0,16)+"<div style='display:none'>"+d.notes+"</div>" : "";
                             },
-                            validate: function(d) {
+                            validate: function () {
                                 return "<span class='validateButton fauxLink'>Validate</span>";
                             },
-                            /*
-                            validate: function(d) {
-                                return makeValidationLink (d.id+"-"+d.random_id, "&unval=1", "validate");
-                            },
-                            */
                             file_name: function (d) {
                                 return d.file_name; // remove brackets returned by sql query
                             },
@@ -351,7 +339,7 @@ CLMSUI.history = {
                                         url:"./php/deleteSearch.php", 
                                         data: {searchID: d.id},
                                         dataType: 'json',
-                                        success: function (response, responseType, xmlhttp) {
+                                        success: function (/*response, responseType, xmlhttp*/) {
                                             deleteRowVisibly (d);
                                         }
                                     });
@@ -410,7 +398,7 @@ CLMSUI.history = {
                 }
             })
         ;
-        if (!values.length) alert ("Cannot aggregate: no selection - use text field in right most table column.");
+        if (!values.length) { alert ("Cannot aggregate: no selection - use text field in right most table column."); }
         else {
             var url = CLMSUI.history.makeResultsUrl (values.join(','), unvalAndDecoys ? "&unval=1&decoys=1" : "");
             window.open (url, "_self");
