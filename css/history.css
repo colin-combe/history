@@ -159,6 +159,10 @@ body, input, select, textarea {
     margin: 10px 0 0 0;
 }
 
+#pagerTable input[type='number'] {
+    max-width: 3.5em;
+}
+
 #pagerTable td {
     padding: 0px 5px 0px 10px;
     font-size: 0.9rem;
