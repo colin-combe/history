@@ -20,41 +20,28 @@ CLMSUI.history = {
             self.aggregate (dynTable, true);
         });
 
-       var params;
-       var opt1 = {
-           pager: {rowsCount: 20},
-           pagerElem: d3.select("#pagerTable").node(),
-           colNames: ["Visualise Search", "+FDR", "Notes", "Validate", "Sequence", "Enzyme", "Cross-Linkers", "Submit Date", "ID", "User", "Agg Group", "Delete"],
-           colTypes: ["alpha", "none", "alpha", "none", "alpha", "alpha", "alpha", "alpha", "number", "alpha", "clearCheckboxes", "none"],
-           colTooltips: ["", "Visualise search with decoys to allow False Discovery Rate calculations", "", "", "", "", "", "", "", "", "Use numbers to divide searches into groups within an aggregated search", ""],
-           colVisible: [true, true, true, true, true, false, false, true, true, true, true, true],
-           colRemovable: [true, true, true, true, true, true, true, true, true, true, false, true],
-           bespokeColumnSetups: {
-               clearCheckboxes: function (dynamicTable, elem) {
-                    // button to clear aggregation checkboxes
-                   d3.select(elem)
-                        .append("button")
-                        .text ("Clear ↓")
-                        .attr ("class", "btn btn-1 btn-1a clearChx unpadButton")
-                        .attr ("title", "Clear all searches chosen for aggregation")
-                        .on ("click", function () {
-                            CLMSUI.history.clearAggregationCheckboxes (dynTable);
-                        })
-                   ;
-               }
-           },
-       };
-       
-       if (d3.select('#mySearches').property("checked")){
-           params = "searches=MINE";
-           var removeIndex = opt1.colNames.indexOf ("User");
-           ["colNames", "colTypes", "colTooltips", "colVisible", "colRemovable"].forEach (function (prop) {
-                opt1[prop].splice (removeIndex, 1);   
-           });
-       } else {
-           params = "searches=ALL";
-       }
-                
+        var columnMetaData = [
+            {name: "Visualise Search", type: "alpha", tooltip: "", visible: true, removable: true},
+            {name: "+FDR", type: "none", tooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true},
+            {name: "Notes", type: "alpha", tooltip: "", visible: true, removable: true},
+            {name: "Validate", type: "none", tooltip: "", visible: true, removable: true},
+            {name: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true},
+            {name: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true},
+            {name: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true},
+            {name: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true},
+            {name: "ID", type: "number", tooltip: "", visible: true, removable: true},
+            {name: "User", type: "alpha", tooltip: "", visible: true, removable: true},
+            {name: "Agg Group", type: "clearCheckboxes", tooltip: "Use numbers to divide searches into groups within an aggregated search", visible: true, removable: false},
+            {name: "Delete", type: "none", tooltip: "", visible: true, removable: true},
+        ];
+        
+        var pluck = function (data, prop) {
+            return data.map (function (d) { return d[prop]; });   
+        };
+              
+        var userOnly = d3.select('#mySearches').property("checked");
+        var params = userOnly ? "searches=MINE" : "searches=ALL";
+             
         if (d3.select(".container #clmsErrorBox").empty()) {
             d3.select(".container")
                 .append("div")
@@ -103,8 +90,6 @@ CLMSUI.history = {
                         d3.selectAll("#userGUI,#logout").style("display", userHasRights ("doesUserGUIExist") ? null : "none");
                         d3.selectAll("#scopeOptions").style("display", userHasRights ("canSeeAll") ? null : "none");
 
-                        var userOnly = d3.select('#mySearches').property("checked");
-
 
                         var makeResultsLink = function (sid, params, label) {
                              return "<a href='"+CLMSUI.history.makeResultsUrl(sid, params)+"'>"+label+"</a>";
@@ -136,7 +121,6 @@ CLMSUI.history = {
 
                         var cellHeaderOnlyStyles = {
                             fdr: "dottedBorder",  
-                            valLinears: "dottedBorder",
                         };
 
                         var cellWidths = {
@@ -144,7 +128,6 @@ CLMSUI.history = {
                             notes: "8em",
                             fdr: "4em",
                             validate: "5em",
-                            valLinears: "5em",
                             //file_name: "15em",
                             submit_date: "10em",
                             id: "4em",
@@ -181,20 +164,17 @@ CLMSUI.history = {
                             validate: function(d) {
                                 return makeValidationLink (d.id+"-"+d.random_id, "&unval=1", "validate");
                             },
-                            valLinears:  function(d) {
-                                return makeValidationLink (d.id+"-"+d.random_id, "&unval=1&linears=1", "+Linears");
-                            },
                             */
                             file_name: function (d) {
                                 return d.file_name; // remove brackets returned by sql query
                             },
                             enzyme: function (d) { return d.enzyme; },
-                            crosslinkers: function (d) { return d.crosslinkers.slice(1,-1); },
+                            crosslinkers: function (d) { return d.crosslinkers.slice (1,- 1); },
                             submit_date: function(d) {
                                 return d.submit_date.substring(0, d.submit_date.indexOf("."));
                             },
                             id: function(d) { return d.id; },
-                            user_name: function(d) { return !userOnly ? d.user_name : ""; },
+                            user_name: function(d) { return d.user_name; },
                             aggregate: function(d) {
                                 return "<input type='number' pattern='\\d*' class='aggregateCheckbox' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'>";
                             },
@@ -202,7 +182,6 @@ CLMSUI.history = {
                                 return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>Delete</button>" : "";
                             }
                         };
-
 
 
                         d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
@@ -221,10 +200,6 @@ CLMSUI.history = {
 
                         // make d3 entry style list of above, removing user_name if just user's own searches
                         var cellFunctions = d3.entries(modifiers);
-                        if (userOnly) {
-                            var removeIndex = cellFunctions.map(function(cellf) { return cellf.key; }).indexOf ("user_name");
-                            cellFunctions.splice (removeIndex, 1);
-                        }
 
                         var cells = rows.selectAll("td").data(function(d) { 
                             return cellFunctions.map(function(entry) { return {key: entry.key, value: d}; });
@@ -245,6 +220,36 @@ CLMSUI.history = {
                         cells.select("input.aggregateCheckbox");
 
                         /* Everything up to this point helps generates the dynamic table */
+                        
+                        if (userOnly) {
+                            var hideIndex = pluck(columnMetaData, "name").indexOf ("User");
+                            columnMetaData[hideIndex].visible = false;
+                        }
+                        
+                        var opt1 = {
+                           pager: {rowsCount: 20},
+                           pagerElem: d3.select("#pagerTable").node(),
+                           colNames: pluck (columnMetaData, "name"),
+                           colTypes: pluck (columnMetaData, "type"),
+                           colTooltips: pluck (columnMetaData, "tooltip"),
+                           colVisible: pluck (columnMetaData, "visible"),
+                           colRemovable: pluck (columnMetaData, "removable"),
+
+                           bespokeColumnSetups: {
+                               clearCheckboxes: function (dynamicTable, elem) {
+                                    // button to clear aggregation checkboxes
+                                   d3.select(elem)
+                                        .append("button")
+                                        .text ("Clear ↓")
+                                        .attr ("class", "btn btn-1 btn-1a clearChx unpadButton")
+                                        .attr ("title", "Clear all searches chosen for aggregation")
+                                        .on ("click", function () {
+                                            CLMSUI.history.clearAggregationCheckboxes (dynTable);
+                                        })
+                                   ;
+                               }
+                           },
+                       };
 
                         if (response.data) {
                             dynTable = new DynamicTable("t1", opt1);
