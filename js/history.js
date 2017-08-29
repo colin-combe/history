@@ -154,10 +154,10 @@ CLMSUI.history = {
                                 return "<span class='validateButton fauxLink'>Validate</span>";
                             },
                             file_name: function (d) {
-                                return d.file_name; // remove brackets returned by sql query
+                                return d.file_name;
                             },
                             enzyme: function (d) { return d.enzyme; },
-                            crosslinkers: function (d) { return d.crosslinkers.slice (1,- 1); },
+                            crosslinkers: function (d) { return d.crosslinkers; },
                             submit_date: function(d) {
                                 return d.submit_date.substring(0, d.submit_date.indexOf("."));
                             },

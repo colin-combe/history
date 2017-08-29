@@ -20,7 +20,7 @@
 
             (select search.id, search.is_executing, search.notes, user_name as user_name, search.submit_date AS submit_date, 
             search.name AS name, search.status AS status, search.random_id AS random_id, 
-            sequence_file.file_name AS file_name
+            string_agg(sequence_file.file_name,',') AS file_name
             FROM search
             INNER JOIN users on search.uploadedby = users.id
             
@@ -38,7 +38,7 @@
 
             $qPart3 = "
                 COALESCE (search.hidden, FALSE) = FALSE
-            GROUP BY search.id, user_name, sequence_file.file_name) srch
+            GROUP BY search.id, user_name) srch
 
             inner join (select enzyme.name as enzyme, search.id as id2
                 from search
@@ -47,7 +47,7 @@
                 .$innerJoinMine.
             ") enz on enz.id2 = srch.id
 
-            inner join (select array_agg(crosslinker.name) as crosslinkers, search.id as id3
+            inner join (select string_agg(crosslinker.name,',') as crosslinkers, search.id as id3
                 from search
                 inner join chosen_crosslinker on chosen_crosslinker.paramset_id = search.paramset_id
                 inner join crosslinker on crosslinker.id = chosen_crosslinker.crosslinker_id "
