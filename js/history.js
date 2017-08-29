@@ -180,6 +180,42 @@ CLMSUI.history = {
 
                         //console.log ("rights", response.userRights);
                         //console.log ("data", response.data);
+                        
+                        // Sanitise, get rid of html, comment characters that could be exploited
+                        var sanitise = function (data) {
+                            var escapeHtml = function (html) {
+                                var fn = function(tag) {
+                                    var charsToReplace = {
+                                        '&': '&amp;',
+                                        '<': '&lt;',
+                                        '>': '&gt;',
+                                        '"': '&#34;',
+                                    };
+                                    return charsToReplace[tag] || tag;
+                                };
+                                return html.replace(/[&<>"]/g, fn);
+                            };
+
+                            if (data.length) {
+                                var keys = d3.set (d3.keys (data[0]));
+                                ["id", "submit_date", "status", "random_id"].forEach (function (notkey) {
+                                    keys.remove (notkey);   // database generated fields so not an issue
+                                });
+                                keys = keys.values();
+                                //console.log ("keys", keys);
+                                data.forEach (function (row) {
+                                    for (var k = 0; k < keys.length; k++) {
+                                        var kk = keys[k];
+                                        row[kk] = escapeHtml (row[kk]);
+                                    }
+                                });
+                            }
+                        };
+                        //var a = performance.now();
+                        sanitise (response.data);
+                        //var b = performance.now() - a;
+                        //console.log ("sanity in", b, "ms.");
+
 
                         var rows = tbody.selectAll("tr").data(response.data)
                             .enter()
