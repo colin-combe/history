@@ -33,7 +33,7 @@ CLMSUI.history = {
             {name: "ID", type: "number", tooltip: "", visible: true, removable: true},
             {name: "User", type: "alpha", tooltip: "", visible: true, removable: true},
             {name: "Agg Group", type: "clearCheckboxes", tooltip: "Use numbers to divide searches into groups within an aggregated search", visible: true, removable: false},
-            {name: "Delete", type: "none", tooltip: "", visible: true, removable: true},
+            {name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
         ];
         
         var pluck = function (data, prop) {
@@ -99,6 +99,10 @@ CLMSUI.history = {
                         var makeValidationUrl = function (sid, params) {
                              return "../xi3/validate.php?sid="+sid+params;
                         };  
+                        
+                        var isTruthy = function (val) {
+                            return val === true || val === "t" || val === "true";
+                        };
 
                         var tooltips = {
                             notes: function(d) { return d.value.notes; },
@@ -167,7 +171,7 @@ CLMSUI.history = {
                                 return "<input type='number' pattern='\\d*' class='aggregateCheckbox' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'>";
                             },
                             delete: function(d) {
-                                return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>Delete</button>" : "";
+                                return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>"+(isTruthy(d.hidden) ? "Restore" : "Delete")+"</button>" : "";
                             }
                         };
 
@@ -193,7 +197,7 @@ CLMSUI.history = {
                                     };
                                     return charsToReplace[tag] || tag;
                                 };
-                                return html.replace(/[&<>"]/g, fn);
+                                return html ? html.replace(/[&<>"]/g, fn) : html;
                             };
 
                             if (data.length) {
@@ -221,6 +225,7 @@ CLMSUI.history = {
                             .enter()
                             .append("tr")
                         ;
+                        rows.filter(function(d) { return isTruthy(d.hidden); }).style("background", "#ddd");
 
                         // make d3 entry style list of above, removing user_name if just user's own searches
                         var cellFunctions = d3.entries(modifiers);
@@ -250,6 +255,42 @@ CLMSUI.history = {
                             columnMetaData[hideIndex].visible = false;
                         }
                         
+                        var setupFinalDeletionDialog = function (response) {
+                            var dialog = CLMSUI.jqdialogs.choicesDialog (
+                                "popChoiceDialog", 
+                                response.deadSearches+" Searches marked for deletion."
+                                +"<br>"+response.acqFilesizes.length+" associated Acqusition files."
+                                +"<br>"+response.seqFilesizes.length+" associated Sequence files."
+                                +"<br><br>Deletion actions below may take several minutes.",
+                                "⚠ Search Deletion", 
+                                ["⚠ Delete These Searches", "⚠ Delete These Searches and Files"], 
+                                [{}, {deleteFiles: true}],
+                                function (postOptions) {
+                                    var waitDialogID = "databaseLoading";
+                                    CLMSUI.jqdialogs.waitDialog (waitDialogID, "This will take a while...", "Deleting Searches");
+                                    /*
+                                     $.ajax({
+                                        type: "POST",
+                                        url:"./php/queryDeadSearches.php", 
+                                        data: postOptions || {},
+                                        dataType: 'json',
+                                        success: function (response, responseType, xmlhttp) {
+                                            console.log ("lol", response);
+                                            CLMSUI.jqdialogs.killWaitDialog (waitDialogID);
+                                            CLMSUI.history.loadSearchList();
+                                        },
+                                     });
+                                     */
+                                    // testing dialogs
+                                    setTimeout (function() { 
+                                        CLMSUI.jqdialogs.killWaitDialog (waitDialogID); 
+                                        CLMSUI.history.loadSearchList();
+                                    }, 3000);
+                                    return true;
+                                }
+                            );
+                        };
+                        
                         var opt1 = {
                            pager: {rowsCount: 20},
                            pagerElem: d3.select("#pagerTable").node(),
@@ -259,6 +300,7 @@ CLMSUI.history = {
                            colVisible: pluck (columnMetaData, "visible"),
                            colRemovable: pluck (columnMetaData, "removable"),
 
+                            // Add functionality to headers in dynamic table
                            bespokeColumnSetups: {
                                clearCheckboxes: function (dynamicTable, elem) {
                                     // button to clear aggregation checkboxes
@@ -271,7 +313,27 @@ CLMSUI.history = {
                                             CLMSUI.history.clearAggregationCheckboxes (dynTable);
                                         })
                                    ;
-                               }
+                               },
+                               deleteHiddenSearchesOption: function (dynamicTable, elem) {
+                                   d3.select(elem)
+                                        .append("button")
+                                        .text ("INFO ↓")
+                                        .attr ("class", "btn btn-1 btn-1a unpadButton")
+                                        .attr ("title", "Info on all searches marked for delete and associated files")
+                                        .style ("display", response.userRights.isSuperUser ? null : "none") 
+                                        .on ("click", function () {
+                                            $.ajax({
+                                                type: "POST",
+                                                url:"./php/queryDeadSearches.php", 
+                                                data: {},
+                                                dataType: 'json',
+                                                success: function (response, responseType, xmlhttp) {
+                                                    setupFinalDeletionDialog (response);
+                                                }
+                                            });
+                                        })
+                                    ;
+                               },
                            },
                        };
 
@@ -348,41 +410,77 @@ CLMSUI.history = {
                                 d3.select(this).style("width", cellWidths[d.key]);
                             })
                         ;
-                        d3.selectAll("tbody tr").select("button.deleteButton")
-                            .classed("btn btn-1 btn-1a", true)
-                            .on ("click", function(d) {
+                        
+                        
+                        // Add functionality to buttons / links in table
+                        
+                        var addDeleteButtonFunctionality = function (selection) {
+                            selection.select("button.deleteButton")
+                                .classed("btn btn-1 btn-1a", true)
+                                .on ("click", function(d) {
+                                    //console.log ("d", d);
 
-                                var deleteRowVisibly = function (d) {
-                                    // delete row from table somehow
-                                    var thisID = d.id;
-                                    var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
+                                    // Post deletion/restoration code
+                                    var deleteRowVisibly = function (d) {
+                                        // delete row from table somehow
+                                        var thisID = d.id;
+                                        var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
 
-                                    // dynTable has internal object 'rows' which maintains list of rows
-                                    // - we need to remove the node from that array and from the dom (using d3)
-                                    // as dynTable.pager reads rows from the dom to calculate a new page
-                                    var dynRowIndex = dynTable.rows.indexOf (selRows.node());
-                                    if (dynRowIndex >= 0) {
-                                        dynTable.rows.splice (dynRowIndex, 1);
-                                        selRows.remove();
-                                        dynTable.pager (dynTable.currentPage);
-                                    }
-                                };
-                                //deleteRowVisibly (d); // alternative to following code for testing without doing database delete
-
-                                 var doDelete = function() {
-                                    $.ajax({
-                                        type: "POST",
-                                        url:"./php/deleteSearch.php", 
-                                        data: {searchID: d.id},
-                                        dataType: 'json',
-                                        success: function (/*response, responseType, xmlhttp*/) {
-                                            deleteRowVisibly (d);
+                                        // if superuser change state of delete/restore button otherwise remove row from view
+                                        if (response.userRights.isSuperUser) {
+                                            // reset text and state of button
+                                            selRows.selectAll("td").html (function(d) { 
+                                                return modifiers[d.key](d.value);
+                                            });
+                                            addDeleteButtonFunctionality (selRows); // restore functionality for this row
+                                            selRows.style("background", function(d) { return isTruthy(d.hidden) ? "#ddd" : null});
+                                        } else {
+                                            // dynTable has internal object 'rows' which maintains list of rows
+                                            // - we need to remove the node from that array and from the dom (using d3)
+                                            // as dynTable.pager reads rows from the dom to calculate a new page
+                                            var dynRowIndex = dynTable.rows.indexOf (selRows.node());
+                                            if (dynRowIndex >= 0) {
+                                                dynTable.rows.splice (dynRowIndex, 1);
+                                                selRows.remove();
+                                                dynTable.pager (dynTable.currentPage);
+                                            }
                                         }
-                                    });
-                                };
-                                CLMSUI.jqdialogs.areYouSureDialog ("popErrorDialog", "Deleting this search cannot be undone (by yourself).<br>Are You Sure?", "Please Confirm", "Delete this Search", "Cancel this Action", doDelete);
-                            })
-                        ;
+                                    };
+                                    //deleteRowVisibly (d); // alternative to following code for testing without doing database delete
+
+                                    // Ajax delete/restore call
+                                     var doDelete = function() {
+                                        $.ajax({
+                                            type: "POST",
+                                            url:"./php/deleteSearch.php", 
+                                            data: {searchID: d.id, setHiddenState: !isTruthy(d.hidden)},
+                                            dataType: 'json',
+                                            success: function (response, responseType, xmlhttp) {
+                                                if (response.status === "success") {
+                                                    console.log ("response", response);
+                                                    d.hidden = response.newHiddenState;
+                                                    deleteRowVisibly (d);
+                                                }
+                                            }
+                                        });
+                                    };
+                                
+                                    // Dialog
+                                    CLMSUI.jqdialogs.areYouSureDialog (
+                                        "popErrorDialog", 
+                                        isTruthy(d.hidden) ? (
+                                            response.userRights.isSuperUser ? "Restore this Search?" : "You don't have permission for this action"
+                                        ) : (
+                                            response.userRights.isSuperUser ? "As a superuser you can restore this search later" : "Deleting this search cannot be undone (by yourself).<br>Are You Sure?"
+                                        ), 
+                                        "Please Confirm", (isTruthy(d.hidden) ? "Restore" : "Delete") + " this Search", "Cancel this Action", 
+                                        doDelete
+                                    );
+                                })
+                            ;
+                        };
+                        addDeleteButtonFunctionality (d3.selectAll("tbody tr"));
+                        
 
                         var lowScore = "&lowestScore=2";
                         d3.selectAll("tbody tr").select(".validateButton")

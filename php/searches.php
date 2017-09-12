@@ -16,9 +16,9 @@
             $searches = $_POST["searches"];
             $userRights = getUserRights ($dbconn, $_SESSION['user_id']);
             
-            $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, file_name, enzyme, crosslinkers from
+            $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, hidden, file_name, enzyme, crosslinkers from
 
-            (select search.id, search.is_executing, search.notes, user_name as user_name, search.submit_date AS submit_date, 
+            (select search.id, search.is_executing, search.hidden, search.notes, user_name as user_name, search.submit_date AS submit_date, 
             search.name AS name, search.status AS status, search.random_id AS random_id, 
             string_agg(sequence_file.file_name,',') AS file_name
             FROM search
@@ -26,18 +26,19 @@
             
             INNER JOIN search_sequencedb on search.id = search_sequencedb.search_id
             INNER JOIN sequence_file on search_sequencedb.seqdb_id = sequence_file.id 
-            WHERE "
+             "
             ;
 
             // if can_see_all but not a superuser insert this clause
-            $canSeeOthersPublic = "((COALESCE (search.private, FALSE) = FALSE AND COALESCE (users.hidden, FALSE) = FALSE) OR search.uploadedby = $1) AND";
+            $canSeeOthersPublic = "WHERE ((COALESCE (search.private, FALSE) = FALSE AND COALESCE (users.hidden, FALSE) = FALSE) OR search.uploadedby = $1) ";
             
-            $canSeeMineOnly = "search.uploadedby = $1 AND ";
+            $canSeeMineOnly = "WHERE search.uploadedby = $1 ";
             $canSeeMineOnlyIJ = "WHERE search.uploadedby = $1 ";
             $innerJoinMine = ($searches == "MINE" ? $canSeeMineOnlyIJ : "");
+            
+            $hideHiddenSearches = " AND COALESCE (search.hidden, FALSE) = FALSE ";
 
             $qPart3 = "
-                COALESCE (search.hidden, FALSE) = FALSE
             GROUP BY search.id, user_name) srch
 
             inner join (select enzyme.name as enzyme, search.id as id2
@@ -80,12 +81,12 @@
             */
 
             if (!$userRights["isSuperUser"] || $searches == "MINE") {
-             $privateClause = ($searches == "MINE" ? $canSeeMineOnly : $canSeeOthersPublic);
-                  pg_prepare($dbconn, "my_query", $qPart1.$privateClause.$qPart3);
-                  $result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
+                $privateClause = ($searches == "MINE" ? $canSeeMineOnly : $canSeeOthersPublic).($userRights["isSuperUser"] ? $hideHiddenSearches : "");
+                pg_prepare($dbconn, "my_query", $qPart1.$privateClause.$qPart3);
+                $result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
             } else {
-             pg_prepare($dbconn, "my_query", $qPart1.$qPart3);
-             $result = pg_execute($dbconn, "my_query", []);
+                pg_prepare($dbconn, "my_query", $qPart1.$qPart3);
+                $result = pg_execute($dbconn, "my_query", []);
             }
 
             $utilsLogout = file_exists ("../../util/logout.php");
