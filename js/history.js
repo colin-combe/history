@@ -225,7 +225,7 @@ CLMSUI.history = {
                             .enter()
                             .append("tr")
                         ;
-                        rows.filter(function(d) { return isTruthy(d.hidden); }).style("background", "#ddd");
+                        rows.classed("hiddenSearch", function(d) { return isTruthy(d.hidden); });
 
                         // make d3 entry style list of above, removing user_name if just user's own searches
                         var cellFunctions = d3.entries(modifiers);
@@ -433,7 +433,7 @@ CLMSUI.history = {
                                                 return modifiers[d.key](d.value);
                                             });
                                             addDeleteButtonFunctionality (selRows); // restore functionality for this row
-                                            selRows.style("background", function(d) { return isTruthy(d.hidden) ? "#ddd" : null});
+                                            selRows.classed ("hiddenSearch", function(d) { return isTruthy(d.hidden); });
                                         } else {
                                             // dynTable has internal object 'rows' which maintains list of rows
                                             // - we need to remove the node from that array and from the dom (using d3)
