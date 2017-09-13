@@ -315,6 +315,10 @@ span, td, div {
     display: block;
 }
 
+#popChoiceDialog > p:not(:last-of-type) {
+    margin-bottom: 0.5em;
+}
+
 .fauxLink {
     text-decoration: underline;
     cursor: pointer;

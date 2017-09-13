@@ -72,14 +72,13 @@
                 }  
             }
             
+            pg_prepare ($dbconn, "deleteSearches", "DELETE from search where hidden = 'true'"); // has delete cascade to sequence / acquisition etc
+            $result = pg_execute($dbconn, "deleteSearches", []);
+            $rows = resultsAsArray ($result);
             
             pg_prepare ($dbconn, "deleteSpectra", "DELETE from spectrum sp inner join search_acquisition sa on sp.acq_id = sa.acq_id and sp.run_id = sa.run_id inner join search s on sa.search_id = s.id where s.hidden;");
             $result = pg_execute($dbconn, "deleteSpectra", []);
             $rows = resultsAsArray ($result);         
-            
-            pg_prepare ($dbconn, "deleteSearches", "DELETE from search where hidden = 'true'");
-            $result = pg_execute($dbconn, "deleteSearches", []);
-            $rows = resultsAsArray ($result);
         }
         
         pg_query("COMMIT");

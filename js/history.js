@@ -271,7 +271,7 @@ CLMSUI.history = {
                                     /*
                                      $.ajax({
                                         type: "POST",
-                                        url:"./php/queryDeadSearches.php", 
+                                        url:"./php/queryDeletedSearches.php", 
                                         data: postOptions || {},
                                         dataType: 'json',
                                         success: function (response, responseType, xmlhttp) {
@@ -324,7 +324,7 @@ CLMSUI.history = {
                                         .on ("click", function () {
                                             $.ajax({
                                                 type: "POST",
-                                                url:"./php/queryDeadSearches.php", 
+                                                url:"./php/queryDeletedSearches.php", 
                                                 data: {},
                                                 dataType: 'json',
                                                 success: function (response, responseType, xmlhttp) {
@@ -465,15 +465,17 @@ CLMSUI.history = {
                                         });
                                     };
                                 
+                                    var basicMsg = (isTruthy(d.hidden) ? "Restore" : "Delete") + " Search "+d.id+"?";
+                                    var msg = isTruthy(d.hidden) ?
+                                        (response.userRights.isSuperUser ? basicMsg : "You don't have permission for this action") :
+                                        (response.userRights.isSuperUser ? basicMsg+"<br>(As a superuser you can restore this search later)" : basicMsg+"<br>This action cannot be undone (by yourself).<br>Are You Sure?")
+                                    ;
+                                
                                     // Dialog
                                     CLMSUI.jqdialogs.areYouSureDialog (
-                                        "popErrorDialog", 
-                                        isTruthy(d.hidden) ? (
-                                            response.userRights.isSuperUser ? "Restore this Search?" : "You don't have permission for this action"
-                                        ) : (
-                                            response.userRights.isSuperUser ? "As a superuser you can restore this search later" : "Deleting this search cannot be undone (by yourself).<br>Are You Sure?"
-                                        ), 
-                                        "Please Confirm", (isTruthy(d.hidden) ? "Restore" : "Delete") + " this Search", "Cancel this Action", 
+                                        "popChoiceDialog", 
+                                        msg, 
+                                        "Please Confirm", "Yes, "+(isTruthy(d.hidden) ? "Restore" : "Delete") + " this Search", "No, Cancel this Action", 
                                         doDelete
                                     );
                                 })
@@ -491,7 +493,7 @@ CLMSUI.history = {
                                    return makeValidationUrl (d.id+"-"+d.random_id, "&unval=1"+deltaUrl);
                                 });
 
-                                CLMSUI.jqdialogs.choicesDialog ("popChoiceDialog", "Choose Option", "Validate "+d.id, 
+                                CLMSUI.jqdialogs.choicesDialog ("popChoiceDialog", "Choose Validation Option", "Validate "+d.id, 
                                     ["Validate", "Validate with Decoys", "Validate with Linears", "Validate with Decoys & Linears"], 
                                     baseUrls
                                 );
