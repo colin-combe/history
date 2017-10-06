@@ -9,16 +9,17 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
         
-        <link rel="stylesheet" href="css/reset.css" />
-        <link rel="stylesheet" href="css/style.css" />
-        <link rel="stylesheet" href="css/dynamic_table.css" />
-        <link rel="stylesheet" href="vendor/css/jquery-ui.css" />
+        <link rel="stylesheet" href="./css/reset.css" />
+        <link rel="stylesheet" href="./css/history.css" />
+        <link rel="stylesheet" href="./vendor/css/dynamic_table.css" />
+        <link rel="stylesheet" href="./vendor/css/jquery-ui.css" />
+        <link rel="stylesheet" href="./vendor/css/multiple-select.css" />
         
-        <!-- <script type="text/javascript" src="./vendor/js/zepto.js"></script> -->
         <script type="text/javascript" src="./vendor/js/dynamic_table.js"></script>
         <script type="text/javascript" src="./vendor/js/d3.js"></script>
-        <script src="vendor/js/jquery-2.2.0.js"></script>
-        <script src="vendor/js/jquery-ui.js"></script>
+        <script type="text/javascript" src="./vendor/js/jquery-2.2.4.js"></script>
+        <script type="text/javascript" src="./vendor/js/jquery-ui.js"></script>
+        <script type="text/javascript" src="./vendor/js/multiple-select.js"></script>
         <script type="text/javascript" src="./js/dialogs.js"></script>
         <script type="text/javascript" src="./js/history.js"></script>
 	</head>
@@ -27,34 +28,33 @@
 
 		<div class="container">
 			<h1 class="page-header">
-        <span class="headerLabel" id="username"></span>
+                <span class="headerLabel" id="username"></span>
 
-        <span id="scopeOptions">
-            <input type="radio" name="mineOrAll" value="mySearches" id="mySearches" checked onchange="CLMSUI.history.loadSearchList();">
-            <span class="headerLabel">My Searches</span>
-            <input type="radio" name="mineOrAll" value="allSearches" id="allSearches" onchange="CLMSUI.history.loadSearchList();">
-            <span class="headerLabel" >All Searches</span>
-        </span>
+                <span id="scopeOptions">
+                    <input type="radio" name="mineOrAll" value="mySearches" id="mySearches" checked onchange="CLMSUI.history.loadSearchList();">
+                    <span class="headerLabel">My Searches</span>
+                    <input type="radio" name="mineOrAll" value="allSearches" id="allSearches" onchange="CLMSUI.history.loadSearchList();">
+                    <span class="headerLabel" >All Searches</span>
+                </span>
 
-        <button id="newSearch" onclick="window.location = '../searchSubmit/submitSearch.html';">
-            New Search
-        </button>	
-
-        <button onclick="window.location = '../util/logout.php';">
-            Log Out
-        </button>
+                <button id="newSearch" onclick="window.location = '../searchSubmit/submitSearch.html';">New Search</button>	
+                <button id="userGUI" onclick="window.location = '../userGUI/userAdmin.html';">User Admin</button>
+                <button id="logout" onclick="window.location = '../userGUI/php/logout.php';">Log Out</button>
 					
-				<div style="float:right">
-					<button onclick="CLMSUI.history.aggregate(false);">Aggregate</button>
-					<button onclick="CLMSUI.history.aggregate(true);" >Agg. for FDR</button>
-				</div>
-
+                <div style="float:right">
+                    <button id="aggSearch" title="Visualise Aggregate Search (use Agg Group controls)">Aggregate</button>
+                    <button id="aggFDRSearch" title="Visualise Aggregate Search with decoys to allow FDR calcs">Agg. for FDR</button>
+                </div>
 			</h1>
+            
+            <div id="fixedSelectionInfo">
+                    <span id="selectedCounter">0 Selected</span>
+            </div>
+            
 			<div class="tableContainer">
+                <table id="pagerTable"></table> <!-- separate table for page control so it doesn't set widths for everything else -->
 				<table id="t1">
-					<tbody id="tb1">
-
-					</tbody>
+					<tbody id="tb1"></tbody>
 				</table>
 			</div><!-- tableContainer -->
 		</div> <!-- CONTAINER -->

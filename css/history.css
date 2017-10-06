@@ -1,0 +1,350 @@
+@charset 'UTF-8';
+/* @import url("font-awesome.min.css"); */
+@font-face {
+  font-family: 'Lato-Bold';
+  src: url('../fonts/lato/bold/Lato-Bold.eot'); /* IE9 Compat Modes */
+  src: url('../fonts/lato/bold/Lato-Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/lato/bold/Lato-Bold.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/lato/bold/Lato-Bold.ttf')  format('truetype'), /* Safari, Android, iOS */
+       url('../fonts/lato/bold/Lato-Bold.svg#svgLato-Bold') format('svg'); /* Legacy iOS */
+}
+@font-face {
+  font-family: 'Lato-Regular';
+  src: url('../fonts/lato/regular/Lato-Regular.eot'); /* IE9 Compat Modes */
+  src: url('../fonts/lato/regular/Lato-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/lato/regular/Lato-Regular.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/lato/regular/Lato-Regular.ttf')  format('truetype'), /* Safari, Android, iOS  */
+       url('../fonts/lato/regular/Lato-Regular.svg#svgLato-Regular') format('svg');  /* Legacy iOS */ 
+}
+
+/* Btn */
+.btn {
+	height: 32px;
+    border: none;
+    font-family: inherit;
+    font-size: 0.8em;
+    color: inherit;
+    background: 0 0;/*#091D42;*/
+    cursor: pointer;
+    /*padding: 5px 15px;*/
+    margin: 0 5px 0 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    /* font-weight: 300; */
+    outline: 0;
+}
+
+.btn-1 {
+    border: 1px solid white;
+    color: white;
+}
+.btn-1a:active, .btn-1a:hover {
+    color: #091D42;
+    background: white;
+}
+
+/*tables*/
+table {
+	width:100%;
+    font-size: 0.9em;
+    left: auto;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: rgba(255, 255, 255, 1);
+    text-align: left;
+}
+thead{
+	margin-top:10px;
+	margin-bottom:10px;
+}
+th, td {
+	padding-left:5px;
+	padding-right:5px;
+    vertical-align: middle; 
+    height: 30px;
+    text-align: left;   /* Needs to be done specifically for ie11 */
+}
+
+th {
+    height: 30px;
+}
+th:first-child, td:first-child {
+	padding-left:10px;
+}
+th:last-child {
+	padding-right:10px;
+}
+td:last-child {
+    padding-right: 0;
+}
+
+tbody tr {
+    background-color: white;
+}
+tbody tr.hiddenSearch {
+    background-color: #dddddd;  
+}
+tbody tr:hover {
+    background-color: #091D42;  
+}
+tbody tr:hover, tbody tr:hover td, tbody tr:hover td a, tbody tr:hover td .unviewableSearch, tbody tr:hover td .fauxLink {
+    color: white;
+}
+
+
+/* Common */
+body, html{
+    background: white;
+    /* height:100%; */
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    user-select: none;   
+}
+body, input, select, textarea {
+    Font-family: "Lato-Regular", Helvetica, Arial, sans-serif;
+	font-size: 13pt;
+    font-weight: 300;
+    line-height: 1.75em;
+    color: #888;
+	-webkit-text-stroke: .15px;
+}
+
+.container {
+    margin: 10px;
+}
+
+.page-header {
+    background-color: #091D42;
+    color: white;
+    padding: 10px;
+    /*margin-bottom: 10px;*/
+    margin-top: 10px;
+}
+
+
+.headerLabel{
+	text-transform: uppercase;
+    margin-right:10px;
+    font-size:0.9em;
+}
+
+/* history page */
+
+.tableContainer table {
+    table-layout: auto;
+    width: 100%;
+    display: table;
+}
+
+.tableContainer table tbody {
+    font-size: 13px;
+}
+
+.tableContainer table#t1 input {
+    font-size: 13px;
+}
+
+.tableContainer table#pagerTable input {
+    font-size: 1em;
+}
+
+#pagerTable {
+    font-size: 0.75em;
+    width: auto;
+    margin: 10px 0 0 0;
+}
+
+#pagerTable input[type='number'] {
+    max-width: 3.5em;
+}
+
+#pagerTable td {
+    padding: 0 5px 0 10px;
+    font-size: 0.9rem;
+}
+
+#pagerTable tr td:not(:first-of-type) {
+    border-left: 1px solid #bbb;
+}
+
+#pagerTable td span {
+    vertical-align: middle;
+}
+
+#pagerTable .ms-parent {
+    margin-left: 0.5em;
+}
+
+.tableContainer a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
+    color:#091D42;
+}
+
+.tableContainer tbody tr td, .tableContainer tr th {
+     color:#aaa;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    min-width: 5em;
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+.tableContainer tbody tr td.varWidthCell, .tableContainer tr th.varWidthCell {
+    width: 45%;
+    min-width: 5em;
+    /*max-width: 5em;*/
+    white-space: normal;
+}
+
+.tableContainer tbody tr td.varWidthCell2, .tableContainer tr th.varWidthCell2 {
+    width: 15%;
+    min-width: 2em;
+    /*max-width: 5em;*/
+    white-space: nowrap;
+}
+
+.clearChx {
+	background:#091D42;
+}
+
+.clearChx:hover {
+    border-color: #091D42;
+}
+
+.dynamic-table-filter{
+	margin:auto;
+}
+
+.tableContainer .dynamic-table-toolbar input {
+    margin-top: 0.5em;
+}
+
+.tableContainer .dynamic-table-namebar th {
+    color: #a40;
+    font-size: 1.1em;
+    background: #f8f8ff;
+}
+
+.tableContainer tbody tr {
+    border-top: 1px dotted #ddd;
+}
+
+/* To get round a firefox table border bug, move padding to span, apply border to span */
+
+.tableContainer .dynamic-table-namebar th:not(:first-child) {
+    padding-left: 0;
+    padding-right: 0;
+} 
+
+.tableContainer .dynamic-table-namebar th:not(:first-child) span {
+    border-left: 1px solid #091d42;
+    padding: 5px;
+}
+
+.tableContainer .dynamic-table-namebar th.dottedBorder span {
+    border-left: 1px dashed #091d42;
+}
+
+
+.aggregateCheckbox {
+    width: 2.5em;
+    line-height: 1.2em;
+    margin-left: 3px;
+    color: black;
+    font-weight: bold;
+}
+.unpadButton {
+    padding: 0 6px;
+    margin: 2px 0;
+}
+.xierror {
+    color: red;
+}
+button:disabled {
+    color: #888;
+    border-color: #888;
+    /* display: none; */
+}
+
+.btn-1a:active:disabled, .btn-1a:hover:disabled {
+    color: #444;
+    background: #888;
+    cursor: default;
+}
+
+/*
+.page-header p {
+	display: inline-block;
+	padding-right:1px;
+	padding-left:10px;
+}
+*/
+
+.container #clmsErrorBox {
+    transform: scale(0.5);
+}
+
+#clmsErrorBox {
+    font-size: 2em;
+    border: 4px solid red;
+    margin-left: 3em;
+    padding: 1em;
+    position: absolute;
+    line-height: normal;
+    -webkit-box-shadow: 10px 10px 5px 0 rgba(0,0,0,0.5);
+    -moz-box-shadow: 10px 10px 5px 0 rgba(0,0,0,0.5);
+    box-shadow: 10px 10px 5px 0 rgba(0,0,0,0.5);
+}
+
+/* Stop the text selection cursor showing up */
+span, td, div {
+    cursor: default;
+}
+
+
+#popChoiceDialog ~ div {
+    font-size: 0.8em;
+}
+
+#popChoiceDialog ~ div > div.ui-dialog-buttonset {
+    float: none;
+}
+
+#popChoiceDialog ~ div > div.ui-dialog-buttonset button {
+    display: block;
+}
+
+#popChoiceDialog > p:not(:last-of-type) {
+    margin-bottom: 0.5em;
+}
+
+.fauxLink {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+
+#fixedSelectionInfo {
+    position: absolute; /* changed to fixed for it to to 'follow' page down when scrolling */
+    right: 0;
+    margin-right: 10px;
+    padding: 0 0.5em 0.5em;
+    line-height: normal;
+    z-index: 3; /* so it appears on top of table */
+    background-color:#091D42;
+    border-bottom-left-radius: 0.5em;
+    width: 15em;
+}
+
+#selectedCounter {
+    font-family: 'Lato-Regular';
+    color: white;
+    visibility: hidden;
+}
+
+.ms-drop li {
+    line-height: 1em;
+}
