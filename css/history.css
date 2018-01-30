@@ -141,11 +141,12 @@ body, input, select, textarea {
 }
 
 .tableContainer table tbody {
-    font-size: 13px;
+    font-size: 1em;
 }
 
 .tableContainer table#t1 input {
-    font-size: 13px;
+    font-size: 1em;
+	color: #000;
 }
 
 .tableContainer table#pagerTable input {
