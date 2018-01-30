@@ -365,6 +365,7 @@ DynamicTable.prototype.maxPage = function (maxPage) {
  */
 DynamicTable.prototype.filterRows = function(evt){
     //~ if (evt.keyCode == 13){
+	
 	var tTable = this.table;
 
 //	for (var i = 0; i < this.filters.length; i++){
@@ -378,6 +379,11 @@ DynamicTable.prototype.filterRows = function(evt){
 	var newRows = [];
 	this.rmRows = [];	// initialize rmRows
     
+	// from https://stackoverflow.com/a/6969486/368214 to escape regex meaningful characters in user input, otherwise can cause errors
+	function escapeRegExp(str) {
+		return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+	}
+	
 	// Get active filters once, rather than per row
 	var activeFilters = [];
 	for (var j = 0, fl = this.filters.length; j < fl; j++){
@@ -393,7 +399,8 @@ DynamicTable.prototype.filterRows = function(evt){
 		 var s;
 		 // add lookahead statements for each word
 		 for (s =0; s<reparts.length; s++) {
-			 reString+="(?=.*?"+reparts[s]+")";
+			 var escs = escapeRegExp (reparts[s]);
+			 reString+="(?=.*?"+escs+")";
 		 }
 		 reString+="^.*$";
 
@@ -402,28 +409,37 @@ DynamicTable.prototype.filterRows = function(evt){
  	}
     
 	for (var i = 0, trl = tRows.length; i < trl; i++){
-	    tRows[i].style.display = "";
-
+		var trow = tRows[i];
+	    trow.style.display = "";
+		var rowCells = this.rowCells(trow);
 	    var bPush = true;
-	    for (var j = 0, fl = activeFilters.length; j < fl; j++){
-        var colIndex = activeFilters[j].colIndex;
-		      var text = this.rowCells(tRows[i])[colIndex].innerHTML;
-		      if (this.filterFunction (text, activeFilters[j].filterRE) == -1) {
-            bPush = false;
-            break;
-        }
+		
+	    for (var j = 0, fl = activeFilters.length; j < fl; j++) {
+			var filter = activeFilters[j];
+			var regex = filter.filterRE;
+			var cell = rowCells[filter.colIndex];
+		    var text = cell.textContent;
+			var titleAttr = cell.getAttribute("title") || "";
+		    if (this.filterFunction (text, regex) == -1 && this.filterFunction (titleAttr, regex) == -1) {
+            	bPush = false;
+            	break;
+        	}
 	   }
 	   if (bPush)
-		      newRows.push(tRows[i]);		
+		      newRows.push(trow);		
 	   else
-		      this.rmRows.push(tRows[i]);
+		      this.rmRows.push(trow);
 	}
-    
+	
     // append not filtered rows to tree
+	var tbody = tTable.tBodies[0];
+	//tbody.innerHTML = "";	// bit faster than removing rows individually in firefox. no diff in chrome.
 	for (var i = 0, nrl = newRows.length; i < nrl; i++){
-	    tTable.tBodies[0].appendChild(newRows[i]);
+	    tbody.appendChild(newRows[i]);
 	}
-    
+	//tbody.innerHTML = "";
+	//tbody.appendChild (dfrag);
+
     // delete filtered rows from the tree
 	this.removeRows (this.rmRows);
     

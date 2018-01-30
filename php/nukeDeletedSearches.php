@@ -17,6 +17,7 @@
         
         $userRights = getUserRights ($dbconn, $_SESSION['user_id']);
 
+		/*
         if ($userRights["isSuperUser"]) {
             
             if ($_POST["deleteFiles"]) {
@@ -80,6 +81,7 @@
             $result = pg_execute($dbconn, "deleteSpectra", []);
             $rows = resultsAsArray ($result);         
         }
+		*/
         
         pg_query("COMMIT");
         echo json_encode (array(

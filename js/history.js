@@ -143,8 +143,8 @@ CLMSUI.history = {
                                     : "<span class='unviewableSearch'>"+d.name+"</span>"
                                 ;
                                 var error = !completed && d.status.substring(0,4) === "XiDB";
-                                return name + (error ? "<span class='xierror'>" : "") + " ["+d.status.substring(0,16)+"]" + (error ? "</span>" : "") + 
-                                    (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>"); 
+                                return name + (error ? "<span class='xierror'>" : "") + " ["+d.status.substring(0,16)+"]" + (error ? "</span>" : "") /*+ 
+                                    (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>")*/; 
                             },
                             fdr: function (d) {
                                 var unuseable = d.status.substring(0,4) === "XiDB" || d.status !== "completed";
