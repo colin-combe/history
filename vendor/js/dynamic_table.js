@@ -407,10 +407,11 @@ DynamicTable.prototype.filterRows = function(evt){
   	       activeFilters.push ({filterRE: new RegExp(reString,"i"), colIndex: j});
   	   }
  	}
-    
+	
+	//console.time ("text filter");
 	for (var i = 0, trl = tRows.length; i < trl; i++){
 		var trow = tRows[i];
-	    trow.style.display = "";
+	    //trow.style.display = "";
 		var rowCells = this.rowCells(trow);
 	    var bPush = true;
 		
@@ -418,7 +419,9 @@ DynamicTable.prototype.filterRows = function(evt){
 			var filter = activeFilters[j];
 			var regex = filter.filterRE;
 			var cell = rowCells[filter.colIndex];
-		    var text = cell.textContent;
+			var data = cell.__data__;
+		    var text = data ? data.value[data.key] : cell.textContent;
+			//var text = cell.textContent;
 			var titleAttr = cell.getAttribute("title") || "";
 		    if (this.filterFunction (text, regex) == -1 && this.filterFunction (titleAttr, regex) == -1) {
             	bPush = false;
@@ -430,15 +433,17 @@ DynamicTable.prototype.filterRows = function(evt){
 	   else
 		      this.rmRows.push(trow);
 	}
+	//console.timeEnd ("text filter");
+			
+	for (var i = 0, trl = tRows.length; i < trl; i++){
+		tRows[i].style.display = "";
+	}
 	
     // append not filtered rows to tree
 	var tbody = tTable.tBodies[0];
-	//tbody.innerHTML = "";	// bit faster than removing rows individually in firefox. no diff in chrome.
 	for (var i = 0, nrl = newRows.length; i < nrl; i++){
 	    tbody.appendChild(newRows[i]);
 	}
-	//tbody.innerHTML = "";
-	//tbody.appendChild (dfrag);
 
     // delete filtered rows from the tree
 	this.removeRows (this.rmRows);
