@@ -140,11 +140,12 @@ CLMSUI.history = {
                         var modifiers = {
                             name: function(d) { 
                                 var completed = d.status === "completed";
-                                var name = completed ? makeResultsLink (d.id+"-"+d.random_id, "", d.name)
-                                    : "<span class='unviewableSearch'>"+d.name+"</span>"
+								var name = d.name.length < 200 ? d.name : (d.name.substring (0, 200) + "…");
+                                var nameHtml = completed ? makeResultsLink (d.id+"-"+d.random_id, "", name)
+                                    : "<span class='unviewableSearch'>"+name+"</span>"
                                 ;
                                 var error = !completed && d.status.substring(0,4) === "XiDB";
-                                return name + (error ? "<span class='xierror'>" : "") + " ["+d.status.substring(0,16)+"]" + (error ? "</span>" : "") /*+ 
+                                return nameHtml + (error ? "<span class='xierror'>" : "") + " ["+d.status.substring(0,16)+"]" + (error ? "</span>" : "") /*+ 
                                     (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>")*/; 
                             },
                             fdr: function (d) {
