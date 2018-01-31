@@ -33,7 +33,8 @@ CLMSUI.history = {
             {name: "ID", type: "number", tooltip: "", visible: true, removable: true},
             {name: "User", type: "alpha", tooltip: "", visible: true, removable: true},
             {name: "Agg Group", type: "clearCheckboxes", tooltip: "Use numbers to divide searches into groups within an aggregated search", visible: true, removable: false},
-            {name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
+            //{name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
+			{name: "Delete", type: "none", tooltip: "", visible: true, removable: true},
         ];
         
         var pluck = function (data, prop) {
@@ -255,6 +256,7 @@ CLMSUI.history = {
                             columnMetaData[hideIndex].visible = false;
                         }
                         
+						// not used (and not linked to any deadly php functions so dont worry)
                         var setupFinalDeletionDialog = function (response) {
                             var dialog = CLMSUI.jqdialogs.choicesDialog (
                                 "popChoiceDialog", 

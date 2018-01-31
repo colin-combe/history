@@ -83,7 +83,10 @@ tbody tr {
     background-color: white;
 }
 tbody tr.hiddenSearch {
-    background-color: #dddddd;  
+    background-color: #ddd;  
+}
+.tableContainer tbody tr.hiddenSearch {
+	border-top: 1px dotted #888;
 }
 tbody tr:hover {
     background-color: #091D42;  
