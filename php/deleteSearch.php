@@ -12,7 +12,7 @@
 	try {	
         pg_query("BEGIN") or die("Could not start transaction\n");
         //error_log (print_r ($_SESSION, true));
-        error_log (print_r ($_POST, true));
+        //error_log (print_r ($_POST, true));
         $userRights = getUserRights ($dbconn, $_SESSION['user_id']);
 
         pg_prepare ($dbconn, "getSearch", "SELECT uploadedby FROM search WHERE id = $1");
@@ -21,7 +21,8 @@
         $searchUserID = $row["uploadedby"];
         $hiddenState = $_POST["setHiddenState"];
 
-        if (($searchUserID === $_SESSION['user_id'] && $hiddenState === 'false') || $userRights["isSuperUser"]) {
+		// User can delete own searches, superuser can restore or delete any
+        if (($searchUserID === $_SESSION['user_id'] && $hiddenState === 'true') || $userRights["isSuperUser"]) {
             //pg_prepare ($dbconn, "deleteSearch", "DELETE FROM search WHERE id = $1");
             pg_prepare ($dbconn, "deleteSearch", "UPDATE search SET hidden = $1 WHERE id = $2");
             $result = pg_execute($dbconn, "deleteSearch", [$hiddenState, $_POST["searchID"]]);
