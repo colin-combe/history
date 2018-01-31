@@ -24,6 +24,7 @@ CLMSUI.history = {
         var columnMetaData = [
             {name: "Visualise Search", type: "alpha", tooltip: "", visible: true, removable: true},
             {name: "+FDR", type: "none", tooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true},
+			{name: "Restart", type: "none", tooltip: "", visible: false, removable: true},
             {name: "Notes", type: "alpha", tooltip: "", visible: true, removable: true},
             {name: "Validate", type: "none", tooltip: "", visible: true, removable: true},
             {name: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true},
@@ -126,6 +127,7 @@ CLMSUI.history = {
                             //name: "20em",
                             notes: "8em",
                             fdr: "4em",
+							restart: "5em",
                             validate: "5em",
                             //file_name: "15em",
                             submit_date: "10em",
@@ -151,6 +153,11 @@ CLMSUI.history = {
                             fdr: function (d) {
                                 var unuseable = d.status.substring(0,4) === "XiDB" || d.status !== "completed";
                                 return unuseable ? "" : makeResultsLink (d.id+"-"+d.random_id, "&decoys=1&unval=1", "+FDR");
+                            },
+							restart: function(d) {
+								// add restart button for user if search executing and not completed
+								// let user use judgement
+                                return (d.user_name === response.user || response.userRights.isSuperUser) && (isTruthy(d.is_executing) && !isTruthy(d.completed)) ? "<button class='restartButton unpadButton'>Restart</button>" : "";
                             },
                             notes: function (d) {
                                 // Let fixed column width take care of only showing the first few characters
@@ -486,7 +493,50 @@ CLMSUI.history = {
                         };
                         addDeleteButtonFunctionality (d3.selectAll("tbody tr"));
                         
+						
+						var addRestartButtonFunctionality = function (selection) {
+                            selection.select("button.restartButton")
+                                .classed("btn btn-1 btn-1a", true)
+                                .on ("click", function(d) {
+                                    //console.log ("d", d);
 
+                                    // Post restart code
+                                    var removeRestartButton = function (d) {
+                                        var thisID = d.id;
+                                        var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
+										selRows.select(".restartButton").remove();
+                                    };
+                                    //removeRestartButton (d); // alternative to following code for testing without doing database actions
+
+                                    // Ajax restart call
+                                     var doRestart = function() {
+                                        $.ajax({
+                                            type: "POST",
+                                            url:"./php/restartSearch.php", 
+                                            data: {searchID: d.id},
+                                            dataType: 'json',
+                                            success: function (response, responseType, xmlhttp) {
+                                                if (response.status === "success") {
+                                                    console.log ("response", response);
+                                                    removeRestartButton (d);
+                                                }
+                                            }
+                                        });
+                                    };
+                                
+                                    var msg = "Restart Search "+d.id+"?";
+                                    // Dialog
+                                    CLMSUI.jqdialogs.areYouSureDialog (
+                                        "popChoiceDialog", 
+                                        msg, 
+                                        "Please Confirm", "Yes, Restart this Search", "No, Cancel this Action", 
+                                        doRestart
+                                    );
+                                })
+                            ;
+                        };
+						addRestartButtonFunctionality (d3.selectAll("tbody tr"));
+						
                         var lowScore = "&lowestScore=2";
                         d3.selectAll("tbody tr").select(".validateButton")
                             //.classed("btn-1a", true)

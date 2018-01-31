@@ -16,9 +16,9 @@
             $searches = $_POST["searches"];
             $userRights = getUserRights ($dbconn, $_SESSION['user_id']);
             
-            $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, hidden, file_name, enzyme, crosslinkers from
+            $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, hidden, file_name, enzyme, crosslinkers, is_executing, completed from
 
-            (select search.id, search.is_executing, search.hidden, search.notes, user_name as user_name, search.submit_date AS submit_date, 
+            (select search.id, search.completed, search.is_executing, search.hidden, search.notes, user_name as user_name, search.submit_date AS submit_date, 
             search.name AS name, search.status AS status, search.random_id AS random_id, 
             string_agg(sequence_file.file_name,',') AS file_name
             FROM search
