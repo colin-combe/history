@@ -242,6 +242,7 @@ CLMSUI.history = {
                         var cells = rows.selectAll("td").data(function(d) { 
                             return cellFunctions.map(function(entry) { return {key: entry.key, value: d}; });
                         });
+						var ttdiv = d3.select("div.tooltip");
                         cells.enter()
                             .append("td")
                             .html (function(d) { 
@@ -253,6 +254,24 @@ CLMSUI.history = {
                                 var v = tooltips[d.key](d);
                                 return v ? d.value.id+": "+v : "";
                             })
+							/*
+							.on ("mouseover", function (d) {
+								ttdiv.transition()		
+									.duration(200)		
+									.style("opacity", .9)
+									.style("left", (d3.event.pageX) + "px")		
+                					.style("top", (d3.event.pageY - 28) + "px");	
+								;		
+								ttdiv.select("P.tooltipTitle").text(d.key);
+								ttdiv.select("P.tooltipContents").text(tooltips[d.key](d));
+							})
+							.on("mouseout", function() {		
+								ttdiv.transition()		
+									.duration(500)		
+									.style("opacity", 0)
+								;	
+							})
+							*/
                         ;
                         
                         cells.select("input.aggregateCheckbox");
