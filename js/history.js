@@ -33,7 +33,7 @@ CLMSUI.history = {
             {name: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true},
             {name: "ID", type: "number", tooltip: "", visible: true, removable: true},
             {name: "User", type: "alpha", tooltip: "", visible: true, removable: true},
-            {name: "Agg Group", type: "clearCheckboxes", tooltip: "Use numbers to divide searches into groups within an aggregated search", visible: true, removable: false},
+            {name: "Agg Group", type: "clearCheckboxes", tooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false},
             //{name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
 			{name: "Delete", type: "none", tooltip: "", visible: true, removable: true},
         ];
