@@ -422,8 +422,16 @@ CLMSUI.history = {
                         ;
                         
                         
-                        // Add functionality to buttons / links in table
-                        
+						// hidden row state can change when restore/delete pressed or when restart pressed
+						function updateHiddenRowStates (selectedRows) {
+							// reset button text and row appearance
+							selectedRows.selectAll(".deleteButton").text (function(d) {
+								return isTruthy(d.hidden) ? "Restore" : "Delete";
+							});
+                            selectedRows.classed ("hiddenSearch", function(d) { return isTruthy(d.hidden); });
+						}
+						
+                        // Add functionality to buttons / links in table     
                         var addDeleteButtonFunctionality = function (selection) {
                             selection.select("button.deleteButton")
                                 .classed("btn btn-1 btn-1a", true)
@@ -434,16 +442,10 @@ CLMSUI.history = {
                                     var deleteRowVisibly = function (d) {
                                         // delete row from table somehow
                                         var thisID = d.id;
-                                        var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
-
+										var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
                                         // if superuser change state of delete/restore button otherwise remove row from view
                                         if (response.userRights.isSuperUser) {
-                                            // reset text and state of button
-                                            selRows.selectAll("td").html (function(d) { 
-                                                return modifiers[d.key](d.value);
-                                            });
-                                            addDeleteButtonFunctionality (selRows); // restore functionality for this row
-                                            selRows.classed ("hiddenSearch", function(d) { return isTruthy(d.hidden); });
+											updateHiddenRowStates (selRows);
                                         } else {
                                             // dynTable has internal object 'rows' which maintains list of rows
                                             // - we need to remove the node from that array and from the dom (using d3)
@@ -498,19 +500,20 @@ CLMSUI.history = {
                             selection.select("button.restartButton")
                                 .classed("btn btn-1 btn-1a", true)
                                 .on ("click", function(d) {
-                                    //console.log ("d", d);
-
-                                    // Post restart code
+									// Post restart code
                                     var removeRestartButton = function (d) {
                                         var thisID = d.id;
                                         var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
 										selRows.select(".restartButton").remove();
+										d.hidden = false;
+										updateHiddenRowStates (selRows);
                                     };
                                     //removeRestartButton (d); // alternative to following code for testing without doing database actions
 
                                     // Ajax restart call
                                      var doRestart = function() {
-                                        $.ajax({
+
+										 $.ajax({
                                             type: "POST",
                                             url:"./php/restartSearch.php", 
                                             data: {searchID: d.id},
@@ -522,9 +525,12 @@ CLMSUI.history = {
                                                 }
                                             }
                                         });
+										
                                     };
                                 
-                                    var msg = "Restart Search "+d.id+"?";
+									var dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', minute: 'numeric', hour: 'numeric', second: 'numeric' };
+									var dateStr = new Date(Date.parse(d.submit_date)).toLocaleDateString("en-GB-u-hc-h23", dateOptions)
+                                    var msg = "Restart Search "+d.id+"?<br>Originally Submitted: "+dateStr;
                                     // Dialog
                                     CLMSUI.jqdialogs.areYouSureDialog (
                                         "popChoiceDialog", 

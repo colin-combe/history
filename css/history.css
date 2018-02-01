@@ -94,7 +94,8 @@ tbody tr:hover {
 tbody tr:hover, tbody tr:hover td, tbody tr:hover td a, tbody tr:hover td .unviewableSearch, tbody tr:hover td .fauxLink {
     color: white;
 }
-tr:hover button {
+
+tbody tr:hover button {
 	color: white;
 	border-color: white;
 }
@@ -360,4 +361,12 @@ span, td, div {
 
 .ms-drop li {
     line-height: 1em;
+}
+
+.ms-drop li:hover {
+    background: #ffffaa;
+}
+
+button.ms-choice:hover {
+	background: #ffffaa;
 }
