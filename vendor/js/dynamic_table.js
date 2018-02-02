@@ -39,8 +39,18 @@ function DynamicTable (obj, options){
     // toolbar onclick handler wrapper 
     // allows to use "this"
     var oThis = this;
-    this._toolbarClick = function(evt){	oThis.toolbarClick(evt); }
-    this._filterRows = function(evt){ oThis.filterRows(evt); };
+    this._toolbarClick = function(evt){
+		oThis.toolbarClick(evt);
+		if (options.postToolbarClick) {
+			options.postToolbarClick (evt);
+		}
+	}
+    this._filterRows = function(evt){ 
+		oThis.filterRows(evt); 
+		if (options.postFilterRows) {
+			options.postFilterRows (evt);
+		}
+	};
     this._pagerClick = function(evt){ oThis.pagerClick(evt); };
     this._pagerInput = function(evt){ oThis.pagerInput(evt); };
 
@@ -472,8 +482,8 @@ DynamicTable.prototype.rowCells = function(row){
  * Sort
  * @param col column number
  */
-DynamicTable.prototype.sort = function(col){
-    this.desc = (this.sortColumn != col) ? false : !this.desc;
+DynamicTable.prototype.sort = function(col, sortDesc){
+    this.desc = sortDesc !== undefined ? sortDesc : (this.sortColumn != col) ? false : !this.desc;
     this.sortColumn = col;
     this.orderRows(this.sortFunctions[this.opt.colTypes[col]]);
     // update sort arrows
