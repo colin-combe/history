@@ -21,6 +21,7 @@
         <script type="text/javascript" src="./vendor/js/jquery-2.2.4.js"></script>
         <script type="text/javascript" src="./vendor/js/jquery-ui.js"></script>
         <script type="text/javascript" src="./vendor/js/multiple-select.js"></script>
+		<script type="text/javascript" src="./vendor/js/js.cookie.js"></script>
         <script type="text/javascript" src="./js/dialogs.js"></script>
         <script type="text/javascript" src="./js/history.js"></script>
 	</head>
@@ -32,9 +33,9 @@
                 <span class="headerLabel" id="username"></span>
 
                 <span id="scopeOptions">
-                    <input type="radio" name="mineOrAll" value="mySearches" id="mySearches" checked onchange="CLMSUI.history.loadSearchList();">
+                    <input type="radio" name="mineOrAll" value="mySearches" id="mySearches">
                     <label class="headerLabel" for="mySearches">My Searches</label>
-                    <input type="radio" name="mineOrAll" value="allSearches" id="allSearches" onchange="CLMSUI.history.loadSearchList();">
+                    <input type="radio" name="mineOrAll" value="allSearches" id="allSearches">
                     <label class="headerLabel" for="allSearches">All Searches</label>
                 </span>
 
@@ -70,6 +71,8 @@
 
         <script>
 			         //<![CDATA[
+				CLMSUI.history.askCookiePermission (this);
+				CLMSUI.history.init();
                 CLMSUI.history.loadSearchList();
             //]]>
         </script>

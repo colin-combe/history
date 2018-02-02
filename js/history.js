@@ -6,11 +6,51 @@ CLMSUI.history = {
     makeResultsUrl: function (sid, params) {
         return "../xi3/network.php?sid="+sid+params;
     },
+	
+	defaultValues: {
+		visibility: {
+			"Visualise Search": true,
+			"+FDR": true,
+			"Restart": false,
+			"Notes": true,
+			"Validate": true,
+			"Sequence": true,
+			"Enzyme": false,
+			"Cross-Linkers": false,
+			"Submit Date": true,
+			"ID": true,
+			"User": true,
+			"Agg Group": true,
+			"Delete": true,
+		},
+		searchScope: "mySearches",
+	},
+	
+	getInitialValues: function () {
+		var cookieValues = this.getCookieValue() || {};
+		console.log ("CK", cookieValues, this.defaultValues);
+		return $.extend ({}, this.defaultValues, cookieValues);
+	},
+	
+	init: function () {
+		var self = this;
+		d3.select("#scopeOptions").selectAll("input[type='radio']")
+			.on ("change", function () {
+				self.updateCookie ("searchScope", d3.select(this).attr("id"));
+				self.loadSearchList();
+			})
+		;
+	},
 		
-    loadSearchList: function () {		
-       var dynTable;
-       d3.selectAll("button").classed("btn btn-1 btn-1a", true);
-       DynamicTable.destroy("t1");
+    loadSearchList: function () {	
+	 	var initialValues = this.getInitialValues();	// get default / cookie values
+		
+		d3.select("#"+initialValues.searchScope).property("checked", true);
+		
+		
+       	var dynTable;
+       	d3.selectAll("button").classed("btn btn-1 btn-1a", true);
+       	DynamicTable.destroy("t1");
         
         var self = this;
         d3.selectAll("#t1, #pagerTable").html("");
@@ -37,12 +77,18 @@ CLMSUI.history = {
             //{name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
 			{name: "Delete", type: "none", tooltip: "", visible: true, removable: true},
         ];
+		// Set visibilities of columns according to cookies or default values
+		columnMetaData.forEach (function (column) {
+			column.visible = initialValues.visibility[column.name];
+		}, this);
+		
         
         var pluck = function (data, prop) {
             return data.map (function (d) { return d[prop]; });   
         };
+		
               
-        var userOnly = d3.select('#mySearches').property("checked");
+        var userOnly = initialValues.searchScope === "mySearches";
         var params = userOnly ? "searches=MINE" : "searches=ALL";
              
         if (d3.select(".container #clmsErrorBox").empty()) {
@@ -656,4 +702,43 @@ CLMSUI.history = {
         );
         d3.select("#username").text("A Xi User");
     },
+	
+	getCookieValue: function (field) {
+		if (this.cookieContext.Cookies !== undefined) {
+			var xiCookie = this.cookieContext.Cookies.getJSON("xiHistory");
+			if (xiCookie) {
+				return field ? xiCookie[field] : xiCookie;
+			}
+		}
+		return undefined;
+	},
+	
+	updateCookie: function (field, value) {
+		if (this.cookieContext.Cookies !== undefined) {
+			var xiCookie = this.cookieContext.Cookies.getJSON("xiHistory");
+			if (xiCookie) {
+				xiCookie[field] = value;
+				this.cookieContext.Cookies.set("xiHistory", xiCookie);
+			}
+		}
+	},
+	
+	askCookiePermission: function (context) {
+		this.cookieContext = context;
+		var self = this;
+		
+		if (this.cookieContext.Cookies !== undefined && this.cookieContext.Cookies.get("xiHistory") === undefined) {
+			CLMSUI.jqdialogs.areYouSureDialog (
+				"popChoiceDialog", 
+				"Can we use cookies to track your preferences on this page?", 
+				"Cookies", "Yes", "No", 
+				function () {
+					self.cookieContext.Cookies.set("xiHistory", 
+						self.defaultValues, 
+						{ expires : 365 }
+					);
+				}
+			);
+		}
+	},
 };
