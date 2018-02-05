@@ -35,7 +35,13 @@ CLMSUI.history = {
 	
 	getInitialValues: function () {
 		var cookieValues = this.getCookieValue() || {};
-		return $.extend ({}, this.defaultValues, cookieValues);
+		var currentRadio = d3.select("#scopeOptions").selectAll("input[type='radio']")
+			.filter (function (d,i) {
+				return d3.select(this).property("checked");
+			})
+		;
+		// cookieValues overwrites currentRadio which overwites initialValues
+		return $.extend ({}, this.defaultValues, {searchScope: currentRadio.size() === 1 ? currentRadio.attr("id") : undefined}, cookieValues);
 	},
 	
 	init: function () {
