@@ -1,7 +1,9 @@
 /*jslint browser: true, white: true, stupid: true, vars: true*/
 var CLMSUI = CLMSUI || {};
 
-CLMSUI.history = { 	
+CLMSUI.history = { 
+	
+	cookieness: false,
                 
     makeResultsUrl: function (sid, params) {
         return "../xi3/network.php?sid="+sid+params;
@@ -756,7 +758,7 @@ CLMSUI.history = {
     },
 	
 	getCookieValue: function (field) {
-		if (this.cookieContext.Cookies !== undefined) {
+		if (this.cookieness && this.cookieContext.Cookies !== undefined) {
 			var xiCookie = this.cookieContext.Cookies.getJSON("xiHistory");
 			if (xiCookie) {
 				return field ? xiCookie[field] : xiCookie;
@@ -766,7 +768,7 @@ CLMSUI.history = {
 	},
 	
 	updateCookie: function (field, value) {
-		if (this.cookieContext.Cookies !== undefined) {
+		if (this.cookieness && this.cookieContext.Cookies !== undefined) {
 			var xiCookie = this.cookieContext.Cookies.getJSON("xiHistory");
 			if (xiCookie) {
 				xiCookie[field] = value;
@@ -779,7 +781,7 @@ CLMSUI.history = {
 		this.cookieContext = context;
 		var self = this;
 		
-		if (this.cookieContext.Cookies !== undefined && this.cookieContext.Cookies.get("xiHistory") === undefined) {
+		if (this.cookieness && this.cookieContext.Cookies !== undefined && this.cookieContext.Cookies.get("xiHistory") === undefined) {
 			CLMSUI.jqdialogs.areYouSureDialog (
 				"popChoiceDialog", 
 				"Can we use cookies to track your preferences on this page?", 
