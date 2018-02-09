@@ -28,7 +28,7 @@
 	<body>
 
 		<div class="container">
-			<h1 class="page-header">
+			<div class="page-header">
                 <span class="headerLabel" id="username"></span>
 
                 <span id="scopeOptions">
@@ -51,7 +51,9 @@
                     <button id="aggSearch" title="Visualise Aggregate Search (use Agg Group controls)">Aggregate</button>
                     <button id="aggFDRSearch" title="Visualise Aggregate Search with decoys to allow FDR calcs">Agg. for FDR</button>
                 </div>
-			</h1>
+				
+				<div style="clear: both"></div> <!-- push float:right content down and make room for it if not enough room to right -->
+			</div>
             
             <div id="fixedSelectionInfo">
                     <span id="selectedCounter">0 Selected</span>
