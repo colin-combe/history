@@ -2,8 +2,6 @@
 var CLMSUI = CLMSUI || {};
 
 CLMSUI.history = { 
-	
-	cookieness: false,
                 
     makeResultsUrl: function (sid, params) {
         return "../xi3/network.php?sid="+sid+params;
@@ -33,8 +31,11 @@ CLMSUI.history = {
 		},
 	},
 	
+	tempValues: {},	// store user values temporarily, in case they decide to 'keep' later on
+	
 	getInitialValues: function () {
 		var cookieValues = this.getCookieValue() || {};
+		//console.log ("cookieValues", cookieValues);
 		var currentRadio = d3.select("#scopeOptions").selectAll("input[type='radio']")
 			.filter (function (d,i) {
 				return d3.select(this).property("checked");
@@ -54,7 +55,13 @@ CLMSUI.history = {
 		;
 		
 		var initialValues = this.getInitialValues();	// get default / cookie values
+		this.tempValues = initialValues;
 		d3.select("#"+initialValues.searchScope).property("checked", true);
+		
+		if (!CLMSUI.history.canLocalStorage) {
+			d3.select("#rememberOption").style("display", "none");
+		}
+		d3.select("#rememberOption input[type='checkbox']").property("checked", this.youMayRememberMe());
 	},
 	
 		
@@ -763,8 +770,9 @@ CLMSUI.history = {
         d3.select("#username").text("A Xi User");
     },
 	
+	/*
 	getCookieValue: function (field) {
-		if (this.cookieness && this.cookieContext.Cookies !== undefined) {
+		if (this.cookieContext.Cookies !== undefined) {
 			var xiCookie = this.cookieContext.Cookies.getJSON("xiHistory");
 			if (xiCookie) {
 				return field ? xiCookie[field] : xiCookie;
@@ -774,7 +782,7 @@ CLMSUI.history = {
 	},
 	
 	updateCookie: function (field, value) {
-		if (this.cookieness && this.cookieContext.Cookies !== undefined) {
+		if (this.cookieContext.Cookies !== undefined) {
 			var xiCookie = this.cookieContext.Cookies.getJSON("xiHistory");
 			if (xiCookie) {
 				xiCookie[field] = value;
@@ -782,12 +790,42 @@ CLMSUI.history = {
 			}
 		}
 	},
+	*/
 	
+	getCookieValue: function (field, force) {
+		if (force || this.youMayRememberMe()) {
+			var xiCookie = localStorage.getItem ("xiHistory");
+			if (xiCookie) {
+				xiCookie = JSON.parse (xiCookie);
+				return field ? xiCookie[field] : xiCookie;
+			}
+		}
+		
+		return this.tempValues[field];
+	},
+	
+	updateCookie: function (field, value, force) {
+		if (force || this.youMayRememberMe()) {
+			var xiCookie = localStorage.getItem("xiHistory");
+			if (!xiCookie) {
+				//consolelog ()
+				localStorage.setItem ("xiHistory", JSON.stringify(this.tempValues));
+				xiCookie = localStorage.getItem("xiHistory");
+			}
+			xiCookie = JSON.parse (xiCookie);
+			xiCookie[field] = value;
+			localStorage.setItem ("xiHistory", JSON.stringify(xiCookie));
+		}
+		
+		this.tempValues[field] = value;	// store values temporarily in case the user decides to press 'keep' later on
+	},
+	
+	/*
 	askCookiePermission: function (context) {
 		this.cookieContext = context;
 		var self = this;
 		
-		if (this.cookieness && this.cookieContext.Cookies !== undefined && this.cookieContext.Cookies.get("xiHistory") === undefined) {
+		if (this.cookieContext.Cookies !== undefined && this.cookieContext.Cookies.get("xiHistory") === undefined) {
 			CLMSUI.jqdialogs.areYouSureDialog (
 				"popChoiceDialog", 
 				"Can we use cookies to track your preferences on this page?", 
@@ -801,4 +839,34 @@ CLMSUI.history = {
 			);
 		}
 	},
+	*/
+	
+	// is local storage viable?
+	canLocalStorage: function () {
+		try {
+			localStorage.setItem ('mod', 'mod');
+			localStorage.removeItem ('mod');
+			return true;
+		} catch(e) {
+			return false;
+		}
+	},
+	
+	
+	youMayRememberMe: function () {
+		if (this.canLocalStorage()) {
+			return this.getCookieValue ("rememberMe", true) || false;
+		}
+		return false;
+	},
+	
+	
+	setRemember: function (event) {
+		if (this.canLocalStorage()) {
+			this.updateCookie ("rememberMe", event.target.checked ? true : false, true);
+			if (this.youMayRememberMe()) {
+				localStorage.setItem ("xiHistory", JSON.stringify(this.tempValues));	// write temp values into localstorage if keep switched to on
+			}
+		}
+	}
 };
