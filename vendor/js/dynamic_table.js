@@ -469,12 +469,19 @@ DynamicTable.prototype.filterRows = function(evt){
  *  (tRows[i].cells[j])
  */
 DynamicTable.prototype.rowCells = function(row){
+	return row.childNodes;
+	
+	// slight chance table rows may contain script or template elements, but not high (especially as we're making the tables)
+	
+	/*
     var cells = [];
-    for (var i = 0, rl = row.childNodes.length; i < rl; i++)
-	if (row.childNodes[i].tagName == 'TD' ||
-	    row.childNodes[i].tagName == 'TH')
-	    cells.push(row.childNodes[i]);
+	var nodelist = row.childnodes;
+    for (var i = 0, rl = nodelist.length; i < rl; i++)
+	if (nodelist.tagName == 'TD' ||
+	    nodelist.tagName == 'TH')
+	    cells.push(nodelist[i]);
     return cells;
+	*/
 };
 
 
