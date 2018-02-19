@@ -450,6 +450,7 @@ CLMSUI.history = {
 									});
 									self.updateCookie ("filters", fobj);
 								}
+								//hideColumns();
 							},
                        };
 
@@ -457,22 +458,6 @@ CLMSUI.history = {
                             dynTable = new DynamicTable("t1", opt1);
 							if (initialValues.sort && initialValues.sort.column) {
 								dynTable.sort (initialValues.sort.column, initialValues.sort.sortDesc);	// default sort
-							}
-							if (initialValues.filters) {
-								var fEntries = d3.entries(initialValues.filters);
-								var first;
-								fEntries.forEach (function (fEntry) {
-									var dynFilter = dynTable.filters[fEntry.key];
-									if (dynFilter && dynFilter !== "none") {
-										dynFilter.value = fEntry.value;
-										if (!first) {
-											first = dynFilter;
-										}
-									}
-								});
-								if (first) {
-									dynTable.filterRows({target: first});
-								}
 							}
 							console.log ("dd", dynTable);
                         }
@@ -519,15 +504,18 @@ CLMSUI.history = {
                             }
                         });
                         
-                        // hide columns that are hid by default
-                        opt1.colVisible.forEach (function (vis, i) {
-                            if (!vis) {
-                                displayColumn (i + 1, false);
-                            }
-                        });
-                        
-                        
-                        
+						
+						function hideColumns () {
+							// hide columns that are hid by default
+							opt1.colVisible.forEach (function (vis, i) {
+								if (!vis) {
+									displayColumn (i + 1, false);
+								}
+							});
+						}
+						hideColumns();
+						
+           
                         CLMSUI.history.anyAggGroupsDefined (dynTable, false);   // disable clear button as well to start with
 
                         var headers = d3.selectAll("th").data(cellFunctions);
@@ -675,6 +663,7 @@ CLMSUI.history = {
                         };
 						addRestartButtonFunctionality (d3.selectAll("tbody tr"));
 						
+						
                         var lowScore = "&lowestScore=2";
                         d3.selectAll("tbody tr").select(".validateButton")
                             //.classed("btn-1a", true)
@@ -690,6 +679,30 @@ CLMSUI.history = {
                                 );
                             })
                         ;
+						
+						// do initial row filtering after all buttons have been extended/styled and columns hidden
+						// If we don't those operations don't happen to the filtered rows, causing problems later
+						function initialRowFilter () {
+							if (initialValues.filters) {
+								var fEntries = d3.entries(initialValues.filters);
+								var first;
+								fEntries.forEach (function (fEntry) {
+									var dynFilter = dynTable.filters[fEntry.key];
+									if (dynFilter && dynFilter !== "none") {
+										dynFilter.value = fEntry.value;
+										if (!first) {
+											first = dynFilter;
+										}
+									}
+								});
+								if (first) {
+									dynTable.filterRows({target: first});
+								}
+							}
+						}
+						initialRowFilter();
+						
+						// do initial row filter after hiding columns, otherwise columns in filtered rows don't get hidden
 
                         d3.selectAll(".aggregateCheckbox")
                             .on ("input", function(d) {
