@@ -24,11 +24,10 @@
         pg_prepare($dbconn, "user_rights", "SELECT * FROM users WHERE id = $1");
         $result = pg_execute ($dbconn, "user_rights", [$userID]);
         $row = pg_fetch_assoc ($result);
-        //error_log (print_r ($row, true));
         
-        $canSeeAll = (isset($row["see_all"]) && $row["see_all"] === 't');  // 1 if see_all flag is true or if that flag doesn't exist in the database 
-        $canAddNewSearch = (isset($row["can_add_search"]) && $row["can_add_search"] === 't');  // 1 if can_add_search flag is true or if that flag doesn't exist in the database 
-        $isSuperUser = (isset($row["super_user"]) && $row["super_user"] === 't');  // 1 if super_user flag is present AND true
+        $canSeeAll = (isset($row["see_all"]) && isTrue($row["see_all"]));  // 1 if see_all flag is present and true
+        $canAddNewSearch = (isset($row["can_add_search"]) && isTrue($row["can_add_search"]));  // 1 if can_add_search flag is present and true 
+        $isSuperUser = (isset($row["super_user"]) && isTrue($row["super_user"]));  // 1 if super_user flag is present AND true
         $maxAAs = 0; //isset($row["max_aas"]) ? (int)$row["max_aas"] : 0;   // max aas and spectra now decided by user groups table
         $maxSpectra = 0; //isset($row["max_spectra"]) ? (int)$row["max_spectra"] : 0;
         $maxSearchCount = 10000;
@@ -47,16 +46,15 @@
             WHERE users.id = $1");
             $result = pg_execute ($dbconn, "user_rights2", [$userID]);
             $row = pg_fetch_assoc ($result);
-            //error_log (print_r ($row, true));
             
             $maxSearchCount = (int)$row["max_search_count"];
             $maxSearchLifetime = (int)$row["max_search_lifetime"];
             $maxSearchesPerDay = (int)$row["max_searches_per_day"];
             $maxAAs = max($maxAAs, (int)$row["max_aas"]);
             $maxSpectra = max($maxSpectra, (int)$row["max_spectra"]);
-            $canSeeAll = $canSeeAll || ((!isset($row["see_all"]) || (int)$row["see_all"] === 1));
-            $canAddNewSearch = $canAddNewSearch || (!isset($row["can_add_search"]) || (int)$row["can_add_search"] === 1);
-            $isSuperUser = $isSuperUser || (isset($row["super_user"]) && (int)$row["super_user"] === 1); 
+            $canSeeAll = $canSeeAll || (!isset($row["see_all"]) || isTrue($row["see_all"]));
+            $canAddNewSearch = $canAddNewSearch || (!isset($row["can_add_search"]) || isTrue($row["can_add_search"]));
+            $isSuperUser = $isSuperUser || (isset($row["super_user"]) && isTrue($row["super_user"])); 
             
             if ($canAddNewSearch) {
                 $userSearches = countUserSearches ($dbconn, $userID);
@@ -87,7 +85,9 @@
         // Test if userGUI exists as a sibling project
         $doesUserGUIExist = file_exists ("../../userGUI/");
           
-        return array ("canSeeAll"=>$canSeeAll, "canAddNewSearch"=>$canAddNewSearch, "isSuperUser"=>$isSuperUser, "maxAAs"=>$maxAAs, "maxSpectra"=>$maxSpectra, "maxSearchLifetime"=>$maxSearchLifetime, "maxUserSearches"=>$maxSearchCount, "maxUserSearchesToday"=>$maxSearchesPerDay, "searchDenyReason"=>$searchDenyReason, "doesUserGUIExist"=>$doesUserGUIExist);
+        $userRights = array ("canSeeAll"=>$canSeeAll, "canAddNewSearch"=>$canAddNewSearch, "isSuperUser"=>$isSuperUser, "maxAAs"=>$maxAAs, "maxSpectra"=>$maxSpectra, "maxSearchLifetime"=>$maxSearchLifetime, "maxUserSearches"=>$maxSearchCount, "maxUserSearchesToday"=>$maxSearchesPerDay, "searchDenyReason"=>$searchDenyReason, "doesUserGUIExist"=>$doesUserGUIExist);
+		
+		return $userRights;
     }
 
     // Number of searches by a particular user performed today
@@ -110,7 +110,7 @@
         pg_prepare($dbconn, "doesColExist", "SELECT COUNT(column_name) FROM information_schema.columns WHERE table_name=$1 AND column_name=$2");
         $result = pg_execute ($dbconn, "doesColExist", [$tableName, $columnName]);
         $row = pg_fetch_assoc ($result);
-        return ((int)$row["count"] === 1);
+        return isTrue($row["count"]);
     }
 
     // Turn result set into array of objects
@@ -125,6 +125,11 @@
 
         return $arr;
     }
+
+	function isTrue ($pgBooleanReturn) {
+		$trueArray = array ("TRUE", "true", "t", "yes", "y", "1", 1);
+		return in_array ($pgBooleanReturn, $trueArray);
+	}
 
     function ajaxBootOut () {
         if (!isset($_SESSION['session_name'])) {

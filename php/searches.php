@@ -15,6 +15,7 @@
             //error_log (print_r ($_POST, true));
             $searches = $_POST["searches"];
             $userRights = getUserRights ($dbconn, $_SESSION['user_id']);
+			$restrictSearches = ($searches == "MINE") || (!$userRights["canSeeAll"] && !$userRights["isSuperUser"]);
             
             $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, hidden, file_name, enzyme, crosslinkers, is_executing, completed from
 
@@ -34,7 +35,7 @@
             
             $canSeeMineOnly = "WHERE search.uploadedby = $1 ";
             $canSeeMineOnlyIJ = "WHERE search.uploadedby = $1 ";
-            $innerJoinMine = ($searches == "MINE" ? $canSeeMineOnlyIJ : "");
+            $innerJoinMine = ($restrictSearches ? $canSeeMineOnlyIJ : "");
             
             $hideHiddenSearches = " AND COALESCE (search.hidden, FALSE) = FALSE ";
 
@@ -79,12 +80,15 @@
                 ORDER BY (CASE WHEN status = 'queuing' THEN 0 WHEN is_executing THEN 1 ELSE 2 END) ASC, search.id DESC ;"
             ;
             */
+			
 
-            if (!$userRights["isSuperUser"] || $searches == "MINE") {
-                $privateClause = ($searches == "MINE" ? $canSeeMineOnly : $canSeeOthersPublic).(!$userRights["isSuperUser"] ? $hideHiddenSearches : "");
+            if (!$userRights["isSuperUser"] || $restrictSearches) {
+				error_log (print_r ($searches, true));
+                $privateClause = ($restrictSearches ? $canSeeMineOnly : $canSeeOthersPublic).(!$userRights["isSuperUser"] ? $hideHiddenSearches : "");
                 pg_prepare($dbconn, "my_query", $qPart1.$privateClause.$qPart3);
                 $result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
             } else {
+				//error_log (print_r ("all searches"));
                 pg_prepare($dbconn, "my_query", $qPart1.$qPart3);
                 $result = pg_execute($dbconn, "my_query", []);
             }
