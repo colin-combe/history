@@ -14,6 +14,19 @@
         return $str;
     }
 
+	function normalizeString2 ($str = '') {
+        $str = filter_var ($str, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+        $str = preg_replace('/[\"\/\<\>\?\'\|]+/', ' ', $str);
+        $str = html_entity_decode ($str, ENT_QUOTES, "utf-8" );
+        $str = htmlentities($str, ENT_QUOTES, "utf-8");
+        $str = preg_replace("/(&)([a-z])([a-z]+;)/i", '$2', $str);
+        return $str;
+    }
+
+    function getNiceDate () {
+        return date("d-M-Y H:i:s");
+    }
+
     // database connection needs to be open and user logged in for these functions to work
     function isSuperUser($dbconn, $userID) {
         $rights = getUserRights ($dbconn, $userID);
@@ -131,6 +144,18 @@
 		return in_array ($pgBooleanReturn, $trueArray);
 	}
 
+ 	function checkSufficientDiskSpace () {
+        return disk_free_space (".");
+    }
+    function ajaxLoginRedirect () {
+        // from http://stackoverflow.com/questions/199099/how-to-manage-a-redirect-request-after-a-jquery-ajax-call
+         echo (json_encode (array ("redirect" => "../xi3/login.html")));
+    }
+    function ajaxHistoryRedirect ($why) {
+        // from http://stackoverflow.com/questions/199099/how-to-manage-a-redirect-request-after-a-jquery-ajax-call
+         echo (json_encode (array ("redirect" => "../history/history.html", "why" => $why."<br>Press the button below to go to the Xi history page.")));
+    }
+
     function ajaxBootOut () {
         if (!isset($_SESSION['session_name'])) {
             // https://github.com/Rappsilber-Laboratory/xi3-issue-tracker/issues/94
@@ -142,5 +167,4 @@
             exit;
         }
     }
-
 ?>
