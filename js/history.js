@@ -129,7 +129,7 @@ CLMSUI.history = {
             dataType: 'json',
             success: function(response, responseType, xmlhttp) {
                 if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    //console.log ("response", response, responseType);
+                    console.log ("response", response, responseType);
                     if (response.redirect) {
                         window.location.replace (response.redirect);
                     }
@@ -300,47 +300,57 @@ CLMSUI.history = {
                             .enter()
                             .append("tr")
                         ;
-                        rows.classed("hiddenSearch", function(d) { return isTruthy(d.hidden); });
-
+                        
                         // make d3 entry style list of above, removing user_name if just user's own searches
                         var cellFunctions = d3.entries(modifiers);
 
-                        var cells = rows.selectAll("td").data(function(d) { 
-                            return cellFunctions.map(function(entry) { return {key: entry.key, value: d}; });
-                        });
-						var ttdiv = d3.select("div.tooltip");
-                        cells.enter()
-                            .append("td")
-                            .html (function(d) { 
-                                    return modifiers[d.key](d.value);
-                            })
-                            .attr ("class", function(d) { return cellStyles[d.key]; })
-                            .filter (function(d) { return tooltips[d.key]; })
-                            .attr("title", function(d) {
-                                var v = tooltips[d.key](d);
-                                return v ? d.value.id+": "+v : "";
-                            })
-							/*
-							.on ("mouseover", function (d) {
-								ttdiv.transition()		
-									.duration(200)		
-									.style("opacity", .9)
-									.style("left", (d3.event.pageX) + "px")		
-                					.style("top", (d3.event.pageY - 28) + "px");	
-								;		
-								ttdiv.select("P.tooltipTitle").text(d.key);
-								ttdiv.select("P.tooltipContents").text(tooltips[d.key](d));
-							})
-							.on("mouseout", function() {		
-								ttdiv.transition()		
-									.duration(500)		
-									.style("opacity", 0)
-								;	
-							})
-							*/
-                        ;
+						var updateRows = function (rows) {
+							rows.classed("hiddenSearch", function(d) { return isTruthy(d.hidden); });
+							
+							var cells = rows.selectAll("td").data(function(d) { 
+								return cellFunctions.map(function(entry) { return {key: entry.key, value: d}; });
+							});
+							//var ttdiv = d3.select("div.tooltip");
+							// add new cells if appropriate (i.e. at initialisation)
+							cells.enter().append("td");
+								
+							// update cells with data
+							cells
+								.html (function(d) { 
+										return modifiers[d.key](d.value);
+								})
+								.attr ("class", function(d) { return cellStyles[d.key]; })
+								.filter (function(d) { return tooltips[d.key]; })
+								.attr("title", function(d) {
+									var v = tooltips[d.key](d);
+									return v ? d.value.id+": "+v : "";
+								})
+								/*
+								.on ("mouseover", function (d) {
+									ttdiv.transition()		
+										.duration(200)		
+										.style("opacity", .9)
+										.style("left", (d3.event.pageX) + "px")		
+										.style("top", (d3.event.pageY - 28) + "px");	
+									;		
+									ttdiv.select("P.tooltipTitle").text(d.key);
+									ttdiv.select("P.tooltipContents").text(tooltips[d.key](d));
+								})
+								.on("mouseout", function() {		
+									ttdiv.transition()		
+										.duration(500)		
+										.style("opacity", 0)
+									;	
+								})
+								*/
+							;
+
+							// push table cell data down to checkbox
+							cells.select("input.aggregateCheckbox");
+						}
+						updateRows (rows);
                         
-                        cells.select("input.aggregateCheckbox");
+                       
 
                         /* Everything up to this point helps generates the dynamic table */
                         
@@ -551,6 +561,9 @@ CLMSUI.history = {
                             selectedRows.classed ("hiddenSearch", function(d) { return isTruthy(d.hidden); });
 						}
 						
+						
+						var allRows = d3.selectAll("tbody tr");
+						
                         // Add functionality to buttons / links in table     
                         var addDeleteButtonFunctionality = function (selection) {
                             selection.select("button.deleteButton")
@@ -613,7 +626,6 @@ CLMSUI.history = {
                                 })
                             ;
                         };
-                        addDeleteButtonFunctionality (d3.selectAll("tbody tr"));
                         
 						
 						var addRestartButtonFunctionality = function (selection) {
@@ -621,14 +633,21 @@ CLMSUI.history = {
                                 .classed("btn btn-1 btn-1a", true)
                                 .on ("click", function(d) {
 									// Post restart code
-                                    var removeRestartButton = function (d) {
-                                        var thisID = d.id;
-                                        var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
-										selRows.select(".restartButton").remove();
-										d.hidden = false;
-										updateHiddenRowStates (selRows);
+                                    var updateCurrentRow = function (currentData, newData) {
+                                        var thisID = currentData.id;
+										// select correct row
+                                        var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });	
+										d3.keys(currentData).forEach (function (key) {	// copy new data points to row data
+											var newVal = newData[0][key];
+											if (newVal !== undefined) {
+												currentData[key] = newVal;
+											}
+										});
+										updateRows (selRows);	// then update this row and the cells in it
+										empowerRows (selRows);	// set buttons up in updated row
+										//updateHiddenRowStates (selRows);	// update the hidden state of the row
                                     };
-                                    //removeRestartButton (d); // alternative to following code for testing without doing database actions
+                                    //updateCurrentRow (d, {}); // alternative to following code for testing without doing database actions
 
                                     // Ajax restart call
                                      var doRestart = function() {
@@ -640,10 +659,13 @@ CLMSUI.history = {
                                             dataType: 'json',
                                             success: function (response, responseType, xmlhttp) {
                                                 if (response.status === "success") {
-                                                    console.log ("response", response);
-                                                    removeRestartButton (d);
+                                                    //console.log ("response", response);
+                                                    updateCurrentRow (d, response.result);
                                                 }
-                                            }
+                                            },
+											 error: function (jqxhr, text, error) {
+												 console.log ("error", arguments);
+											 }
                                         });
 										
                                     };
@@ -661,24 +683,47 @@ CLMSUI.history = {
                                 })
                             ;
                         };
-						addRestartButtonFunctionality (d3.selectAll("tbody tr"));
 						
 						
-                        var lowScore = "&lowestScore=2";
-                        d3.selectAll("tbody tr").select(".validateButton")
-                            //.classed("btn-1a", true)
-                            .on ("click", function (d) {
-                                var deltaUrls = ["", "&decoys=1"+lowScore, "&linears=1"+lowScore, "&decoys=1&linears=1"+lowScore];
-                                var baseUrls = deltaUrls.map (function (deltaUrl) {
-                                   return makeValidationUrl (d.id+"-"+d.random_id, "&unval=1"+deltaUrl);
-                                });
+						var addValidationFunctionality = function (selection) {
+							var lowScore = "&lowestScore=2";
+							selection.select(".validateButton")
+								//.classed("btn-1a", true)
+								.on ("click", function (d) {
+									var deltaUrls = ["", "&decoys=1"+lowScore, "&linears=1"+lowScore, "&decoys=1&linears=1"+lowScore];
+									var baseUrls = deltaUrls.map (function (deltaUrl) {
+									   return makeValidationUrl (d.id+"-"+d.random_id, "&unval=1"+deltaUrl);
+									});
 
-                                CLMSUI.jqdialogs.choicesDialog ("popChoiceDialog", "Choose Validation Option", "Validate "+d.id, 
-                                    ["Validate", "Validate with Decoys", "Validate with Linears", "Validate with Decoys & Linears"], 
-                                    baseUrls
-                                );
-                            })
-                        ;
+									CLMSUI.jqdialogs.choicesDialog ("popChoiceDialog", "Choose Validation Option", "Validate "+d.id, 
+										["Validate", "Validate with Decoys", "Validate with Linears", "Validate with Decoys & Linears"], 
+										baseUrls
+									);
+								})
+							;
+						};
+						
+						
+						var addAggregateFunctionality = function (selection) {
+							selection.selectAll(".aggregateCheckbox")
+								.on ("input", function(d) {
+									// set value to 0-9
+									this.value = this.value.slice (0,1); // equiv to maxlength for text
+									// set backing data to this value
+									d.value[d.key] = this.value;
+									CLMSUI.history.anyAggGroupsDefined (dynTable, this.value ? true : undefined);
+								})
+							;
+						};
+						
+						
+						var empowerRows = function (rowSelection) {
+							addDeleteButtonFunctionality (allRows);
+							addRestartButtonFunctionality (allRows);
+							addValidationFunctionality (allRows);
+							addAggregateFunctionality (allRows);
+						};
+						empowerRows (allRows);
 						
 						// do initial row filtering after all buttons have been extended/styled and columns hidden
 						// If we don't those operations don't happen to the filtered rows, causing problems later
@@ -701,18 +746,7 @@ CLMSUI.history = {
 							}
 						}
 						initialRowFilter();
-						
-						// do initial row filter after hiding columns, otherwise columns in filtered rows don't get hidden
 
-                        d3.selectAll(".aggregateCheckbox")
-                            .on ("input", function(d) {
-                                // set value to 0-9
-                                this.value = this.value.slice (0,1); // equiv to maxlength for text
-                                // set backing data to this value
-                                d.value[d.key] = this.value;
-                                CLMSUI.history.anyAggGroupsDefined (dynTable, this.value ? true : undefined);
-                            })
-                        ;
                     }
                 }
             }, 

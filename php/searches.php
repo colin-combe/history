@@ -83,7 +83,6 @@
 			
 
             if (!$userRights["isSuperUser"] || $restrictSearches) {
-				error_log (print_r ($searches, true));
                 $privateClause = ($restrictSearches ? $canSeeMineOnly : $canSeeOthersPublic).(!$userRights["isSuperUser"] ? $hideHiddenSearches : "");
                 pg_prepare($dbconn, "my_query", $qPart1.$privateClause.$qPart3);
                 $result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);

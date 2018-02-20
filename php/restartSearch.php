@@ -20,13 +20,14 @@
 
 			// if search isn't executing and either 1. user is search owner and search isn't hidden or 2. user is superuser, then update search to restart it
 			if (isTrue($row["is_executing"]) && (($row["uploadedby"] === $_SESSION['user_id'] && !isTrue($row["hidden"])) || $userRights["isSuperUser"])) {
-				pg_prepare ($dbconn, "restartSearch", "UPDATE search SET is_executing = TRUE, status = 'queuing', hidden = FALSE WHERE id = $1");
+				pg_prepare ($dbconn, "restartSearch", "UPDATE search SET is_executing = FALSE, status = 'queuing', hidden = FALSE WHERE id = $1 RETURNING *");
 				$result = pg_execute ($dbconn, "restartSearch", [$_POST["searchID"]]);
+				$rows = resultsAsArray ($result);
 			}
 		}
         
         pg_query("COMMIT");
-        echo json_encode (array("status"=>"success", "result"=>$result));
+        echo json_encode (array("status"=>"success", "result"=>(isset($rows) ? $rows : array()) ));
     } catch (Exception $e) {
         pg_query("ROLLBACK");
         echo (json_encode(array ("status"=>"fail", "error"=> "An Error occurred when attempting to restart search id<br>".$_POST["searchID"])));
