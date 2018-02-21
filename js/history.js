@@ -82,21 +82,22 @@ CLMSUI.history = {
         });
 
         var columnMetaData = [
-            {name: "Visualise Search", type: "alpha", tooltip: "", visible: true, removable: true},
-            {name: "+FDR", type: "none", tooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true},
-			{name: "Restart", type: "none", tooltip: "", visible: false, removable: true},
-            {name: "Notes", type: "alpha", tooltip: "", visible: true, removable: true},
-            {name: "Validate", type: "none", tooltip: "", visible: true, removable: true},
-            {name: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true},
-            {name: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true},
-            {name: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true},
-            {name: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true},
-            {name: "ID", type: "number", tooltip: "", visible: true, removable: true},
-            {name: "User", type: "alpha", tooltip: "", visible: true, removable: true},
-            {name: "Agg Group", type: "clearCheckboxes", tooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false},
+            {name: "Visualise Search", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "name", id: "name"},
+            {name: "+FDR", type: "none", tooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true, id: "fdr"},
+			{name: "Restart", type: "none", tooltip: "", visible: false, removable: true, id: "restart"},
+            {name: "Notes", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "notes", id: "notes"},
+            {name: "Validate", type: "none", tooltip: "", visible: true, removable: true, id: "validate"},
+            {name: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "file_name", id: "file_name"},
+            {name: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true, filterID: "enzyme", id: "enzyme"},
+            {name: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true, filterID: "crosslinkers", id: "crosslinkers"},
+            {name: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "submit_date", id: "submit_date"},
+            {name: "ID", type: "number", tooltip: "", visible: true, removable: true, filterID: "id", id: "id"},
+            {name: "User", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "user_name", id: "user_name"},
+            {name: "Agg Group", type: "clearCheckboxes", tooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false, id: "aggregate"},
             //{name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
-			{name: "Delete", type: "none", tooltip: "", visible: true, removable: true},
+			{name: "Delete", type: "none", tooltip: "", visible: true, removable: true, id: "delete"},
         ];
+		
 		// Set visibilities of columns according to cookies or default values
 		columnMetaData.forEach (function (column) {
 			column.visible = initialValues.visibility[column.name];
@@ -254,7 +255,6 @@ CLMSUI.history = {
                         d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
 
                         var d3sel = d3.select("#t1");
-                        //d3sel.html(""); // commented out 'cos already empty
                         var tbody = d3sel.append("tbody");
 
                         //console.log ("rights", response.userRights);
@@ -321,7 +321,7 @@ CLMSUI.history = {
 								})
 								.attr ("class", function(d) { return cellStyles[d.key]; })
 								.filter (function(d) { return tooltips[d.key]; })
-								.attr("title", function(d) {
+								.attr ("title", function(d) {
 									var v = tooltips[d.key](d);
 									return v ? d.value.id+": "+v : "";
 								})
@@ -529,27 +529,31 @@ CLMSUI.history = {
                         CLMSUI.history.anyAggGroupsDefined (dynTable, false);   // disable clear button as well to start with
 
                         var headers = d3.selectAll("th").data(cellFunctions);
-                        headers.attr("title", function (d,i) {
-                            return opt1.colTooltips[i];   
-                        });
-                        headers
-                            .filter (function(d) { return cellStyles[d.key]; })
-                            .each (function(d) {
-                                d3.select(this).classed (cellStyles[d.key], true);
-                            })
-                        ;
-                        headers
-                            .filter (function(d) { return cellHeaderOnlyStyles[d.key]; })
-                            .each (function(d) {
-                                d3.select(this).classed (cellHeaderOnlyStyles[d.key], true);
-                            })
-                        ;
-                        headers
-                            .filter (function(d) { return cellWidths[d.key]; })
-                            .each (function(d) {
-                                d3.select(this).style("width", cellWidths[d.key]);
-                            })
-                        ;
+						function applyHeaderStyling (headers) {
+							console.log ("headers", headers);
+							headers.attr("title", function (d,i) {
+								return opt1.colTooltips[i];   
+							});
+							headers
+								.filter (function(d) { return cellStyles[d.key]; })
+								.each (function(d) {
+									d3.select(this).classed (cellStyles[d.key], true);
+								})
+							;
+							headers
+								.filter (function(d) { return cellHeaderOnlyStyles[d.key]; })
+								.each (function(d) {
+									d3.select(this).classed (cellHeaderOnlyStyles[d.key], true);
+								})
+							;
+							headers
+								.filter (function(d) { return cellWidths[d.key]; })
+								.each (function(d) {
+									d3.select(this).style("width", cellWidths[d.key]);
+								})
+							;
+						};
+						applyHeaderStyling (headers);
                         
                         
 						// hidden row state can change when restore/delete pressed or when restart pressed
@@ -718,10 +722,10 @@ CLMSUI.history = {
 						
 						
 						var empowerRows = function (rowSelection) {
-							addDeleteButtonFunctionality (allRows);
-							addRestartButtonFunctionality (allRows);
-							addValidationFunctionality (allRows);
-							addAggregateFunctionality (allRows);
+							addDeleteButtonFunctionality (rowSelection);
+							addRestartButtonFunctionality (rowSelection);
+							addValidationFunctionality (rowSelection);
+							addAggregateFunctionality (rowSelection);
 						};
 						empowerRows (allRows);
 						
@@ -747,6 +751,28 @@ CLMSUI.history = {
 						}
 						initialRowFilter();
 
+						/*
+						var d3tab = d3.select(".container").append("table")
+							.attr("class", "d3table")
+							.datum({
+								data: response.data, 
+								headerEntries: columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; }), 
+								keyOrder: d3.keys(modifiers),
+							})
+						;
+						var table = CLMSUI.d3Table ();
+						table (d3tab);
+						applyHeaderStyling (d3tab.select("thead tr:first-child").selectAll("th"));
+						console.log ("table", table);
+						
+						table
+							.filter({name: "myco"})
+							.dataToHTMLModifiers (modifiers)
+							.postUpdateFunc (empowerRows)
+							.update()
+						;
+						*/
+						
                     }
                 }
             }, 
