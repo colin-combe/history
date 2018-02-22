@@ -75,10 +75,10 @@ CLMSUI.history = {
         var self = this;
         d3.selectAll("#t1, #pagerTable").html("");
         d3.select("#aggSearch").on ("click", function () {
-            self.aggregate (dynTable, false);
+            self.aggregate (dynTable.rows, false);
         });
         d3.select("#aggFDRSearch").on ("click", function () {
-            self.aggregate (dynTable, true);
+            self.aggregate (dynTable.rows, true);
         });
 
         var columnMetaData = [
@@ -119,8 +119,6 @@ CLMSUI.history = {
                 .text("You Currently Have No Searches in the Xi Database.")
             ;
         }
-              
-        CLMSUI.history.anyAggGroupsDefined (dynTable, false);
                 
        $.ajax({
             type:"POST",
@@ -244,7 +242,7 @@ CLMSUI.history = {
                             id: function(d) { return d.id; },
                             user_name: function(d) { return d.user_name; },
                             aggregate: function(d) {
-                                return "<input type='number' pattern='\\d*' class='aggregateCheckbox' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'>";
+                                return "<input type='number' pattern='\\d*' class='aggregateCheckbox' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9' value='"+d.aggregate+"'>";
                             },
                             delete: function(d) {
                                 return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>"+(isTruthy(d.hidden) ? "Restore" : "Delete")+"</button>" : "";
@@ -346,7 +344,7 @@ CLMSUI.history = {
 							;
 
 							// push table cell data down to checkbox
-							cells.select("input.aggregateCheckbox");
+							//cells.select("input.aggregateCheckbox");
 						}
 						updateRows (rows);
                         
@@ -395,7 +393,53 @@ CLMSUI.history = {
                                 }
                             );
                         };
+						
+						// button to clear aggregation checkboxes
+						function addClearAggCheckboxesButton (buttonContainer, d3rowFunc, data) {
+							buttonContainer
+								.append("button")
+								.text ("Clear ↓")
+								.attr ("class", "btn btn-1 btn-1a clearChx unpadButton")
+								.attr ("title", "Clear all searches chosen for aggregation")
+								.on ("click", function () {
+									CLMSUI.history.clearAggregationCheckboxes (d3rowFunc(), data);
+								})
+                        	;
+						}
+						
+						// cookie store if allowed
+						function storeColumnHiding (value, checked) {
+							var visibilities = self.getCookieValue("visibility");
+							if (visibilities) {
+								visibilities[value] = checked;
+								self.updateCookie ("visibility", visibilities);
+							}
+						}
+						
+						function storeOrdering (sortColumn, sortDesc) {
+							var sort = self.getCookieValue("sort");
+							if (sort) {
+								sort.column = sortColumn;
+								sort.sortDesc = sortDesc;
+								self.updateCookie ("sort", sort);
+							}
+						}
+						
+						function storeFiltering (filterVals) {
+							var filters = self.getCookieValue("filters");
+							if (filters) {
+								var dfilters = filterVals;
+								var fobj = {};
+								dfilters.forEach (function (df, i) {
+									if (df !== "none" && df.value) {
+										fobj[i] = df.value;
+									}
+								});
+								self.updateCookie ("filters", fobj);
+							}
+						}
                         
+						
                         var opt1 = {
                            pager: {rowsCount: 20},
                            pagerElem: d3.select("#pagerTable").node(),
@@ -407,17 +451,12 @@ CLMSUI.history = {
 
                             // Add functionality to headers in dynamic table
                            bespokeColumnSetups: {
-                               clearCheckboxes: function (dynamicTable, elem) {
-                                    // button to clear aggregation checkboxes
-                                   d3.select(elem)
-                                        .append("button")
-                                        .text ("Clear ↓")
-                                        .attr ("class", "btn btn-1 btn-1a clearChx unpadButton")
-                                        .attr ("title", "Clear all searches chosen for aggregation")
-                                        .on ("click", function () {
-                                            CLMSUI.history.clearAggregationCheckboxes (dynTable);
-                                        })
-                                   ;
+                               clearCheckboxes: function (table, elem) {
+                                   addClearAggCheckboxesButton (
+									   d3.select(elem),
+									   function() { return d3.selectAll(table.rows); }, 
+									   response.data
+								   );
                                },
                                deleteHiddenSearchesOption: function (dynamicTable, elem) {
                                    d3.select(elem)
@@ -441,25 +480,10 @@ CLMSUI.history = {
                                },
                            },
 							postToolbarClick: function (evt) {
-								var sort = self.getCookieValue("sort");
-								if (sort) {
-									sort.column = dynTable.sortColumn;
-									sort.sortDesc = dynTable.desc;
-									self.updateCookie ("sort", sort);
-								}
+								storeOrdering (dynTable.sortColumn, dynTable.desc);
 							},
 							postFilterRows: function (evt) {
-								var filters = self.getCookieValue("filters");
-								if (filters) {
-									var dfilters = dynTable.filters;
-									var fobj = {};
-									dfilters.forEach (function (df, i) {
-										if (df !== "none" && df.value) {
-											fobj[i] = df.value;
-										}
-									});
-									self.updateCookie ("filters", fobj);
-								}
+								storeFiltering (dynTable.filters);
 								//hideColumns();
 							},
                        };
@@ -473,60 +497,73 @@ CLMSUI.history = {
                         }
 
                         /* Everything after this point includes content generated by the dynamic table */
-                        
+						
+						
                         // helper function for next bit
-                        var displayColumn = function (columnIndex, show) {
-                            d3.select("#t1").selectAll("td:nth-child("+columnIndex+"), th:nth-child("+columnIndex+")").style("display", show ? null : "none");
+                        var displayColumn = function (columnIndex, show, table) {
+                            table.selectAll("td:nth-child("+columnIndex+"), th:nth-child("+columnIndex+")").style("display", show ? null : "none");
                         };
                         
                         // Add a multiple select widget for column visibility
-                        var pagerRow = d3.select("#pagerTable tr");
-                        pagerRow.select(".dynamic-table-pagerbar").attr("colspan", "1");
-                        var newtd = pagerRow.append("td");
-                        newtd.append("span").text("Show Columns");
-                        var removableColumns = opt1.colNames.map (function (name, i) {
-                            return {name: name, vis: opt1.colVisible[i]};
-                        }).filter (function (obj, i) { 
-                            return opt1.colRemovable[i];
-                        });
-                        newtd.append("select")
-                            .property("multiple", true)
-                            .selectAll("option")
-                            .data(removableColumns, function(d) {return d.name; })
-                                .enter()
-                                .append("option")
-                                .text (function(d) { return d.name; })
-                                .property ("selected", function (d) { return d.vis; })
-                        ;
-                        $(newtd.select("select").node()).multipleSelect ({  
-                            selectAll: false,
-                            onClick: function(view) {
-                                // hide/show column chosen by user
-                                var index = opt1.colNames.indexOf (view.value) + 1; // elements are 1-indexed in css selectors
-                                displayColumn (index, view.checked);
-								
-								// cookie store if allowed
-								var visibilities = self.getCookieValue("visibility");
-								if (visibilities) {
-									visibilities[view.value] = view.checked;
-									self.updateCookie ("visibility", visibilities);
+						function addColumnSelector (containerSelector, table, dispatch) {
+							var newtd = containerSelector;
+							newtd.append("span").text("Show Columns");
+							var datum = newtd.datum();
+							var removableColumns = datum.filter (function (d) { 
+								return d.value.removable;
+							});
+							newtd.append("select")
+								.property("multiple", true)
+								.selectAll("option")
+								.data(removableColumns, function(d) {return d.key; })
+									.enter()
+									.append("option")
+									.text (function(d) { return d.value.name; })
+									.property ("value", function(d) { return d.name; })
+									.property ("selected", function (d) { return d.value.visible; })
+							;
+							$(newtd.select("select").node()).multipleSelect ({  
+								selectAll: false,
+								onClick: function(view) {
+									// hide/show column chosen by user
+									var index = opt1.colNames.indexOf (view.value) + 1; // elements are 1-indexed in css selectors
+									var indexPoint = datum.map (function(d, i) {
+										return {ref: d, index: i}
+									}).filter (function (d) {
+										return d.ref.value.name === view.value;
+									});
+									console.log ("ip", indexPoint);
+									var index = indexPoint[0].index + 1;
+									indexPoint[0].ref.value.visible = view.checked;
+									console.log ("index", index);
+									displayColumn (index, view.checked, table);
+
+									if (dispatch) {
+										dispatch.columnHiding (view.value, view.checked)
+									} else {
+										storeColumnHiding (view.value, view.checked)
+									}
 								}
-                            }
-                        });
+							});
+						};
+						var pagerRow = d3.select("#pagerTable tr");
+						pagerRow.select(".dynamic-table-pagerbar").attr("colspan", "1");
+						var newtd = pagerRow.append("td").datum (columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; }));
+						addColumnSelector (newtd, d3.select("#t1"));
                         
 						
-						function hideColumns () {
+						function hideColumns (table) {
 							// hide columns that are hid by default
 							opt1.colVisible.forEach (function (vis, i) {
 								if (!vis) {
-									displayColumn (i + 1, false);
+									displayColumn (i + 1, false, table);
 								}
 							});
 						}
-						hideColumns();
+						hideColumns (d3.select("#t1"));
 						
-           
-                        CLMSUI.history.anyAggGroupsDefined (dynTable, false);   // disable clear button as well to start with
+           				console.log ("bleep", d3.selectAll(dynTable.rows));
+                        CLMSUI.history.anyAggGroupsDefined (d3.selectAll(dynTable.rows).data(), false);   // disable clear button as well to start with
 
                         var headers = d3.selectAll("th").data(cellFunctions);
 						function applyHeaderStyling (headers) {
@@ -709,13 +746,18 @@ CLMSUI.history = {
 						
 						
 						var addAggregateFunctionality = function (selection) {
-							selection.selectAll(".aggregateCheckbox")
+							selection.select(".aggregateCheckbox")
 								.on ("input", function(d) {
+									console.log ("agg d", d);
 									// set value to 0-9
 									this.value = this.value.slice (0,1); // equiv to maxlength for text
 									// set backing data to this value
-									d.value[d.key] = this.value;
-									CLMSUI.history.anyAggGroupsDefined (dynTable, this.value ? true : undefined);
+									if (d.value) { 
+										d.value[d.key] = this.value;
+									} else {
+										d.aggregate = this.value;
+									}
+									CLMSUI.history.anyAggGroupsDefined (d3.selectAll(dynTable.rows).data(), this.value ? true : undefined);
 								})
 							;
 						};
@@ -751,27 +793,47 @@ CLMSUI.history = {
 						}
 						initialRowFilter();
 
-						/*
-						var d3tab = d3.select(".container").append("table")
-							.attr("class", "d3table")
+						
+						var d3tab = d3.select(".container").append("div")
 							.datum({
 								data: response.data, 
 								headerEntries: columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; }), 
-								keyOrder: d3.keys(modifiers),
+								columnOrder: d3.keys(modifiers),
 							})
 						;
 						var table = CLMSUI.d3Table ();
 						table (d3tab);
-						applyHeaderStyling (d3tab.select("thead tr:first-child").selectAll("th"));
+						applyHeaderStyling (d3tab.selectAll("thead tr:first-child").selectAll("th"));
 						console.log ("table", table);
 						
 						table
 							.filter({name: "myco"})
 							.dataToHTMLModifiers (modifiers)
 							.postUpdateFunc (empowerRows)
-							.update()
 						;
-						*/
+						if (initialValues.sort && initialValues.sort.column) {
+							table.orderKey (table.getColumnIndex (initialValues.sort.column));
+							table.orderDir (initialValues.sort.sortDesc ? "desc" : "asc");
+						}
+						table.update();
+						
+						var dispatch = table.dispatch();
+						dispatch.on ("columnHiding", storeColumnHiding);
+						dispatch.on ("filtering", storeFiltering);
+						dispatch.on ("ordering", storeOrdering);
+						
+						var datum = d3tab.datum();
+						addColumnSelector (d3tab.select("div.d3tableControls").datum(datum.headerEntries), d3tab);
+						
+						var aggregateColumn = table.getColumnIndex("aggregate") + 1;
+						var aggButtonCell = d3tab.selectAll("thead tr:nth-child(2)").select("th:nth-child("+aggregateColumn+")");
+						console.log ("agg", aggregateColumn, aggButtonCell);
+						console.log ("agg2", d3tab, d3tab.selectAll("tbody tr"));
+						addClearAggCheckboxesButton (
+							aggButtonCell,
+							function() { return d3tab.selectAll("tbody tr"); }, 
+							response.data
+						);
 						
                     }
                 }
@@ -783,17 +845,18 @@ CLMSUI.history = {
        });
     },
 				
-    aggregate: function (dynTable, unvalAndDecoys) {
+    aggregate: function (tableRows, unvalAndDecoys) {
         var values = [];
-        // do selectAll on dynTable.rows so filtered out rows are included
-        d3.selectAll(dynTable.rows).selectAll(".aggregateCheckbox")
+        // do selectAll on all table rows so filtered out rows are included
+        d3.selectAll(tableRows).selectAll(".aggregateCheckbox")
             .each (function (d) {
-                var val = d.value[d.key];   // this.value; // get from backing data now rather than dom element
-                if (val) {
-                    if (isNaN(val) || val.length > 1) {
+				var val = d.value ? d.value : d;
+                var agg = d.value ? d.value[d.key] : d.aggregate;   // this.value; // get from backing data now rather than dom element
+                if (agg) {
+                    if (isNaN(agg) || agg.length > 1) {
                         alert("Group identifiers must be a single digit.");
                     } else {
-                        values.push (d.value.id +"-" + d.value.random_id + "-" + val);
+                        values.push (val.id +"-" + val.random_id + "-" + agg);
                     }
                 }
             })
@@ -806,26 +869,25 @@ CLMSUI.history = {
         }
     },
 
-    clearAggregationCheckboxes: function (dynTable) {
-        // do selectAll on dynTable.rows so filtered out rows are included
-        d3.selectAll(dynTable.rows).selectAll(".aggregateCheckbox")
+    clearAggregationCheckboxes: function (d3TableRows, data) {
+		console.log ("yppppp", d3TableRows);
+        // do selectAll on all table rows so filtered out rows are included
+        d3TableRows.selectAll(".aggregateCheckbox")
             // clear value and backing data
             .property("value", "")
-            .each (function(d) {
-                if (d) {
-                    d.value[d.key] = undefined;
-                }
-            })
         ;
-        CLMSUI.history.anyAggGroupsDefined (dynTable, false);
+		data.forEach (function (d) {
+			d.aggregate = undefined;
+		})
+        CLMSUI.history.anyAggGroupsDefined (data, false);
     },
     
-    anyAggGroupsDefined: function (dynTable, anySelected) {
+    anyAggGroupsDefined: function (tableData, anySelected) {
         if (anySelected === undefined || anySelected === true) {
-            var sel = d3.selectAll(dynTable.rows).selectAll(".aggregateCheckbox").filter (function() { return this.value; });
-            anySelected = sel.size() > 0;  
-            var groups = d3.nest().key(function(d) { return d.value; }).entries(d3.merge(sel));
-            d3.selectAll("#selectedCounter").text(sel.size()+" Selected across "+groups.length+(groups.length > 1 ? " Groups" : " Group"));
+            var sel = tableData.filter (function(d) { return d.aggregate; });
+            anySelected = sel.length > 0;  
+            var groups = d3.nest().key(function(d) { return d.aggregate; }).entries(sel);
+            d3.selectAll("#selectedCounter").text(sel.length+" Selected across "+groups.length+(groups.length > 1 ? " Groups" : " Group"));
         }
 
         d3.selectAll("#aggSearch,#aggFDRSearch,.clearChx").property("disabled", !anySelected);
@@ -836,8 +898,8 @@ CLMSUI.history = {
     
     anonForScreenshot: function () {
         // Anon usernames, search names, current user. Remember to filter to completed searches only.
-        d3.select("tbody").selectAll("td:nth-child(8)").text(function() { return ["bert", "bob", "allan", "audrey", "fiona"][Math.floor(Math.random() * 5)]; });
-        d3.select("tbody").selectAll("td:nth-child(1) a").text(
+        d3.selectAll("tbody").selectAll("td:nth-child(8)").text(function() { return ["bert", "bob", "allan", "audrey", "fiona"][Math.floor(Math.random() * 5)]; });
+        d3.selectAll("tbody").selectAll("td:nth-child(1) a").text(
             function() { return "anonymised "+(d3.shuffle("abcdefghijklmnopqrstuvwxyz".split("")).join("").substring(Math.ceil(Math.random()*25))); }
         );
         d3.select("#username").text("A Xi User");

@@ -32,8 +32,9 @@ TABLE.d3table tbody tr td.varWidthCell2, TABLE.d3table tr th.varWidthCell2 {
 }
 
 TABLE.d3table thead input {
-    margin-top: 0.5em;
 	width: calc(100% - 20px);
+	line-height: 1.2em;
+	vertical-align: top;
 }
 
 TABLE.d3table thead th {
@@ -71,8 +72,43 @@ TABLE.d3table tbody tr.hiddenSearch {
 }
 
 TABLE.d3table SVG.arrow {
-	width: 10px;
-	height: 10px;
-	border: 1px solid black;
+	width: 16px;
+	height: 16px;
+	border: 1px solid grey;
+	background: white;
+	margin: 0 2px;
+	transform: rotate(90deg);
+	vertical-align: top;
+}
+
+TABLE.d3table SVG.arrow.active {
+	background: #bbf;
+}
+
+TABLE.d3table SVG.arrow PATH {
+	stroke: none;
+	fill: darkgrey;
+	shape-rendering: crispedges;
+}
+
+TABLE.d3table SVG.arrow.active PATH {
+	fill: black
+}
+
+
+span.pageInfo {
+	margin-right: 0.5em;
+	border-right: 1px solid grey;
+	padding-right: 0.5em;
+}
+span.pageInput:before {
+    content: "Page Number ";
+}
+span.pageInput:after {
+    content: " of ";
+}
+
+.d3tableControls {
+	font-size: 1rem;
 }
 
