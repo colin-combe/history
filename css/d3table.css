@@ -109,6 +109,7 @@ span.pageInput:after {
 }
 
 .d3tableControls {
+	margin: 0.25em;
 	font-size: 1rem;
 }
 

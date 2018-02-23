@@ -68,12 +68,9 @@ CLMSUI.history = {
     loadSearchList: function () {	
 	 	var initialValues = this.getInitialValues();	// get default / cookie values
 
-       	var dynTable;
        	d3.selectAll("button").classed("btn btn-1 btn-1a", true);
-       	DynamicTable.destroy("t1");
         
         var self = this;
-        d3.selectAll("#t1, #pagerTable").html("");
 
         var columnMetaData = [
             {name: "Visualise Search", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "name", id: "name"},
@@ -244,7 +241,7 @@ CLMSUI.history = {
                             user_name: function(d) { return d.user_name; },
                             aggregate: function(d) {
 								var completed = d.status === "completed";
-                                return completed ? "<input type='number' pattern='\\d*' class='aggregateCheckbox' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
+                                return completed ? "<input type='number' pattern='\\d*' class='aggregateInput' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
                             },
                             delete: function(d) {
                                 return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>"+(isTruthy(d.hidden) ? "Restore" : "Delete")+"</button>" : "";
@@ -253,9 +250,6 @@ CLMSUI.history = {
 
 
                         d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
-
-                        var d3sel = d3.select("#t1");
-                        var tbody = d3sel.append("tbody");
 
                         //console.log ("rights", response.userRights);
                         //console.log ("data", response.data);
@@ -297,42 +291,6 @@ CLMSUI.history = {
                         
                         // make d3 entry style list of above, removing user_name if just user's own searches
                         var cellFunctions = d3.entries(modifiers);
-						
-						/*
-						var rows = tbody.selectAll("tr").data(response.data)
-                            .enter()
-                            .append("tr")
-                        ;
-
-						var updateRows = function (rows) {
-							rows.classed("hiddenSearch", function(d) { return isTruthy(d.hidden); });
-							
-							var cells = rows.selectAll("td").data(function(d) { 
-								return cellFunctions.map(function(entry) { return {key: entry.key, value: d}; });
-							});
-							//var ttdiv = d3.select("div.tooltip");
-							// add new cells if appropriate (i.e. at initialisation)
-							cells.enter().append("td");
-								
-							// update cells with data
-							cells
-								.html (function(d) { 
-										return modifiers[d.key](d.value);
-								})
-								.attr ("class", function(d) { return cellStyles[d.key]; })
-								.filter (function(d) { return tooltips[d.key]; })
-								.attr ("title", function(d) {
-									var v = tooltips[d.key](d);
-									return v ? d.value.id+": "+v : "";
-								})
-							;
-
-							// push table cell data down to checkbox
-							//cells.select("input.aggregateCheckbox");
-						}
-						updateRows (rows);
-                        */
-                       
 
                         /* Everything up to this point helps generates the dynamic table */
                         
@@ -379,14 +337,14 @@ CLMSUI.history = {
                         };
 						
 						// button to clear aggregation checkboxes
-						function addClearAggCheckboxesButton (buttonContainer, d3rowFunc, data) {
+						function addClearAggInputsButton (buttonContainer, d3rowFunc, data) {
 							buttonContainer
 								.append("button")
 								.text ("Clear ↓")
 								.attr ("class", "btn btn-1 btn-1a clearChx unpadButton")
 								.attr ("title", "Clear all searches chosen for aggregation")
 								.on ("click", function () {
-									CLMSUI.history.clearAggregationCheckboxes (d3rowFunc(), data);
+									CLMSUI.history.clearAggregationInputs (d3rowFunc(), data);
 								})
                         	;
 						}
@@ -423,67 +381,8 @@ CLMSUI.history = {
 							}
 						}
                         
-						/*
-                        var opt1 = {
-                           pager: {rowsCount: 20},
-                           pagerElem: d3.select("#pagerTable").node(),
-                           colNames: pluck (columnMetaData, "name"),
-                           colTypes: pluck (columnMetaData, "type"),
-                           colTooltips: pluck (columnMetaData, "tooltip"),
-                           colVisible: pluck (columnMetaData, "visible"),
-                           colRemovable: pluck (columnMetaData, "removable"),
+					
 
-                            // Add functionality to headers in dynamic table
-                           bespokeColumnSetups: {
-                               clearCheckboxes: function (table, elem) {
-                                   addClearAggCheckboxesButton (
-									   d3.select(elem),
-									   function() { return d3.selectAll(table.rows); }, 
-									   response.data
-								   );
-                               },
-                               deleteHiddenSearchesOption: function (dynamicTable, elem) {
-                                   d3.select(elem)
-                                        .append("button")
-                                        .text ("INFO ↓")
-                                        .attr ("class", "btn btn-1 btn-1a unpadButton")
-                                        .attr ("title", "Info on all searches marked for delete and associated files")
-                                        .style ("display", response.userRights.isSuperUser ? null : "none") 
-                                        .on ("click", function () {
-                                            $.ajax({
-                                                type: "POST",
-                                                url:"./php/queryDeletedSearches.php", 
-                                                data: {},
-                                                dataType: 'json',
-                                                success: function (response, responseType, xmlhttp) {
-                                                    setupFinalDeletionDialog (response);
-                                                }
-                                            });
-                                        })
-                                    ;
-                               },
-                           },
-							postToolbarClick: function (evt) {
-								storeOrdering (dynTable.sortColumn, dynTable.desc);
-							},
-							postFilterRows: function (evt) {
-								storeFiltering (dynTable.filters);
-								//hideColumns();
-							},
-                       };
-
-                        if (response.data) {
-                            dynTable = new DynamicTable("t1", opt1);
-							if (initialValues.sort && initialValues.sort.column) {
-								dynTable.sort (initialValues.sort.column, initialValues.sort.sortDesc);	// default sort
-							}
-							console.log ("dd", dynTable);
-                        }
-						*/
-
-                        /* Everything after this point includes content generated by the dynamic table */
-						
-						
                         // helper function for next bit
                         var displayColumn = function (columnIndex, show, table) {
                             table.selectAll("td:nth-child("+columnIndex+"), th:nth-child("+columnIndex+")").style("display", show ? null : "none");
@@ -592,22 +491,10 @@ CLMSUI.history = {
                                         if (response.userRights.isSuperUser) {
 											updateHiddenRowStates (selRows);
                                         } else {
-                                            // dynTable has internal object 'rows' which maintains list of rows
-                                            // - we need to remove the node from that array and from the dom (using d3)
-                                            // as dynTable.pager reads rows from the dom to calculate a new page
-											if (dynTable) {
-												var dynRowIndex = dynTable.rows.indexOf (selRows.node());
-												if (dynRowIndex >= 0) {
-													dynTable.rows.splice (dynRowIndex, 1);
-													selRows.remove();
-													dynTable.pager (dynTable.currentPage);
-												}
-											} else {
-												var index = pluck(response.data, "id").indexOf(d.id);
-												if (index >= 0) {
-													response.data.splice (index, 1);
-													table.filter(table.filter()).update();
-												}
+											var index = pluck(response.data, "id").indexOf(d.id);
+											if (index >= 0) {
+												response.data.splice (index, 1);
+												table.filter(table.filter()).update();
 											}
                                         }
                                     };
@@ -663,13 +550,8 @@ CLMSUI.history = {
 												currentData[key] = newVal;
 											}
 										});
-										if (dynTable) {
-											//updateRows (selRows);	// then update this row and the cells in it
-										} else {
-											table.update();
-										}
-										empowerRows (selRows);	// set buttons up in updated row
-										//updateHiddenRowStates (selRows);	// update the hidden state of the row
+										table.update();
+										//empowerRows (selRows);	// set buttons up in updated row
                                     };
                                     //updateCurrentRow (d, {}); // alternative to following code for testing without doing database actions
 
@@ -712,7 +594,6 @@ CLMSUI.history = {
 						var addValidationFunctionality = function (selection) {
 							var lowScore = "&lowestScore=2";
 							selection.select(".validateButton")
-								//.classed("btn-1a", true)
 								.on ("click", function (d) {
 									var deltaUrls = ["", "&decoys=1"+lowScore, "&linears=1"+lowScore, "&decoys=1&linears=1"+lowScore];
 									var baseUrls = deltaUrls.map (function (deltaUrl) {
@@ -729,7 +610,7 @@ CLMSUI.history = {
 						
 						
 						var addAggregateFunctionality = function (selection) {
-							selection.select(".aggregateCheckbox")
+							selection.select(".aggregateInput")
 								.on ("input", function(d) {
 									// set value to 0-9
 									this.value = this.value.slice (0,1); // equiv to maxlength for text
@@ -753,42 +634,6 @@ CLMSUI.history = {
 							updateHiddenRowStates (rowSelection);
 						};
 						
-						// do initial row filtering after all buttons have been extended/styled and columns hidden
-						// If we don't those operations don't happen to the filtered rows, causing problems later
-						function initialRowFilter () {
-							if (initialValues.filters) {
-								var fEntries = d3.entries(initialValues.filters);
-								var first;
-								fEntries.forEach (function (fEntry) {
-									var dynFilter = dynTable.filters[fEntry.key];
-									if (dynFilter && dynFilter !== "none") {
-										dynFilter.value = fEntry.value;
-										if (!first) {
-											first = dynFilter;
-										}
-									}
-								});
-								if (first) {
-									dynTable.filterRows({target: first});
-								}
-							}
-						}
-						
-						
-						/*
-						console.log ("bleep", d3.selectAll(dynTable.rows));
-						var pagerRow = d3.select("#pagerTable tr");
-						pagerRow.select(".dynamic-table-pagerbar").attr("colspan", "1");
-						var newtd = pagerRow.append("td").datum (columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; }));
-						addColumnSelector (newtd, d3.select("#t1"));
-						hideColumns (d3.select("#t1"));
-						var headers = d3.select("#t1").selectAll("th").data(cellFunctions);
-						applyHeaderStyling (headers);
-						var allRows = d3.selectAll("tbody tr");
-						empowerRows (allRows);
-						initialRowFilter();
-						*/
-
 						
 						var headerEntries = columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; });
 						var d3tab = d3.select(".container").append("div")
@@ -835,7 +680,7 @@ CLMSUI.history = {
 						// add clear aggregation button to specific header
 						var aggregateColumn = table.getColumnIndex("aggregate") + 1;
 						var aggButtonCell = d3tab.selectAll("thead tr:nth-child(2)").select("th:nth-child("+aggregateColumn+")");
-						addClearAggCheckboxesButton (
+						addClearAggInputsButton (
 							aggButtonCell,
 							function() { return d3tab.selectAll("tbody tr"); }, 
 							response.data
@@ -874,8 +719,8 @@ CLMSUI.history = {
         }
     },
 
-    clearAggregationCheckboxes: function (d3TableRows, data) {
-        d3TableRows.selectAll(".aggregateCheckbox").property("value", "");
+    clearAggregationInputs: function (d3TableRows, data) {
+        d3TableRows.selectAll(".aggregateInput").property("value", "");
 		data.forEach (function (d) { d.aggregate = ""; });
         CLMSUI.history.anyAggGroupsDefined (data, false);
     },

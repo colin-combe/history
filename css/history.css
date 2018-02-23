@@ -23,14 +23,8 @@ td:last-child {
 	padding-right: 0px;
 }
 
-
-
 tbody tr.hiddenSearch {
     background-color: #ddd;  
-}
-
-.tableContainer tbody tr.hiddenSearch {
-	border-top: 1px dotted #888;
 }
 
 
@@ -64,74 +58,12 @@ tbody tr:hover button {
     font-size:0.9em;
 }
 
-
-.tableContainer table {
-    table-layout: auto;
-    width: 100%;
-    display: table;
-}
-
-table.dynamicTable input {
-    font-size: 1em;
-	color: #000;
-}
-
-table.pagerInfo input {
-    font-size: 1em;
-}
-
-table.pagerInfo {
-    font-size: 0.75em;
-    width: auto;
-    margin: 10px 0 0 0;
-}
-
 .pagerInfo input[type='number'] {
     max-width: 3.5em;
 }
 
-.pagerInfo td {
-    padding: 0 5px 0 10px;
-    font-size: 0.9rem;
-}
-
-.pagerInfo tr td:not(:first-of-type) {
-    border-left: 1px solid #bbb;
-}
-
-.pagerInfo td span {
-    vertical-align: middle;
-}
-
 .pagerInfo .ms-parent {
     margin-left: 0.5em;
-}
-
-.tableContainer a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
-    color:#091D42;
-}
-
-.tableContainer tbody tr td, .tableContainer tr th {
-     color:#aaa;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    min-width: 5em;
-    white-space: nowrap;
-    vertical-align: top;
-}
-
-.tableContainer tbody tr td.varWidthCell, .tableContainer tr th.varWidthCell {
-    width: 45%;
-    min-width: 5em;
-    /*max-width: 5em;*/
-    white-space: normal;
-}
-
-.tableContainer tbody tr td.varWidthCell2, .tableContainer tr th.varWidthCell2 {
-    width: 15%;
-    min-width: 2em;
-    /*max-width: 5em;*/
-    white-space: nowrap;
 }
 
 .clearChx {
@@ -142,42 +74,7 @@ table.pagerInfo {
     border-color: #091D42;
 }
 
-.dynamic-table-filter{
-	margin:auto;
-}
-
-.tableContainer .dynamic-table-toolbar input {
-    margin-top: 0.5em;
-}
-
-.tableContainer .dynamic-table-namebar th {
-    color: #a40;
-    font-size: 1.1em;
-    background: #f8f8ff;
-}
-
-.tableContainer tbody tr {
-    border-top: 1px dotted #ddd;
-}
-
-/* To get round a firefox table border bug, move padding to span, apply border to span */
-
-.tableContainer .dynamic-table-namebar th:not(:first-child) {
-    padding-left: 0;
-    padding-right: 0;
-} 
-
-.tableContainer .dynamic-table-namebar th:not(:first-child) span {
-    border-left: 1px solid #091d42;
-    padding: 5px;
-}
-
-.tableContainer .dynamic-table-namebar th.dottedBorder span {
-    border-left: 1px dashed #091d42;
-}
-
-
-.aggregateCheckbox {
+.aggregateInput {
     width: 2.5em;
     line-height: 1.2em;
     margin-left: 3px;
