@@ -543,7 +543,6 @@ CLMSUI.history = {
 
 
 						function applyHeaderStyling (headers) {
-							console.log ("headers", headers);
 							headers.attr("title", function (d,i) {
 								return columnMetaData[i].tooltip;   
 							});
@@ -732,7 +731,6 @@ CLMSUI.history = {
 						var addAggregateFunctionality = function (selection) {
 							selection.select(".aggregateCheckbox")
 								.on ("input", function(d) {
-									console.log ("agg d", d);
 									// set value to 0-9
 									this.value = this.value.slice (0,1); // equiv to maxlength for text
 									// set backing data to this value
@@ -779,7 +777,6 @@ CLMSUI.history = {
 						
 						/*
 						console.log ("bleep", d3.selectAll(dynTable.rows));
-                        CLMSUI.history.anyAggGroupsDefined (d3.selectAll(dynTable.rows).data(), false);   // disable clear button as well to start with
 						var pagerRow = d3.select("#pagerTable tr");
 						pagerRow.select(".dynamic-table-pagerbar").attr("colspan", "1");
 						var newtd = pagerRow.append("td").datum (columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; }));
@@ -835,15 +832,15 @@ CLMSUI.history = {
 						// add column selector, header entries has initial visibilities incorporated
 						addColumnSelector (d3tab.select("div.d3tableControls").datum(headerEntries), d3tab);
 						
+						// add clear aggregation button to specific header
 						var aggregateColumn = table.getColumnIndex("aggregate") + 1;
 						var aggButtonCell = d3tab.selectAll("thead tr:nth-child(2)").select("th:nth-child("+aggregateColumn+")");
-						console.log ("agg", aggregateColumn, aggButtonCell);
-						console.log ("agg2", d3tab, d3tab.selectAll("tbody tr"));
 						addClearAggCheckboxesButton (
 							aggButtonCell,
 							function() { return d3tab.selectAll("tbody tr"); }, 
 							response.data
 						);
+						CLMSUI.history.anyAggGroupsDefined (response.data, false);   // disable clear button as well to start with
 						
                     }
                 }
@@ -861,7 +858,7 @@ CLMSUI.history = {
 				var valid = false;
 				var agg = d.aggregate;
 				if (agg) {
-					valid = (isNaN(agg) || agg.length > 1);
+					valid = !(isNaN(agg) || agg.length > 1);
 					if (!valid) { alert ("Group identifiers must be a single digit."); }
 				}
 				return valid; 
@@ -878,15 +875,8 @@ CLMSUI.history = {
     },
 
     clearAggregationCheckboxes: function (d3TableRows, data) {
-		console.log ("yppppp", d3TableRows);
-        // do selectAll on all table rows so filtered out rows are included
-        d3TableRows.selectAll(".aggregateCheckbox")
-            // clear value and backing data
-            .property("value", "")
-        ;
-		data.forEach (function (d) {
-			d.aggregate = "";
-		})
+        d3TableRows.selectAll(".aggregateCheckbox").property("value", "");
+		data.forEach (function (d) { d.aggregate = ""; });
         CLMSUI.history.anyAggGroupsDefined (data, false);
     },
     

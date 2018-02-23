@@ -2,9 +2,7 @@
 var CLMSUI = CLMSUI || {};
 
 CLMSUI.d3Table = function () {
-	var data = [];
-	var filteredData = [];
-	var filter = [];
+	var data = [], filteredData = [], filter = [];
 	var orderKey = null;
 	var orderDirs = ["asc", "desc", "none"];
 	var orderDir = orderDirs[0];
@@ -15,9 +13,7 @@ CLMSUI.d3Table = function () {
 	var postUpdateFunc = null;
 	var dataToHTMLModifiers = {};
 	var pageCount = 1;
-	var dispatch;
-	var cellStyles;
-	var tooltips;
+	var dispatch, cellStyles, tooltips;
 	
 	function my (mySelection) {	// data in selection should be 2d-array [[]]
 		selection = mySelection;
@@ -70,7 +66,7 @@ CLMSUI.d3Table = function () {
 		var filterCells = selection.select("thead tr:nth-child(2)").selectAll("th").data(headerEntries);
 		filterCells.exit().remove();
 		var passTypes = d3.set (["number", "alpha"]);
-		var newFilters = filterCells.enter()
+		filterCells.enter()
 			.append("th")
 			.filter (function (d) { return passTypes.has (d.value.type); })
 			.each (function () {
@@ -104,11 +100,13 @@ CLMSUI.d3Table = function () {
 		};
 		
 		function setOrderButton (key) {
-			selection.selectAll("svg.arrow").style("transform", null).classed("active", false);
 			var order = orderDirs.indexOf (orderDir);
 			var rotate = [0, 180, 90][order];
-			var svg = selection.selectAll("svg.arrow").filter (function (d) { return d.key === key; })
-			svg.style ("transform", "rotate("+rotate+"deg)").classed("active", true);
+			selection.selectAll("svg.arrow")
+				.style ("transform", null).classed("active", false)
+				.filter (function (d) { return d.key === key; })
+				.style ("transform", "rotate("+rotate+"deg)").classed("active", true)
+			;
 		};
 		
 		dispatch = d3.dispatch("columnHiding", "filtering", "ordering", "ordering2", "pageNumbering");
