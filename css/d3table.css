@@ -85,6 +85,11 @@ TABLE.d3table SVG.arrow.active {
 	background: #bbf;
 }
 
+TABLE.d3table SVG.arrow:hover, TABLE.d3table SVG.arrow.active:hover {
+	background: #ff8;
+	border-color: #444;
+}
+
 TABLE.d3table SVG.arrow PATH {
 	stroke: none;
 	fill: darkgrey;
@@ -92,6 +97,10 @@ TABLE.d3table SVG.arrow PATH {
 }
 
 TABLE.d3table SVG.arrow.active PATH {
+	fill: black
+}
+
+TABLE.d3table SVG.arrow:hover PATH {
 	fill: black
 }
 
@@ -112,4 +121,3 @@ span.pageInput:after {
 	margin: 0.25em;
 	font-size: 1rem;
 }
-
