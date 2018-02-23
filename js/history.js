@@ -544,7 +544,6 @@ CLMSUI.history = {
 											}
 										});
 										table.update();
-										//empowerRows (selRows);	// set buttons up in updated row
                                     };
                                     //updateCurrentRow (d, {}); // alternative to following code for testing without doing database actions
 
