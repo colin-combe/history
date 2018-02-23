@@ -16,6 +16,8 @@ CLMSUI.d3Table = function () {
 	var dataToHTMLModifiers = {};
 	var pageCount = 1;
 	var dispatch;
+	var cellStyles;
+	var tooltips;
 	
 	function my (mySelection) {	// data in selection should be 2d-array [[]]
 		selection = mySelection;
@@ -37,9 +39,10 @@ CLMSUI.d3Table = function () {
 					.attr ("value", 1)
 					.on ("input", function () {
 						var val = d3.select(this).property("value");
-						val = Math.max (Math.min (val, pageCount), 1)
-						my.page (val);
-						d3.select(this).property("value", val);
+						doPageCount();
+						val = Math.max (Math.min (val, pageCount), 1);
+						my.page(val).update();
+						//d3.select(this).property("value", val);
 					})
 			;
         	pageInfo.append("span").attr("class", "pageTotal");
@@ -50,6 +53,8 @@ CLMSUI.d3Table = function () {
 		}
 		
 		var headerEntries = selection.datum().headerEntries;
+		cellStyles = selection.datum().cellStyles;
+		tooltips = selection.datum().tooltips;
 		
 		var headerCells = selection.select("thead tr:first-child").selectAll("th").data(headerEntries);
 		headerCells.exit().remove();
@@ -68,7 +73,7 @@ CLMSUI.d3Table = function () {
 		var newFilters = filterCells.enter()
 			.append("th")
 			.filter (function (d) { return passTypes.has (d.value.type); })
-			.each (function (d,i) {
+			.each (function () {
 				var filterHeader = d3.select(this);
 				filterHeader.append("input")
 					.attr("class", "filterInput")
@@ -83,10 +88,7 @@ CLMSUI.d3Table = function () {
 				filterHeader.append("svg").attr("class", "arrow")
 					.on ("click", function (d) {
 						my.orderKey(d.key);
-						selection.selectAll("svg.arrow").style("transform", null).classed("active", false);
-						var order = orderDirs.indexOf (orderDir);
-						var rotate = [0, 180, 90][order];
-						d3.select(this).style ("transform", "rotate("+rotate+"deg)").classed("active", true);
+						dispatch.ordering2 (d.key);
 						my.update();
 					})
 					.append ("svg:path")
@@ -97,7 +99,21 @@ CLMSUI.d3Table = function () {
 		
 		doPageCount();
 		
-		dispatch = d3.dispatch("columnHiding", "filtering", "ordering");
+		function setPageWidget (page) {
+			selection.select(".pageInput input[type='number']").property ("value", page);
+		};
+		
+		function setOrderButton (key) {
+			selection.selectAll("svg.arrow").style("transform", null).classed("active", false);
+			var order = orderDirs.indexOf (orderDir);
+			var rotate = [0, 180, 90][order];
+			var svg = selection.selectAll("svg.arrow").filter (function (d) { return d.key === key; })
+			svg.style ("transform", "rotate("+rotate+"deg)").classed("active", true);
+		};
+		
+		dispatch = d3.dispatch("columnHiding", "filtering", "ordering", "ordering2", "pageNumbering");
+		dispatch.on ("pageNumbering", setPageWidget);
+		dispatch.on ("ordering2", setOrderButton);
 		
 		console.log ("data", data, filteredData);
 	}
@@ -119,11 +135,10 @@ CLMSUI.d3Table = function () {
 				displayColumn (i + 1, false);
 			}
 		});
-		console.log ("fff", selection.datum().headerEntries);
 	}
 	
 	my.update = function () {
-		var pageData = filteredData.slice (page * pageSize, (page + 1) * pageSize);
+		var pageData = filteredData.slice ((page - 1) * pageSize, page * pageSize);
 		var ko = this.columnOrder();
 		var modifiers = this.dataToHTMLModifiers();
 		
@@ -135,7 +150,15 @@ CLMSUI.d3Table = function () {
 		
 		cells.enter().append("td");
 		
-		cells.html (function(d) { return modifiers[d.key] ? modifiers[d.key](d.value) : d.value[d.key]; });	
+		cells
+			.html (function(d) { return modifiers[d.key] ? modifiers[d.key](d.value) : d.value[d.key]; })
+			.attr ("class", function(d) { return cellStyles[d.key]; })
+			.filter (function(d) { return tooltips[d.key]; })
+			.attr ("title", function(d) {
+				var v = tooltips[d.key](d);
+				return v ? d.value.id+": "+v : "";
+			})
+		;	
 		
 		hideColumns();
 		
@@ -177,7 +200,7 @@ CLMSUI.d3Table = function () {
 		
 		doPageCount();
 		selection.selectAll(".pageTotal").text(pageCount);
-		my.page(0);
+		my.page(1);
 		
 		// update filter inputs with new filters
 		var filterCells = selection.select("thead tr:nth-child(2)").selectAll("th");
@@ -188,7 +211,6 @@ CLMSUI.d3Table = function () {
 		var filter2 = selection.datum().headerEntries.map (function (hentry) {
 			return {value: filter[hentry.key]};
 		});
-		console.log ("filter", filter, filter2, dispatch);
 		dispatch.filtering (filter2);
 		
 		return my;
@@ -228,6 +250,7 @@ CLMSUI.d3Table = function () {
 		this.reorder();
 		
 		dispatch.ordering (my.getColumnIndex(orderKey), orderDir === "desc");
+		dispatch.ordering2 (orderKey);
 		
 		return my;
 	};
@@ -238,7 +261,10 @@ CLMSUI.d3Table = function () {
 			orderDir = value;
 		}
 		
+		this.reorder();
+		
 		dispatch.ordering (my.getColumnIndex(orderKey), orderDir === "desc");
+		dispatch.ordering2 (orderKey);
 		
 		return my;
 	}
@@ -246,6 +272,9 @@ CLMSUI.d3Table = function () {
 	my.page = function (value) {
 		if (!arguments.length) { return page; }
 		page = value;
+		
+		dispatch.pageNumbering (page);
+		
 		return my;
 	};
 	
