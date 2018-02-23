@@ -60,6 +60,7 @@ tbody tr:hover button {
 
 .pagerInfo input[type='number'] {
     max-width: 3.5em;
+	font-size: 1em;
 }
 
 .pagerInfo .ms-parent {
