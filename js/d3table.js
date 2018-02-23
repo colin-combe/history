@@ -83,7 +83,7 @@ CLMSUI.d3Table = function () {
 				;
 				filterHeader.append("svg").attr("class", "arrow")
 					.on ("click", function (d) {
-						my.orderKey(d.key);
+						my.orderKey(d.key).sort();
 						dispatch.ordering2 (d.key);
 						my.update();
 					})
@@ -194,7 +194,7 @@ CLMSUI.d3Table = function () {
 			return pass;
 		});
 		
-		this.reorder();
+		this.sort();
 		
 		doPageCount();
 		selection.selectAll(".pageTotal").text(pageCount);
@@ -214,7 +214,7 @@ CLMSUI.d3Table = function () {
 		return my;
 	};
 	
-	my.reorder = function () {
+	my.sort = function () {
 		var orderKey = my.orderKey();
 		var orderDir = my.orderDir();
 		
@@ -245,8 +245,6 @@ CLMSUI.d3Table = function () {
 			orderDir = orderDirs[(index + 1) % orderDirs.length];
 		}
 		
-		this.reorder();
-		
 		dispatch.ordering (my.getColumnIndex(orderKey), orderDir === "desc");
 		dispatch.ordering2 (orderKey);
 		
@@ -258,8 +256,6 @@ CLMSUI.d3Table = function () {
 		if (orderDirs.indexOf (orderDir) >= 0) {
 			orderDir = value;
 		}
-		
-		this.reorder();
 		
 		dispatch.ordering (my.getColumnIndex(orderKey), orderDir === "desc");
 		dispatch.ordering2 (orderKey);

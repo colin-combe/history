@@ -68,6 +68,7 @@ CLMSUI.history = {
     loadSearchList: function () {	
 	 	var initialValues = this.getInitialValues();	// get default / cookie values
 
+		d3.selectAll(".d3tableContainer").remove();
        	d3.selectAll("button").classed("btn btn-1 btn-1a", true);
         
         var self = this;
@@ -288,12 +289,10 @@ CLMSUI.history = {
                         sanitise (response.data);
                         //var b = performance.now() - a;
                         //console.log ("sanity in", b, "ms.");
-                        
-                        // make d3 entry style list of above, removing user_name if just user's own searches
-                        var cellFunctions = d3.entries(modifiers);
 
                         /* Everything up to this point helps generates the dynamic table */
-                        
+						
+						
                         if (userOnly) {
                             var hideIndex = pluck(columnMetaData, "name").indexOf ("User");
                             columnMetaData[hideIndex].visible = false;
@@ -408,24 +407,18 @@ CLMSUI.history = {
 							;
 							$(newtd.select("select").node()).multipleSelect ({  
 								selectAll: false,
-								onClick: function(view) {
+								onClick: function (view) {
 									// hide/show column chosen by user
 									var colNames = pluck (columnMetaData, "name");
 									var index = colNames.indexOf (view.value) + 1; // elements are 1-indexed in css selectors
-									var indexPoint = datum.map (function(d, i) {
-										return {ref: d, index: i}
-									}).filter (function (d) {
-										return d.ref.value.name === view.value;
+									var indexPoint = datum.filter (function (d) {
+										return d.value.name === view.value;
+									}).forEach (function(d) {
+										d.value.visible = view.checked;
 									});
-									var index = indexPoint[0].index + 1;
-									indexPoint[0].ref.value.visible = view.checked;
 									displayColumn (index, view.checked, table);
 
-									if (dispatch) {
-										dispatch.columnHiding (view.value, view.checked)
-									} else {
-										storeColumnHiding (view.value, view.checked)
-									}
+									dispatch.columnHiding (view.value, view.checked);
 								}
 							});
 						};
@@ -636,7 +629,7 @@ CLMSUI.history = {
 						
 						
 						var headerEntries = columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; });
-						var d3tab = d3.select(".container").append("div")
+						var d3tab = d3.select(".container").append("div").attr("class", "d3tableContainer")
 							.datum({
 								data: response.data, 
 								headerEntries: headerEntries, 
@@ -664,8 +657,11 @@ CLMSUI.history = {
 						
 						// set initial sort
 						if (initialValues.sort && initialValues.sort.column) {
-							table.orderKey (headerEntries[initialValues.sort.column].key);
-							table.orderDir (initialValues.sort.sortDesc ? "desc" : "asc");
+							table
+								.orderKey (headerEntries[initialValues.sort.column].key)
+								.orderDir (initialValues.sort.sortDesc ? "desc" : "asc")
+								.sort()
+							;
 						}
 						table.update();
 						
@@ -697,7 +693,7 @@ CLMSUI.history = {
        });
     },
 				
-    aggregate: function (tableData, unvalAndDecoys) {
+    aggregate: function (tableData, fdrCapable) {
 		var values = tableData
 			.filter (function (d) {
 				var valid = false;
@@ -713,7 +709,7 @@ CLMSUI.history = {
 
         if (!values.length) { alert ("Cannot aggregate: no selection - use text field in right most table column."); }
         else {
-            var url = CLMSUI.history.makeResultsUrl (values.join(','), unvalAndDecoys ? "&unval=1&decoys=1" : "");
+            var url = CLMSUI.history.makeResultsUrl (values.join(','), fdrCapable ? "&unval=1&decoys=1" : "");
             window.open (url, "_self");
             //console.log ("URL", url);
         }
