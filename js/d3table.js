@@ -182,11 +182,19 @@ CLMSUI.d3Table = function () {
 		filter = value;
 		var ko = this.columnOrder();
 		
+		// Split individual filters if they have spaces and from those parts make a regex that means values have to meet all those requirements
+		// As asked for by lutz and worked in the old table - issue 139
+		var filterRegexes = {};
+		ko.forEach (function (key) {
+			var parts = filter[key] ? filter[key].split(" ").map (function (part) { return "(?=.*"+part+")"; }) : [];
+			filterRegexes[key] = parts.length > 1 ? parts.join("") : filter[key];
+		});
+	
 		filteredData = data.filter (function (rowdata) {
 			var pass = true;
 			for (var n = 0; n < ko.length; n++) {
 				var key = ko[n];
-				if (filter[key] && rowdata[key].search(filter[key]) < 0) {
+				if (filter[key] && rowdata[key].search(filterRegexes[key]) < 0) {
 					pass = false;
 					break;
 				}
