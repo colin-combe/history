@@ -28,7 +28,7 @@ tbody tr.hiddenSearch {
 }
 
 
-tbody tr:hover td, tbody tr:hover td a, tbody tr:hover, tbody tr:hover .unviewableSearch, tbody tr:hover .fauxLink {
+tbody tr:hover td, tbody tr:hover td a, tbody tr:hover, tbody tr:hover .unviewableSearch, tbody tr:hover .fauxLink, .btn {
     color: white;
 	transition: none;
 }
