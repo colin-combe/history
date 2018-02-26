@@ -71,7 +71,7 @@ TABLE.d3table tbody tr.hiddenSearch {
 	border-top: 1px dotted #888;
 }
 
-TABLE.d3table SVG.arrow {
+TABLE.d3table svg.arrow {
 	width: 16px;
 	height: 16px;
 	border: 1px solid grey;
@@ -81,26 +81,26 @@ TABLE.d3table SVG.arrow {
 	vertical-align: top;
 }
 
-TABLE.d3table SVG.arrow.active {
+TABLE.d3table svg.arrow.active {
 	background: #bbf;
 }
 
-TABLE.d3table SVG.arrow:hover, TABLE.d3table SVG.arrow.active:hover {
+TABLE.d3table svg.arrow:hover, TABLE.d3table SVG.arrow.active:hover {
 	background: #ff8;
 	border-color: #444;
 }
 
-TABLE.d3table SVG.arrow PATH {
+TABLE.d3table svg.arrow PATH {
 	stroke: none;
 	fill: darkgrey;
 	shape-rendering: crispedges;
 }
 
-TABLE.d3table SVG.arrow.active PATH {
+TABLE.d3table svg.arrow.active PATH {
 	fill: black
 }
 
-TABLE.d3table SVG.arrow:hover PATH {
+TABLE.d3table svg.arrow:hover PATH {
 	fill: black
 }
 
