@@ -15,6 +15,12 @@ CLMSUI.d3Table = function () {
 	var pageCount = 1;
 	var dispatch, cellStyles, tooltips;
 	
+	var filterTypeFuncs = {
+		alpha: function (datum, regex) { return datum.search(regex) < 0; },
+		numeric: function (datum, regex) { return datum < regex[0] || (regex[1] ? datum > regex[1] : false); },
+		boolean: function (datum, regex) { return datum !== regex; }													   
+	};
+	
 	function my (mySelection) {	// data in selection should be 2d-array [[]]
 		selection = mySelection;
 		data = selection.datum().data;
@@ -65,7 +71,7 @@ CLMSUI.d3Table = function () {
 		
 		var filterCells = selection.select("thead tr:nth-child(2)").selectAll("th").data(headerEntries);
 		filterCells.exit().remove();
-		var passTypes = d3.set (["number", "alpha"]);
+		var passTypes = d3.set(d3.keys(filterTypeFuncs));
 		filterCells.enter()
 			.append("th")
 			.filter (function (d) { return passTypes.has (d.value.type); })
@@ -74,10 +80,10 @@ CLMSUI.d3Table = function () {
 				filterHeader.append("input")
 					.attr("class", "filterInput")
 					.attr("type", "text")
-					.property("value", function(d) { return filter[d.value.filterID]; })
+					//.property("value", function(d) { return filter[d.value.id].value; })
 					.on ("input", function (d) {
 						var filter = my.filter();
-						filter[d.key] = d3.select(this).property("value");
+						filter[d.key].value = d3.select(this).property("value");
 						my.filter(filter).update();
 					})
 				;
@@ -182,19 +188,37 @@ CLMSUI.d3Table = function () {
 		filter = value;
 		var ko = this.columnOrder();
 		
+		console.log ("ff", filter);
+		
 		// Split individual filters if they have spaces and from those parts make a regex that means values have to meet all those requirements
 		// As asked for by lutz and worked in the old table - issue 139
 		var filterRegexes = {};
 		ko.forEach (function (key) {
-			var parts = filter[key] ? filter[key].split(" ").map (function (part) { return "(?=.*"+part+")"; }) : [];
-			filterRegexes[key] = parts.length > 1 ? parts.join("") : filter[key];
+			if (filter[key]) {
+				var filterVal = filter[key].value;
+				var filterType = filter[key].type;
+				if (filterType === 'boolean') {
+					filterRegexes[key] = (filterVal === "1" || filterVal === "t" || filterVal === "true") ? true : ((filterVal === "0" || filterVal === "f" || filterVal === "false") ? false : null);
+				}
+				else if (filterType === "numeric") {
+					filterRegexes[key] = filterVal.split(" ").map (function (part) { return Number(part); });
+				}
+				else if (filterType === "alpha") {
+					var parts = filterVal ? filterVal.split(" ").map (function (part) { return "(?=.*"+part+")"; }) : [];
+					filterRegexes[key] = parts.length > 1 ? parts.join("") : filterVal;
+				}
+			}
+		});
+		
+		var indexedFilterTypeFuncs = ko.map (function (key) {
+			return filter[key] ? filterTypeFuncs[filter[key].type] : null;
 		});
 	
 		filteredData = data.filter (function (rowdata) {
 			var pass = true;
 			for (var n = 0; n < ko.length; n++) {
 				var key = ko[n];
-				if (filter[key] && rowdata[key].search(filterRegexes[key]) < 0) {
+				if (filterRegexes[key] !== undefined && indexedFilterTypeFuncs[n](rowdata[key], filterRegexes[key])) {
 					pass = false;
 					break;
 				}
@@ -211,11 +235,12 @@ CLMSUI.d3Table = function () {
 		// update filter inputs with new filters
 		var filterCells = selection.select("thead tr:nth-child(2)").selectAll("th");
 		filterCells.select("input").property("value", function (d) {
-			return filter[d.key];	
+			console.log ("gg", filter[d.key])
+			return filter[d.key] ? filter[d.key].value : "";	
 		});
 		
 		var filter2 = selection.datum().headerEntries.map (function (hentry) {
-			return {value: filter[hentry.key]};
+			return {value: filter[hentry.key] ? filter[hentry.key].value : null};
 		});
 		dispatch.filtering (filter2);
 		

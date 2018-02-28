@@ -74,20 +74,20 @@ CLMSUI.history = {
         var self = this;
 
         var columnMetaData = [
-            {name: "Visualise Search", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "name", id: "name"},
+            {name: "Visualise Search", type: "alpha", tooltip: "", visible: true, removable: true, id: "name"},
             {name: "+FDR", type: "none", tooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true, id: "fdr"},
 			{name: "Restart", type: "none", tooltip: "", visible: false, removable: true, id: "restart"},
-            {name: "Notes", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "notes", id: "notes"},
-            {name: "Validate", type: "none", tooltip: "", visible: true, removable: true, id: "validate"},
-            {name: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "file_name", id: "file_name"},
-            {name: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true, filterID: "enzyme", id: "enzyme"},
-            {name: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true, filterID: "crosslinkers", id: "crosslinkers"},
-            {name: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "submit_date", id: "submit_date"},
-            {name: "ID", type: "number", tooltip: "", visible: true, removable: true, filterID: "id", id: "id"},
-            {name: "User", type: "alpha", tooltip: "", visible: true, removable: true, filterID: "user_name", id: "user_name"},
+            {name: "Notes", type: "alpha", tooltip: "", visible: true, removable: true, id: "notes"},
+            {name: "Validsate", type: "none", tooltip: "", visible: true, removable: true, id: "validate"},
+            {name: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true, id: "file_name"},
+            {name: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true, id: "enzyme"},
+            {name: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true, id: "crosslinkers"},
+            {name: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true, id: "submit_date"},
+            {name: "ID", type: "number", tooltip: "", visible: true, removable: true, id: "id"},
+            {name: "User", type: "alpha", tooltip: "", visible: true, removable: true, id: "user_name"},
             {name: "Agg Group", type: "clearCheckboxes", tooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false, id: "aggregate"},
             //{name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
-			{name: "Delete", type: "none", tooltip: "", visible: true, removable: true, id: "delete"},
+			{name: "Delete", type: "boolean", tooltip: "", visible: true, removable: true, id: "hidden"},
         ];
 		
 		// Set visibilities of columns according to cookies or default values
@@ -200,7 +200,7 @@ CLMSUI.history = {
                             crosslinkers: "7em",
                             user_name: "6em",
                             aggregate: "6em",
-                            delete: "5em",
+                            hidden: "5em",
                         };
 
                         var modifiers = {
@@ -244,7 +244,7 @@ CLMSUI.history = {
 								var completed = d.status === "completed";
                                 return completed ? "<input type='number' pattern='\\d*' class='aggregateInput' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
                             },
-                            delete: function(d) {
+                            hidden: function(d) {
                                 return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>"+(isTruthy(d.hidden) ? "Restore" : "Delete")+"</button>" : "";
                             }
                         };
@@ -634,7 +634,7 @@ CLMSUI.history = {
 								headerEntries: headerEntries, 
 								cellStyles: cellStyles,
 								tooltips: tooltips,
-								columnOrder: d3.keys(modifiers),
+								columnOrder: headerEntries.map (function (hentry) { return hentry.key; }),
 							})
 						;
 						var table = CLMSUI.d3Table ();
@@ -644,9 +644,12 @@ CLMSUI.history = {
 						
 						// set initial filters
 						var keyedFilters = {};
-						d3.entries(initialValues.filters).forEach (function (entry) {
-							keyedFilters[headerEntries[entry.key].key] = entry.value;	
+						headerEntries.forEach (function (hentry) {
+							var findex = table.getColumnIndex (hentry.key);
+							console.log (hentry, "ind", findex, initialValues.filters);
+							keyedFilters[hentry.key] = {value: initialValues.filters[findex], type: hentry.value.type}	
 						});
+						console.log ("keyedFilters", keyedFilters);
 						
 						table
 							.filter(keyedFilters)
