@@ -83,7 +83,7 @@ CLMSUI.history = {
             {name: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true, id: "enzyme"},
             {name: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true, id: "crosslinkers"},
             {name: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true, id: "submit_date"},
-            {name: "ID", type: "number", tooltip: "", visible: true, removable: true, id: "id"},
+            {name: "ID", type: "alpha", tooltip: "", visible: true, removable: true, id: "id"},
             {name: "User", type: "alpha", tooltip: "", visible: true, removable: true, id: "user_name"},
             {name: "Agg Group", type: "clearCheckboxes", tooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false, id: "aggregate"},
             //{name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
@@ -646,10 +646,10 @@ CLMSUI.history = {
 						var keyedFilters = {};
 						headerEntries.forEach (function (hentry) {
 							var findex = table.getColumnIndex (hentry.key);
-							console.log (hentry, "ind", findex, initialValues.filters);
+							//console.log (hentry, "ind", findex, initialValues.filters);
 							keyedFilters[hentry.key] = {value: initialValues.filters[findex], type: hentry.value.type}	
 						});
-						console.log ("keyedFilters", keyedFilters);
+						//console.log ("keyedFilters", keyedFilters);
 						
 						table
 							.filter(keyedFilters)
@@ -674,6 +674,9 @@ CLMSUI.history = {
 						
 						// add column selector, header entries has initial visibilities incorporated
 						addColumnSelector (d3tab.select("div.d3tableControls").datum(headerEntries), d3tab);
+						
+						// hide delete filter if not superuser as pointless
+						table.showHeaderFilter ("hidden", response.userRights.isSuperUser);
 						
 						// add clear aggregation button to specific header
 						var aggregateColumn = table.getColumnIndex("aggregate") + 1;
@@ -784,7 +787,6 @@ CLMSUI.history = {
 		if (force || this.youMayRememberMe()) {
 			var xiCookie = localStorage.getItem("xiHistory");
 			if (!xiCookie) {
-				//consolelog ()
 				localStorage.setItem ("xiHistory", JSON.stringify(this.tempValues));
 				xiCookie = localStorage.getItem("xiHistory");
 			}

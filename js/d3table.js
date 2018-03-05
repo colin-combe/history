@@ -18,8 +18,12 @@ CLMSUI.d3Table = function () {
 	var filterTypeFuncs = {
 		alpha: function (datum, regex) { return datum.search(regex) < 0; },
 		numeric: function (datum, regex) { return datum < regex[0] || (regex[1] ? datum > regex[1] : false); },
-		boolean: function (datum, regex) { return datum !== regex; }													   
+		boolean: function (datum, regex) { return toBoolean (datum, true) !== regex; }													   
 	};
+	
+	function toBoolean (val, nullIsFalse) {
+		return (val === "1" || val === "t" || val === "true") ? true : ((val === "0" || val === "f" || val === "false" || (val === null && nullIsFalse)) ? false : null);
+	}
 	
 	function my (mySelection) {	// data in selection should be 2d-array [[]]
 		selection = mySelection;
@@ -42,8 +46,10 @@ CLMSUI.d3Table = function () {
 					.on ("input", function () {
 						var val = d3.select(this).property("value");
 						doPageCount();
-						val = Math.max (Math.min (val, pageCount), 1);
-						my.page(val).update();
+						if (val !== "") {
+							val = Math.max (Math.min (val, pageCount), 1);
+							my.page(val).update();
+						}
 						//d3.select(this).property("value", val);
 					})
 			;
@@ -76,7 +82,7 @@ CLMSUI.d3Table = function () {
 			.append("th")
 			.filter (function (d) { return passTypes.has (d.value.type); })
 			.each (function () {
-				var filterHeader = d3.select(this);
+				var filterHeader = d3.select(this).append("div");
 				filterHeader.append("input")
 					.attr("class", "filterInput")
 					.attr("type", "text")
@@ -119,7 +125,7 @@ CLMSUI.d3Table = function () {
 		dispatch.on ("pageNumbering", setPageWidget);
 		dispatch.on ("ordering2", setOrderButton);
 		
-		console.log ("data", data, filteredData);
+		//console.log ("data", data, filteredData);
 	}
 	
 	function doPageCount () {
@@ -188,7 +194,7 @@ CLMSUI.d3Table = function () {
 		filter = value;
 		var ko = this.columnOrder();
 		
-		console.log ("ff", filter);
+		//console.log ("ff", filter);
 		
 		// Split individual filters if they have spaces and from those parts make a regex that means values have to meet all those requirements
 		// As asked for by lutz and worked in the old table - issue 139
@@ -198,7 +204,7 @@ CLMSUI.d3Table = function () {
 				var filterVal = filter[key].value;
 				var filterType = filter[key].type;
 				if (filterType === 'boolean') {
-					filterRegexes[key] = (filterVal === "1" || filterVal === "t" || filterVal === "true") ? true : ((filterVal === "0" || filterVal === "f" || filterVal === "false") ? false : null);
+					filterRegexes[key] = toBoolean (filterVal);
 				}
 				else if (filterType === "numeric") {
 					filterRegexes[key] = filterVal.split(" ").map (function (part) { return Number(part); });
@@ -218,7 +224,7 @@ CLMSUI.d3Table = function () {
 			var pass = true;
 			for (var n = 0; n < ko.length; n++) {
 				var key = ko[n];
-				if (filterRegexes[key] !== undefined && indexedFilterTypeFuncs[n](rowdata[key], filterRegexes[key])) {
+				if (filterRegexes[key] != undefined && indexedFilterTypeFuncs[n](rowdata[key], filterRegexes[key])) {
 					pass = false;
 					break;
 				}
@@ -235,7 +241,6 @@ CLMSUI.d3Table = function () {
 		// update filter inputs with new filters
 		var filterCells = selection.select("thead tr:nth-child(2)").selectAll("th");
 		filterCells.select("input").property("value", function (d) {
-			console.log ("gg", filter[d.key])
 			return filter[d.key] ? filter[d.key].value : "";	
 		});
 		
@@ -256,11 +261,12 @@ CLMSUI.d3Table = function () {
 			filteredData.sort (function (a, b) {
 				var aval = a[orderKey];
 				var bval = b[orderKey];
-				if (aval === undefined) {
-					return (bval === undefined ? 0 : -mult);
+				var bnone = bval === undefined || bval === null;
+				if (aval === undefined || aval === null) {
+					return bnone ? 0 : -mult;
 				}
 				else {
-					return (bval === undefined ? mult : mult * (aval.localeCompare (bval)));
+					return bnone ? mult : mult * (aval.localeCompare (bval));
 				}
 			});
 		}
@@ -320,6 +326,13 @@ CLMSUI.d3Table = function () {
 	
 	my.getColumnIndex = function (key) {
 		return my.columnOrder().indexOf(key);	
+	};
+	
+	my.showHeaderFilter = function (key, show) {
+		selection.select("thead tr:nth-child(2)").selectAll("th > div")
+			.filter (function (d) { return d.key === key; })
+			.style ("display", show ? null : "none")
+		;	
 	};
 	
 	my.dispatch = function (value) {
