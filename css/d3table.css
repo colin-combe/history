@@ -41,6 +41,11 @@ TABLE.d3table thead th {
     color: #a40;
     font-size: 1.1em;
     background: #f8f8ff;
+	text-transform: capitalize;
+}
+
+TABLE.d3table thead th div > * {
+    box-sizing: border-box;
 }
 
 TABLE.d3table tbody tr {

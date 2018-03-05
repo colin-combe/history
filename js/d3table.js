@@ -17,8 +17,14 @@ CLMSUI.d3Table = function () {
 	
 	var filterTypeFuncs = {
 		alpha: function (datum, regex) { return datum.search(regex) < 0; },
-		numeric: function (datum, regex) { return datum < regex[0] || (regex[1] ? datum > regex[1] : false); },
+		numeric: function (datum, regex) { return regex.length <= 1 ? +datum !== regex[0] : (datum < regex[0] || datum > regex[1]); },
 		boolean: function (datum, regex) { return toBoolean (datum, true) !== regex; }													   
+	};
+	
+	var comparators = {
+		alpha: function (a, b) { return a.localeCompare(b); },
+		numeric: function (a, b) { return a - b; },
+		boolean: function (a, b) { return a.localeCompare(b); }
 	};
 	
 	function toBoolean (val, nullIsFalse) {
@@ -202,16 +208,18 @@ CLMSUI.d3Table = function () {
 		ko.forEach (function (key) {
 			if (filter[key]) {
 				var filterVal = filter[key].value;
-				var filterType = filter[key].type;
-				if (filterType === 'boolean') {
-					filterRegexes[key] = toBoolean (filterVal);
-				}
-				else if (filterType === "numeric") {
-					filterRegexes[key] = filterVal.split(" ").map (function (part) { return Number(part); });
-				}
-				else if (filterType === "alpha") {
-					var parts = filterVal ? filterVal.split(" ").map (function (part) { return "(?=.*"+part+")"; }) : [];
-					filterRegexes[key] = parts.length > 1 ? parts.join("") : filterVal;
+				if (filterVal !== null && filterVal !== "") {
+					var filterType = filter[key].type;
+					if (filterType === 'boolean') {
+						filterRegexes[key] = toBoolean (filterVal);
+					}
+					else if (filterType === "numeric") {
+						filterRegexes[key] = filterVal ? filterVal.split(" ").map (function (part) { return Number(part); }) : filterVal;
+					}
+					else if (filterType === "alpha") {
+						var parts = filterVal ? filterVal.split(" ").map (function (part) { return "(?=.*"+part+")"; }) : [];
+						filterRegexes[key] = parts.length > 1 ? parts.join("") : filterVal;
+					}
 				}
 			}
 		});
@@ -256,7 +264,9 @@ CLMSUI.d3Table = function () {
 		var orderKey = my.orderKey();
 		var orderDir = my.orderDir();
 		
-		if (orderDir !== "none") {
+		var comparator = orderKey ? comparators[filter[orderKey].type] : null;
+		
+		if (orderDir !== "none" && comparator) {
 			var mult = (orderDir === "asc" ? 1 : -1);
 			filteredData.sort (function (a, b) {
 				var aval = a[orderKey];
@@ -266,7 +276,7 @@ CLMSUI.d3Table = function () {
 					return bnone ? 0 : -mult;
 				}
 				else {
-					return bnone ? mult : mult * (aval.localeCompare (bval));
+					return bnone ? mult : mult * comparator(aval, bval);
 				}
 			});
 		}
