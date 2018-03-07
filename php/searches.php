@@ -17,14 +17,14 @@
             $userRights = getUserRights ($dbconn, $_SESSION['user_id']);
 			$restrictSearches = ($searches == "MINE") || (!$userRights["canSeeAll"] && !$userRights["isSuperUser"]);
             
+			// figure out why epoch from now() isn't working here
             $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, hidden, file_name, enzyme, crosslinkers, is_executing, completed from
 
             (select search.id, search.completed, search.is_executing, search.hidden, search.notes, user_name as user_name, search.submit_date AS submit_date, 
-            search.name AS name, search.status AS status, search.random_id AS random_id, 
-            string_agg(sequence_file.file_name,',') AS file_name
+            search.name AS name, search.status AS status, search.random_id AS random_id,
+           	string_agg(sequence_file.file_name,',') AS file_name
             FROM search
-            INNER JOIN users on search.uploadedby = users.id
-            
+            INNER JOIN users on search.uploadedby = users.id 
             INNER JOIN search_sequencedb on search.id = search_sequencedb.search_id
             INNER JOIN sequence_file on search_sequencedb.seqdb_id = sequence_file.id 
              "
