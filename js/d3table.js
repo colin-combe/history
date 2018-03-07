@@ -13,7 +13,7 @@ CLMSUI.d3Table = function () {
 	var postUpdateFunc = null;
 	var dataToHTMLModifiers = {};
 	var pageCount = 1;
-	var dispatch, cellStyles, tooltips;
+	var dispatch, cellStyles, tooltips, eventHooks;
 	
 	var filterTypeFuncs = {
 		alpha: function (datum, regex) { return datum.search(regex) < 0; },
@@ -28,7 +28,7 @@ CLMSUI.d3Table = function () {
 	};
 	
 	function toBoolean (val, nullIsFalse) {
-		return (val === "1" || val === "t" || val === "true") ? true : ((val === "0" || val === "f" || val === "false" || (val === null && nullIsFalse)) ? false : null);
+		return (val === "1" || val === "t" || val === "true" || val === true) ? true : ((val === "0" || val === "f" || val === "false" || val === false || (val === null && nullIsFalse)) ? false : null);
 	}
 	
 	function my (mySelection) {	// data in selection should be 2d-array [[]]
@@ -67,8 +67,9 @@ CLMSUI.d3Table = function () {
 		}
 		
 		var headerEntries = selection.datum().headerEntries;
-		cellStyles = selection.datum().cellStyles;
-		tooltips = selection.datum().tooltips;
+		cellStyles = selection.datum().cellStyles || {};
+		tooltips = selection.datum().tooltips || {};
+		eventHooks = selection.datum().eventHooks || {};
 		
 		var headerCells = selection.select("thead tr:first-child").selectAll("th").data(headerEntries);
 		headerCells.exit().remove();
@@ -127,7 +128,7 @@ CLMSUI.d3Table = function () {
 			;
 		};
 		
-		dispatch = d3.dispatch("columnHiding", "filtering", "ordering", "ordering2", "pageNumbering");
+		dispatch = d3.dispatch ("columnHiding", "filtering", "ordering", "ordering2", "pageNumbering");
 		dispatch.on ("pageNumbering", setPageWidget);
 		dispatch.on ("ordering2", setOrderButton);
 		
@@ -169,12 +170,20 @@ CLMSUI.d3Table = function () {
 		cells
 			.html (function(d) { return modifiers[d.key] ? modifiers[d.key](d.value) : d.value[d.key]; })
 			.attr ("class", function(d) { return cellStyles[d.key]; })
+		;
+		
+		cells
 			.filter (function(d) { return tooltips[d.key]; })
 			.attr ("title", function(d) {
 				var v = tooltips[d.key](d);
 				return v ? d.value.id+": "+v : "";
 			})
 		;	
+		
+		cells
+			.filter (function (d) { return eventHooks[d.key]; })
+			.each (function(d) { eventHooks[d.key](d3.select(this)); })
+		;
 		
 		hideColumns();
 		
@@ -232,10 +241,26 @@ CLMSUI.d3Table = function () {
 			var pass = true;
 			for (var n = 0; n < ko.length; n++) {
 				var key = ko[n];
-				if (filterRegexes[key] != undefined && indexedFilterTypeFuncs[n](rowdata[key], filterRegexes[key])) {
-					pass = false;
-					break;
+				var regex = filterRegexes[key];
+				if (regex != undefined) {
+					// If array
+					var datum = rowdata[key];
+					if (Array.isArray(datum)) {
+						pass = false;
+						// just need 1 element in array to not be filtered out to pass
+						for (var m = 0; m < datum.length; m++) {
+							if (!indexedFilterTypeFuncs[n](datum[m], regex)) {
+								pass = true;
+								break;
+							}
+						}
+					} else {
+						if (indexedFilterTypeFuncs[n](datum, regex)) {
+							pass = false;
+						}
+					}
 				}
+				if (!pass) break;
 			}
 			return pass;
 		});
@@ -247,7 +272,7 @@ CLMSUI.d3Table = function () {
 		my.page(1);
 		
 		// update filter inputs with new filters
-		var filterCells = selection.select("thead tr:nth-child(2)").selectAll("th");
+		var filterCells = this.getFilterCells();
 		filterCells.select("input").property("value", function (d) {
 			return filter[d.key] ? filter[d.key].value : "";	
 		});
@@ -257,6 +282,11 @@ CLMSUI.d3Table = function () {
 		});
 		dispatch.filtering (filter2);
 		
+		return my;
+	};
+	
+	my.refilter = function () {
+		this.filter (this.filter());
 		return my;
 	};
 	
@@ -338,8 +368,28 @@ CLMSUI.d3Table = function () {
 		return my.columnOrder().indexOf(key);	
 	};
 	
+	my.getFilteredSize = function () {
+		return filteredData.length;	
+	};
+	
+	my.getData = function () {
+		return selection.datum().data;
+	};
+	
+	my.getAllRowsSelection = function () {
+		return selection.selectAll("tbody tr");
+	};
+	
+	my.getHeaderCells = function () {
+		return selection.select("thead tr:first-child").selectAll("th")
+	};
+	
+	my.getFilterCells = function () {
+		return selection.select("thead tr:nth-child(2)").selectAll("th")
+	};
+	
 	my.showHeaderFilter = function (key, show) {
-		selection.select("thead tr:nth-child(2)").selectAll("th > div")
+		this.getFilterCells.selectAll("div")
 			.filter (function (d) { return d.key === key; })
 			.style ("display", show ? null : "none")
 		;	
