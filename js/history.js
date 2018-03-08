@@ -78,7 +78,7 @@ CLMSUI.history = {
             {name: "+FDR", type: "none", tooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true, id: "fdr"},
 			{name: "Restart", type: "none", tooltip: "", visible: false, removable: true, id: "restart"},
             {name: "Notes", type: "alpha", tooltip: "", visible: true, removable: true, id: "notes"},
-            {name: "Validsate", type: "none", tooltip: "", visible: true, removable: true, id: "validate"},
+            {name: "Validate", type: "none", tooltip: "", visible: true, removable: true, id: "validate"},
             {name: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true, id: "file_name"},
             {name: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true, id: "enzyme"},
             {name: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true, id: "crosslinkers"},
