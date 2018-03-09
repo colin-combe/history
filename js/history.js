@@ -673,7 +673,7 @@ CLMSUI.history = {
 						dispatch.on ("ordering", storeOrdering);
 						
 						// add column selector, header entries has initial visibilities incorporated
-						addColumnSelector (d3tab.select("div.d3tableControls").datum(headerEntries), d3tab);
+						addColumnSelector (d3tab.select("div.d3tableControls").datum(headerEntries), d3tab, dispatch);
 						
 						// hide delete filter if not superuser as pointless
 						table.showHeaderFilter ("hidden", response.userRights.isSuperUser);
