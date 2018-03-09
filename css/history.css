@@ -101,7 +101,7 @@ button:disabled {
     cursor: default;
 }
 
-.restartButton {
+.restartButton, .baseNewButton {
 	color: #091d42;
 	border-color: #091d42;
 }
@@ -176,6 +176,10 @@ button.ms-choice:hover {
 	background: #ffa;
 }
 
+.d3table th {
+	white-space: nowrap;
+}
+
 /*
 div.tooltip {
 	position: absolute;
@@ -201,5 +205,11 @@ P.tooltipTitle {
 
 P.tooltipContents {
 	color: #666;
+}
+*/
+
+/*
+button:hover {
+	font-weight:bold;
 }
 */

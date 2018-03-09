@@ -19,6 +19,7 @@ CLMSUI.history = {
 			"Cross-Linkers": false,
 			"Submit Date": true,
 			"ID": true,
+			"Base New": false,
 			"User": true,
 			"Agg Group": true,
 			"Delete": true,
@@ -82,6 +83,7 @@ CLMSUI.history = {
             {name: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true, id: "file_name"},
             {name: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true, id: "enzyme"},
             {name: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true, id: "crosslinkers"},
+			{name: "Base New", type: "none", tooltip: "Base a New Search's parameters on this Search", visible: false, removable: true, id: "base_new"},
             {name: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true, id: "submit_date"},
             {name: "ID", type: "alpha", tooltip: "", visible: true, removable: true, id: "id"},
             {name: "User", type: "alpha", tooltip: "", visible: true, removable: true, id: "user_name"},
@@ -198,6 +200,7 @@ CLMSUI.history = {
                             id: "4em",
                             enzyme: "5em",
                             crosslinkers: "7em",
+							base_new: "5em",
                             user_name: "6em",
                             aggregate: "6em",
                             hidden: "5em",
@@ -235,6 +238,9 @@ CLMSUI.history = {
                             },
                             enzyme: function (d) { return d.enzyme; },
                             crosslinkers: function (d) { return d.crosslinkers; },
+							base_new: function (d) {
+								return "<button class='baseNewButton unpadButton'>New</button>";
+							},
                             submit_date: function(d) {
                                 return d.submit_date.substring(0, d.submit_date.indexOf("."));
                             },
@@ -582,6 +588,16 @@ CLMSUI.history = {
                             ;
                         };
 						
+						var addBaseNewButtonFunctionality = function (selection) {
+							selection.select(".baseNewButton")
+								.classed("btn btn-1 btn-1a", true)
+								.on ("click", function (d) {
+									console.log ("hi", d);
+									window.location.href = "../../searchSubmit/submitSearch.html?base="+d.id+"-"+d.random_id;
+								})
+							;
+						}
+						
 						
 						var addValidationFunctionality = function (selection) {
 							var lowScore = "&lowestScore=2";
@@ -621,6 +637,7 @@ CLMSUI.history = {
 						var empowerRows = function (rowSelection) {
 							addDeleteButtonFunctionality (rowSelection);
 							addRestartButtonFunctionality (rowSelection);
+							addBaseNewButtonFunctionality (rowSelection);
 							addValidationFunctionality (rowSelection);
 							addAggregateFunctionality (rowSelection);
 							updateHiddenRowStates (rowSelection);
