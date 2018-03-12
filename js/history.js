@@ -200,7 +200,7 @@ CLMSUI.history = {
                             id: "4em",
                             enzyme: "5em",
                             crosslinkers: "7em",
-							base_new: "5em",
+							base_new: "5.5em",
                             user_name: "6em",
                             aggregate: "6em",
                             hidden: "5em",
