@@ -172,12 +172,15 @@ CLMSUI.history = {
                             return val === true || val === "t" || val === "true";
                         };
 
+						var tooltipHelper = function (d, field) {
+							return d.value.id + ": " + d.value[field];
+						}
                         var tooltips = {
-                            notes: function(d) { return d.value.notes; },
-                            name: function(d) { return d.value.status; },
-                            file_name: function(d) { return d.value.file_name; },
-                            enzyme: function(d) { return d.value.enzyme; },
-                            crosslinkers: function(d) { return d.value.crosslinkers; },
+                            notes: function(d) { return tooltipHelper (d, "notes"); },
+                            name: function(d) { return tooltipHelper (d, "status"); },
+                            file_name: function(d) { return tooltipHelper (d, "file_name"); },
+                            enzyme: function(d) { return tooltipHelper (d, "enzyme"); },
+                            crosslinkers: function(d) { return tooltipHelper (d, "crosslinkers"); },
                         };
 
                         var cellStyles = {

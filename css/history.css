@@ -198,6 +198,12 @@ TABLE.d3table thead th.dottedBorder span {
     border-left: 1px dashed #091d42;
 }
 
+span.pageInfo {
+	margin-right: 0.5em;
+	border-right: 1px solid grey;
+	padding-right: 0.5em;
+}
+
 /*
 div.tooltip {
 	position: absolute;
