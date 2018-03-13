@@ -673,8 +673,8 @@ CLMSUI.history = {
 						
 						table
 							.filter(keyedFilters)
-							.dataToHTMLModifiers (modifiers)
-							.postUpdateFunc (empowerRows)
+							.dataToHTML (modifiers)
+							.postUpdate (empowerRows)
 						;
 						
 						// set initial sort
