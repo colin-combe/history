@@ -15,15 +15,17 @@
             //error_log (print_r ($_POST, true));
             $searches = $_POST["searches"];
             $userRights = getUserRights ($dbconn, $_SESSION['user_id']);
+			$restrictSearches = ($searches == "MINE") || (!$userRights["canSeeAll"] && !$userRights["isSuperUser"]);
             
-            $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, hidden, file_name, enzyme, crosslinkers from
+			// figure out why epoch from now() isn't working here
+            $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, hidden, file_name, enzyme, crosslinkers, is_executing, completed, miss_ping from
 
-            (select search.id, search.is_executing, search.hidden, search.notes, user_name as user_name, search.submit_date AS submit_date, 
-            search.name AS name, search.status AS status, search.random_id AS random_id, 
-            string_agg(sequence_file.file_name,',') AS file_name
+            (select search.id, search.completed, search.is_executing, search.hidden, search.notes, user_name as user_name, search.submit_date AS submit_date, 
+			(search.ping is not NULL) and (extract (EPOCH FROM (NOW()::timestamp - search.ping)) > 30*60) AS miss_ping,
+            search.name AS name, search.status AS status, search.random_id AS random_id,
+           	string_agg(sequence_file.file_name,',') AS file_name
             FROM search
-            INNER JOIN users on search.uploadedby = users.id
-            
+            INNER JOIN users on search.uploadedby = users.id 
             INNER JOIN search_sequencedb on search.id = search_sequencedb.search_id
             INNER JOIN sequence_file on search_sequencedb.seqdb_id = sequence_file.id 
              "
@@ -34,7 +36,7 @@
             
             $canSeeMineOnly = "WHERE search.uploadedby = $1 ";
             $canSeeMineOnlyIJ = "WHERE search.uploadedby = $1 ";
-            $innerJoinMine = ($searches == "MINE" ? $canSeeMineOnlyIJ : "");
+            $innerJoinMine = ($restrictSearches ? $canSeeMineOnlyIJ : "");
             
             $hideHiddenSearches = " AND COALESCE (search.hidden, FALSE) = FALSE ";
 
@@ -79,12 +81,14 @@
                 ORDER BY (CASE WHEN status = 'queuing' THEN 0 WHEN is_executing THEN 1 ELSE 2 END) ASC, search.id DESC ;"
             ;
             */
+			
 
-            if (!$userRights["isSuperUser"] || $searches == "MINE") {
-                $privateClause = ($searches == "MINE" ? $canSeeMineOnly : $canSeeOthersPublic).(!$userRights["isSuperUser"] ? $hideHiddenSearches : "");
+            if (!$userRights["isSuperUser"] || $restrictSearches) {
+                $privateClause = ($restrictSearches ? $canSeeMineOnly : $canSeeOthersPublic).(!$userRights["isSuperUser"] ? $hideHiddenSearches : "");
                 pg_prepare($dbconn, "my_query", $qPart1.$privateClause.$qPart3);
                 $result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
             } else {
+				//error_log (print_r ("all searches"));
                 pg_prepare($dbconn, "my_query", $qPart1.$qPart3);
                 $result = pg_execute($dbconn, "my_query", []);
             }
