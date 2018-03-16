@@ -204,6 +204,18 @@ span.pageInfo {
 	padding-right: 0.5em;
 }
 
+TABLE.d3table tr.hiddenSearch {
+    background-color: #ddd;  
+}
+
+TABLE.d3table tbody tr.hiddenSearch {
+	border-top: 1px dotted #888;
+}
+
+TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
+    color:#091D42;
+}
+
 /*
 div.tooltip {
 	position: absolute;
