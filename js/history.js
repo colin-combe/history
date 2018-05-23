@@ -116,7 +116,7 @@ CLMSUI.history = {
                 
        $.ajax({
             type:"POST",
-            url:"./php/searches.php", 
+            url:"./php/xiUI_uploads.php", 
             data: params,
             contentType: "application/x-www-form-urlencoded",
             dataType: 'json',
