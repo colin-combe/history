@@ -58,10 +58,6 @@ tbody tr:hover button {
     font-size:0.9em;
 }
 
-.pagerInfo .ms-parent {
-    margin-left: 0.5em;
-}
-
 .clearChx {
 	background:#091D42;
 }
@@ -175,6 +171,10 @@ button.ms-choice:hover {
 	white-space: nowrap;
 }
 
+.d3table-pagerInfo .ms-parent {
+    margin-left: 0.5em;
+}
+
 TABLE.d3table tbody tr td.varWidthCell, TABLE.d3table tr th.varWidthCell {
     width: 45%;
     min-width: 5em;
@@ -198,7 +198,7 @@ TABLE.d3table thead th.dottedBorder span {
     border-left: 1px dashed #091d42;
 }
 
-span.pageInfo {
+span.d3table-pageInfo {
 	margin-right: 0.5em;
 	border-right: 1px solid grey;
 	padding-right: 0.5em;
