@@ -82,14 +82,14 @@
             ;
             */
 
-            $qPart1 = "select * from uploads;"
+            $qPart1 = "select * from uploads where user_id = $1;"
             ;
 
 
             //~ if (!$userRights["isSuperUser"] || $searches == "MINE") {
                 //~ $privateClause = ($searches == "MINE" ? $canSeeMineOnly : $canSeeOthersPublic).(!$userRights["isSuperUser"] ? $hideHiddenSearches : "");
                 pg_prepare($dbconn, "my_query", $qPart1);
-                $result = pg_execute($dbconn, "my_query");//, [$_SESSION['user_id']]);
+                $result = pg_execute($dbconn, "my_query", [0]);//, [$_SESSION['user_id']]);
             //~ } else {
                 //~ pg_prepare($dbconn, "my_query", $qPart1.$qPart3);
                 //~ $result = pg_execute($dbconn, "my_query", []);
