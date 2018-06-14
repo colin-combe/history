@@ -226,18 +226,9 @@ CLMSUI.history = {
                         };
 
                         var modifiers = {
-            			// {name: "File Name", type: "alpha", tooltip: "", visible: true, removable: true, id: "file_name"},
-                        // {name: "Peak List Files", type: "alpha", tooltip: "", visible: true, removable: true, id: "peak_list_files"},
-                        // {name: "Analysis Software", type: "alpha", tooltip: "", visible: true, removable: true, id: "analysis_software"},
-                        // {name: "Audits", type: "alpha", tooltip: "", visible: true, removable: true, id: "audits"},
-                        // {name: "Samples", type: "alpha", tooltip: "", visible: true, removable: true, id: "samples"},
-                        // {name: "Analyses", type: "alpha", tooltip: "", visible: true, removable: true, id: "analyses"},
-                        // {name: "Protocols", type: "alpha", tooltip: "", visible: true, removable: true, id: "protocols"},
-                        // {name: "Bib. Refs", type: "alpha", tooltip: "", visible: true, removable: true, id: "bib_refs"},
-                        // {name: "Spectra Formats", type: "alpha", tooltip: "", visible: true, removable: true, id: "spectra_formats"},
                             file_name: function(d) {
                                 var completed = true;//d.status === "completed";
-								var name = d.file_name;//d.name.length < 200 ? d.name : (d.name.substring (0, 200) + "…");
+								var name = d.filename;//d.name.length < 200 ? d.name : (d.name.substring (0, 200) + "…");
                                 var nameHtml = completed ? makeResultsLink (d.id+"-"+d.random_id, "", name)
                                     : "<span class='unviewableSearch'>"+name+"</span>"
                                 ;
@@ -472,7 +463,7 @@ CLMSUI.history = {
 							;
 						};
 
-
+/*
 						// hidden row state can change when restore/delete pressed or when restart pressed
 						function updateHiddenRowStates (selectedRows) {
 							// reset button text and row appearance
@@ -623,7 +614,7 @@ CLMSUI.history = {
 								})
 							;
 						};
-
+*/
 
 						var addAggregateFunctionality = function (selection) {
 							selection.select(".aggregateInput")
@@ -643,12 +634,12 @@ CLMSUI.history = {
 
 
 						var empowerRows = function (rowSelection) {
-							addDeleteButtonFunctionality (rowSelection);
-							addRestartButtonFunctionality (rowSelection);
-							addBaseNewButtonFunctionality (rowSelection);
-							addValidationFunctionality (rowSelection);
+							// addDeleteButtonFunctionality (rowSelection);
+							// addRestartButtonFunctionality (rowSelection);
+							// addBaseNewButtonFunctionality (rowSelection);
+							// addValidationFunctionality (rowSelection);
 							addAggregateFunctionality (rowSelection);
-							updateHiddenRowStates (rowSelection);
+							//updateHiddenRowStates (rowSelection);
 						};
 
 
@@ -765,6 +756,7 @@ CLMSUI.history = {
         ;
     },
 
+/*
     anonForScreenshot: function () {
         // Anon usernames, search names, current user. Remember to filter to completed searches only.
         d3.selectAll("tbody").selectAll("td:nth-child(8)").text(function() { return ["bert", "bob", "allan", "audrey", "fiona"][Math.floor(Math.random() * 5)]; });
