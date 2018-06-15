@@ -4,7 +4,7 @@ var CLMSUI = CLMSUI || {};
 CLMSUI.history = {
 
     makeResultsUrl: function (sid, params) {
-        return "../xi3/upload.php?sid="+sid+params;
+        return "../xi3/network.php?upload="+sid+params;
     },
 
 	defaultValues: {
