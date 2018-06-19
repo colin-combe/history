@@ -110,9 +110,6 @@ CLMSUI.history = {
         };
 
 
-        var userOnly = initialValues.searchScope === "mySearches";
-        var params = userOnly ? "searches=MINE" : "searches=ALL";
-
         if (d3.select(".container #clmsErrorBox").empty()) {
             d3.select(".container")
                 .append("div")
@@ -124,7 +121,6 @@ CLMSUI.history = {
        $.ajax({
             type:"POST",
             url:"./php/xiUI_uploads.php",
-            data: params,
             contentType: "application/x-www-form-urlencoded",
             dataType: 'json',
             success: function(response, responseType, xmlhttp) {
@@ -156,15 +152,7 @@ CLMSUI.history = {
 							self.aggregate (response.data, true);
 						});
 
-                        var userHasRights = function (type) {
-                            return response.userRights && response.userRights[type];
-                        };
-
                         d3.select("#username").text(response.user);
-                        d3.selectAll("#newSearch").style("display", userHasRights ("canAddNewSearch") ? null : "none");
-                        d3.selectAll("#userGUI,#logout").style("display", userHasRights ("doesUserGUIExist") ? null : "none");
-                        d3.selectAll("#scopeOptions").style("display", userHasRights ("canSeeAll") ? null : "none");
-
 
                         var makeResultsLink = function (sid, params, label) {
                              return "<a href='"+CLMSUI.history.makeResultsUrl(sid, params)+"'>"+label+"</a>";
@@ -297,12 +285,7 @@ CLMSUI.history = {
 
                         /* Everything up to this point helps generates the dynamic table */
 
-/*
-                        if (userOnly) {
-                            var hideIndex = pluck(columnMetaData, "name").indexOf ("User");
-                            columnMetaData[hideIndex].visible = false;
-                        }
-*/
+
 						// not used (and not linked to any deadly php functions so dont worry)
                         var setupFinalDeletionDialog = function (response) {
                             var dialog = CLMSUI.jqdialogs.choicesDialog (

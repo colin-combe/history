@@ -1,83 +1,67 @@
 <!DOCTYPE HTML>
 <html lang="en">
-	<head>
-        <title>History Page</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <meta name="description" content="common platform for downstream analysis of CLMS data" />
-        <meta name="keywords" content="biologists, mass-spectrometrists, cross-linking, protein, complexes, 3d, models, rappsilber, software" />
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-        <link rel="stylesheet" href="../vendor/css/reset.css" />
-		<link rel="stylesheet" href="./css/common.css" />
-        <link rel="stylesheet" href="./css/history.css" />
-		<link rel="stylesheet" href="../vendor/css/d3table.css" />
-        <link rel="stylesheet" href="../vendor/css/jquery-ui.css" />
-        <link rel="stylesheet" href="../vendor/css/multiple-select.css" />
+<head>
+    <title>History Page</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="description" content="common platform for downstream analysis of CLMS data" />
+    <meta name="keywords" content="biologists, mass-spectrometrists, cross-linking, protein, complexes, 3d, models, rappsilber, software" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-        <script type="text/javascript" src="../vendor/js/d3.js"></script>
-        <script type="text/javascript" src="../vendor/js/jquery-3.3.1.js"></script>
-        <script type="text/javascript" src="../vendor/js/jquery-ui.js"></script>
-        <script type="text/javascript" src="../vendor/js/multiple-select.js"></script>
-		<script type="text/javascript" src="../vendor/js/d3table.js"></script>
-        <script type="text/javascript" src="./js/dialogs.js"></script>
-        <script type="text/javascript" src="./js/history.js"></script>
-	</head>
+    <link rel="stylesheet" href="../vendor/css/reset.css" />
+    <link rel="stylesheet" href="./css/common.css" />
+    <link rel="stylesheet" href="./css/history.css" />
+    <link rel="stylesheet" href="../vendor/css/d3table.css" />
+    <link rel="stylesheet" href="../vendor/css/jquery-ui.css" />
+    <link rel="stylesheet" href="../vendor/css/multiple-select.css" />
 
-	<body>
+    <script type="text/javascript" src="../vendor/js/d3.js"></script>
+    <script type="text/javascript" src="../vendor/js/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="../vendor/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="../vendor/js/multiple-select.js"></script>
+    <script type="text/javascript" src="../vendor/js/d3table.js"></script>
+    <script type="text/javascript" src="./js/dialogs.js"></script>
+    <script type="text/javascript" src="./js/history.js"></script>
+</head>
 
-		<div class="container">
-			<div class="page-header">
-                xiVIEW Uploads
-                <span class="headerLabel" id="username"></span>
+<body>
 
-                <span id="scopeOptions">
-                    <input type="radio" name="mineOrAll" value="mySearches" id="mySearches">
-                    <label class="headerLabel" for="mySearches">My Searches</label>
-                    <input type="radio" name="mineOrAll" value="allSearches" id="allSearches">
-                    <label class="headerLabel" for="allSearches">All Searches</label>
-                </span>
+    <div class="container">
+        <div class="page-header">
+            <span class="headerLabel" id="xiViewTitle">xiVIEW</span>
+            <span class="headerLabel" id="username"></span>
+            <button id="upload" onclick="window.location = '../xiNET_website/upload.php';">Upload data</button>
+            <button id="help" onclick="window.open('../xidocs/html/history/index.html', '_blank');">Help</button>
+            <button id="logout" onclick="window.location = '../userGUI/php/logout.php';">Sign Out</button>
+            <label class="headerLabel" id="rememberOption" title="Tick to remember filter and ordering choices on this computer using a locally stored cookie">
+    <span>Use cookie</span>
+    <input type="checkbox" onclick="CLMSUI.history.setRemember(event);">
+    </label>
 
-                <button id="newSearch" onclick="window.location = '../searchSubmit/submitSearch.html';">New Search</button>
-                <button id="userGUI" onclick="window.location = '../userGUI/userAdmin.html';">User Admin</button>
-                <button id="help" onclick="window.open('../xidocs/html/history/index.html', '_blank');">Help</button>
-                <button id="logout" onclick="window.location = '../userGUI/php/logout.php';">Log Out</button>
-				<label class="headerLabel" id="rememberOption" title="Tick to remember filter and ordering choices on this computer">
-					<span>Keep</span>
-					<input type="checkbox" onclick="CLMSUI.history.setRemember(event);">
-				</label>
-
-                <div style="float:right">
-                    <a href="http://rappsilberlab.org/" target="_blank">
-				        <img alt="Find out more about us." id="rapplablogo" class="image" src="images/logos/rappsilber-lab-small.png">
-			        </a>
-                    <button id="aggSearch" title="Visualise Aggregate Search (use Agg Group controls)">Aggregate</button>
-                    <button id="aggFDRSearch" title="Visualise Aggregate Search with decoys to allow FDR calcs">Agg. for FDR</button>
-                </div>
-
-				<div style="clear: both"></div> <!-- push float:right content down and make room for it if not enough room to right -->
-			</div>
-
-            <div id="fixedSelectionInfo">
-                    <span id="selectedCounter">0 Selected</span>
+            <div style="float:right">
+                <button id="aggSearch" title="Visualise Aggregate Search (use Agg Group controls)">Aggregate</button>
+                <button id="aggFDRSearch" title="Visualise Aggregate Search with decoys to allow FDR calcs">Agg. for FDR</button>
             </div>
-		</div> <!-- CONTAINER -->
 
-		<!--
-		<div class="tooltip" x="0" y="0">
-			<P class="tooltipTitle"></P>
-			<P class="tooltipContents"></P>
-		</div>
-		-->
+            <div style="clear: both"></div>
+            <!-- push float:right content down and make room for it if not enough room to right -->
+        </div>
 
-        <script>
-			         //<![CDATA[
-				//CLMSUI.history.askCookiePermission (this);
-				CLMSUI.history.init();
-                CLMSUI.history.loadSearchList();
-            //]]>
-        </script>
+        <div id="fixedSelectionInfo">
+            <span id="selectedCounter">0 Selected</span>
+        </div>
+    </div>
+    <!-- CONTAINER -->
 
-	</body>
+    <script>
+        //<![CDATA[
+        CLMSUI.history.init();
+        CLMSUI.history.loadSearchList();
+        //]]>
+    </script>
+
+</body>
+
 </html>

@@ -24,7 +24,7 @@ td:last-child {
 }
 
 tbody tr.hiddenSearch {
-    background-color: #ddd;  
+    background-color: #ddd;
 }
 
 
@@ -51,11 +51,14 @@ tbody tr:hover button {
     margin-top: 10px;
 }
 
-
 .headerLabel {
 	text-transform: uppercase;
     margin-right:10px;
     font-size:0.9em;
+}
+
+#xiViewTitle {
+	text-transform: none;
 }
 
 .clearChx {
@@ -205,7 +208,7 @@ span.d3table-pageInfo {
 }
 
 TABLE.d3table tr.hiddenSearch {
-    background-color: #ddd;  
+    background-color: #ddd;
 }
 
 TABLE.d3table tbody tr.hiddenSearch {
@@ -220,12 +223,12 @@ TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
 div.tooltip {
 	position: absolute;
 	opacity: 0;
-	text-align: left;							
-    padding: 2px;				
-    font: 12px sans-serif;		
-    background: lightsteelblue;	
-    border: 0px;		
-    border-radius: 8px;	
+	text-align: left;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
 	padding: 8px;
     pointer-events: none;
     -webkit-box-shadow: 10px 10px 5px 0 rgba(0,0,0,0.5);
