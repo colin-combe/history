@@ -16,7 +16,7 @@
 
             $qPart1 = "select * from uploads where user_id = $1;";
             pg_prepare($dbconn, "my_query", $qPart1);
-            $result = pg_execute($dbconn, "my_query", [0]);//, [$_SESSION['user_id']]);
+            $result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
             echo json_encode (array("user"=>$_SESSION['session_name'], "data"=>pg_fetch_all($result)));
 
             //close connection
