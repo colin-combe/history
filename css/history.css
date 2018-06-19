@@ -149,7 +149,7 @@ span, td, div {
     z-index: 3; /* so it appears on top of table */
     background-color:#091D42;
     border-bottom-left-radius: 0.5em;
-    width: 15em;
+    width: 9em;
 }
 
 #selectedCounter {
