@@ -9,17 +9,19 @@ CLMSUI.history = {
 
 	defaultValues: {
 		visibility: {
-			"File Name": true,
+			"Visualise Data": true,
+			"Spectra Only": true,
 			"Peak List Files": true,
 			"Analysis Software": false,
-			"Provider": true,
-			"Audits": true,
-			"Samples": true,
-			"Analyses": true,
+			"Provider": false,
+			"Audits": false,
+			"Samples": false,
+			"Analyses": false,
 			"Protocols": false,
-			"Bib. Refs": true,
-			"Spectra Formats": true,
-			"Agg Group": true
+			"Bib. Refs": false,
+			"Spectra Formats": false,
+			"Agg Group": true,
+			"Delete": false,
 		},
 		filters: {},
 		searchScope: "mySearches",
@@ -72,7 +74,8 @@ CLMSUI.history = {
         var self = this;
 
         var columnMetaData = [
-			{name: "File Name", type: "alpha", tooltip: "", visible: true, removable: true, id: "file_name"},
+			{name: "Visualise Data", type: "alpha", tooltip: "", visible: true, removable: true, id: "file_name"},
+            {name: "Spectra Only", type: "none", tooltip: "", visible: true, removable: true, id: "validate"},
             {name: "Peak List Files", type: "alpha", tooltip: "", visible: true, removable: true, id: "peak_list_files"},
             {name: "Analysis Software", type: "alpha", tooltip: "", visible: true, removable: true, id: "analysis_software"},
             {name: "Audits", type: "alpha", tooltip: "", visible: true, removable: true, id: "audits"},
@@ -82,21 +85,7 @@ CLMSUI.history = {
             {name: "Bib. Refs", type: "alpha", tooltip: "", visible: true, removable: true, id: "bib_refs"},
             {name: "Spectra Formats", type: "alpha", tooltip: "", visible: true, removable: true, id: "spectra_formats"},
             {name: "Agg Group", type: "clearCheckboxes", tooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false, id: "aggregate"},
-            // {name: "Visualise Search", type: "alpha", tooltip: "", visible: true, removable: true, id: "name"},
-            // {name: "+FDR", type: "none", tooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true, id: "fdr"},
-			// {name: "Restart", type: "none", tooltip: "", visible: false, removable: true, id: "restart"},
-            // {name: "Notes", type: "alpha", tooltip: "", visible: true, removable: true, id: "notes"},
-            // {name: "Validate", type: "none", tooltip: "", visible: true, removable: true, id: "validate"},
-            // {name: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true, id: "file_name"},
-            // {name: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true, id: "enzyme"},
-            // {name: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true, id: "crosslinkers"},
-			// {name: "Base New", type: "none", tooltip: "Base a New Search's parameters on this Search", visible: false, removable: true, id: "base_new"},
-            // {name: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true, id: "submit_date"},
-            // {name: "ID", type: "alpha", tooltip: "", visible: true, removable: true, id: "id"},
-            // {name: "User", type: "alpha", tooltip: "", visible: true, removable: true, id: "user_name"},
-            // {name: "Agg Group", type: "clearCheckboxes", tooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false, id: "aggregate"},
-            // //{name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
-			// {name: "Delete", type: "boolean", tooltip: "", visible: true, removable: true, id: "hidden"},
+            {name: "Delete", type: "boolean", tooltip: "", visible: true, removable: true, id: "hidden"},
         ];
 
 		// Set visibilities of columns according to cookies or default values
@@ -135,15 +124,6 @@ CLMSUI.history = {
                     }
                     else {
 
-                         // This is a catch until new usergui is rolled out */
-                        if (response.utilsLogout) {
-                            d3.select("#logout")
-                                .attr ("onclick", null)
-                                .on ("click", function () {
-                                    window.location.replace ("../../util/logout.php");
-                                })
-                            ;
-                        }
 
 						d3.select("#aggSearch").on ("click", function () {
 							self.aggregate (response.data, false);
@@ -158,9 +138,13 @@ CLMSUI.history = {
                              return "<a href='"+CLMSUI.history.makeResultsUrl(sid, params)+"'>"+label+"</a>";
                         };
 
+                        var makeValidationLink = function (sid, params, label) {
+                             return "<a href='"+makeValidationUrl(sid, params)+"'>"+label+"</a>";
+                        };
+
 
                         var makeValidationUrl = function (sid, params) {
-                             return "../xi3/validate.php?sid="+sid+params;
+                             return "../xi3/validate.php?upload="+sid+params;
                         };
 
                         var isTruthy = function (val) {
@@ -188,27 +172,9 @@ CLMSUI.history = {
                         };
 
                         var cellWidths = {
-            			// {name: "File Name", type: "alpha", tooltip: "", visible: true, removable: true, id: "file_name"},
-                        // {name: "Peak List Files", type: "alpha", tooltip: "", visible: true, removable: true, id: "peak_list_files"},
-                        // {name: "Analysis Software", type: "alpha", tooltip: "", visible: true, removable: true, id: "analysis_software"},
-                        // {name: "Audits", type: "alpha", tooltip: "", visible: true, removable: true, id: "audits"},
-                        // {name: "Samples", type: "alpha", tooltip: "", visible: true, removable: true, id: "samples"},
-                        // {name: "Analyses", type: "alpha", tooltip: "", visible: true, removable: true, id: "analyses"},
-                        // {name: "Protocols", type: "alpha", tooltip: "", visible: true, removable: true, id: "protocols"},
-                        // {name: "Bib. Refs", type: "alpha", tooltip: "", visible: true, removable: true, id: "bib_refs"},
-                        // {name: "Spectra Formats", type: "alpha", tooltip: "", visible: true, removable: true, id: "spectra_formats"},
-                                        //name: "20em",
-                            notes: "8em",
-                            fdr: "4em",
-							restart: "5em",
+                            file_name: "20em",
+                            peak_list_files: "20em",
                             validate: "5em",
-                            //file_name: "15em",
-                            submit_date: "10em",
-                            id: "4em",
-                            enzyme: "5em",
-                            crosslinkers: "7em",
-							base_new: "5.5em",
-                            user_name: "6em",
                             aggregate: "6em",
                             hidden: "5em",
                         };
@@ -224,6 +190,9 @@ CLMSUI.history = {
                                 return nameHtml;// + (error ? "<span class='xierror'>" : "") + " ["+d.status.substring(0,16)+"]" + (error ? "</span>" : "")
                                     /*+ (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>")*/;
                             },
+                            validate: function (d) {
+                                return  makeValidationLink (d.id+"-"+d.random_id, "", "View Spectra");
+                            },
                             peak_list_files: function (d) {
                                 return d.peak_list_file_names;
                             },
@@ -237,7 +206,7 @@ CLMSUI.history = {
                             bib_refs: function (d) { return d.bib; },
                             spectra_formats: function (d) { return d.spectra_formats; },
                             aggregate: function(d) {
-								var completed = d.status === "completed";
+								var completed = true;//d.status === "completed";
                                 return completed ? "<input type='number' pattern='\\d*' class='aggregateInput' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
                             },
                         };
@@ -585,15 +554,15 @@ CLMSUI.history = {
 							var lowScore = "&lowestScore=2";
 							selection.select(".validateButton")
 								.on ("click", function (d) {
-									var deltaUrls = ["", "&decoys=1"+lowScore, "&linears=1"+lowScore, "&decoys=1&linears=1"+lowScore];
+									// var deltaUrls = ["", "&decoys=1"+lowScore, "&linears=1"+lowScore, "&decoys=1&linears=1"+lowScore];
 									var baseUrls = deltaUrls.map (function (deltaUrl) {
-									   return makeValidationUrl (d.id+"-"+d.random_id, "&unval=1"+deltaUrl);
+									   return makeValidationUrl (d.id+"-"+d.random_id, "");//"&unval=1"+deltaUrl);
 									});
 
-									CLMSUI.jqdialogs.choicesDialog ("popChoiceDialog", "Choose Validation Option", "Validate "+d.id,
-										["Validate", "Validate with Decoys", "Validate with Linears", "Validate with Decoys & Linears"],
-										baseUrls
-									);
+									// CLMSUI.jqdialogs.choicesDialog ("popChoiceDialog", "Choose Validation Option", "Validate "+d.id,
+									// 	["Validate", "Validate with Decoys", "Validate with Linears", "Validate with Decoys & Linears"],
+									// 	baseUrls
+									// );
 								})
 							;
 						};
@@ -620,7 +589,7 @@ CLMSUI.history = {
 							// addDeleteButtonFunctionality (rowSelection);
 							// addRestartButtonFunctionality (rowSelection);
 							// addBaseNewButtonFunctionality (rowSelection);
-							// addValidationFunctionality (rowSelection);
+							//addValidationFunctionality (rowSelection);
 							addAggregateFunctionality (rowSelection);
 							//updateHiddenRowStates (rowSelection);
 						};
