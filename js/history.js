@@ -31,9 +31,9 @@ CLMSUI.history = {
 			sortDesc: null
 		},
 	},
-	
+
 	tempValues: {},	// store user values temporarily, in case they decide to 'keep' later on
-	
+
 	getInitialValues: function () {
 		var cookieValues = this.getCookieValue() || {};
 		//console.log ("cookieValues", cookieValues);
@@ -45,7 +45,7 @@ CLMSUI.history = {
 		// cookieValues overwrites currentRadio which overwites initialValues
 		return $.extend ({}, this.defaultValues, {searchScope: currentRadio.size() === 1 ? currentRadio.attr("id") : undefined}, cookieValues);
 	},
-	
+
 	init: function () {
 		var self = this;
 		d3.select("#scopeOptions").selectAll("input[type='radio']")
@@ -54,24 +54,24 @@ CLMSUI.history = {
 				self.loadSearchList();
 			})
 		;
-		
+
 		var initialValues = this.getInitialValues();	// get default / cookie values
 		this.tempValues = initialValues;
 		d3.select("#"+initialValues.searchScope).property("checked", true);
-		
+
 		if (!CLMSUI.history.canLocalStorage) {
 			d3.select("#rememberOption").style("display", "none");
 		}
 		d3.select("#rememberOption input[type='checkbox']").property("checked", this.youMayRememberMe());
 	},
-	
-		
-    loadSearchList: function () {	
+
+
+    loadSearchList: function () {
 	 	var initialValues = this.getInitialValues();	// get default / cookie values
 
 		d3.selectAll(".d3tableContainer").remove();
        	d3.selectAll("button").classed("btn btn-1 btn-1a", true);
-        
+
         var self = this;
 
         var columnMetaData = [
@@ -91,15 +91,15 @@ CLMSUI.history = {
             //{name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
 			{name: "Delete", type: "boolean", tooltip: "", visible: true, removable: true, id: "hidden"},
         ];
-		
+
 		// Set visibilities of columns according to cookies or default values
 		columnMetaData.forEach (function (column) {
 			column.visible = initialValues.visibility[column.name];
 		}, this);
-		
-        
+
+
         var pluck = function (data, prop) {
-            return data.map (function (d) { return d[prop]; });   
+            return data.map (function (d) { return d[prop]; });
         };
 		
               
@@ -113,7 +113,7 @@ CLMSUI.history = {
                 .text("You Currently Have No Searches in the Xi Database.")
             ;
         }
-                
+
        $.ajax({
             type:"POST",
             url:"./php/searches.php", 
@@ -141,7 +141,7 @@ CLMSUI.history = {
                                 })
                             ;
                         }
-						
+
 						d3.select("#aggSearch").on ("click", function () {
 							self.aggregate (response.data, false);
 						});
@@ -166,8 +166,8 @@ CLMSUI.history = {
 
                         var makeValidationUrl = function (sid, params) {
                              return "../xi3/validate.php?sid="+sid+params;
-                        };  
-                        
+                        };
+
                         var isTruthy = function (val) {
                             return val === true || val === "t" || val === "true";
                         };
@@ -184,12 +184,12 @@ CLMSUI.history = {
                         };
 
                         var cellStyles = {
-                            name: "varWidthCell", 
+                            name: "varWidthCell",
                             file_name: "varWidthCell2",
                         };
 
                         var cellHeaderOnlyStyles = {
-                            fdr: "dottedBorder",  
+                            fdr: "dottedBorder",
                         };
 
                         var cellWidths = {
@@ -263,7 +263,7 @@ CLMSUI.history = {
 
                         //console.log ("rights", response.userRights);
                         //console.log ("data", response.data);
-                        
+
                         // Sanitise, get rid of html, comment characters that could be exploited
                         var sanitise = function (data) {
                             var escapeHtml = function (html) {
@@ -310,13 +310,13 @@ CLMSUI.history = {
 						// not used (and not linked to any deadly php functions so dont worry)
                         var setupFinalDeletionDialog = function (response) {
                             var dialog = CLMSUI.jqdialogs.choicesDialog (
-                                "popChoiceDialog", 
+                                "popChoiceDialog",
                                 response.deadSearches+" Searches marked for deletion."
                                 +"<br>"+response.acqFilesizes.length+" associated Acqusition files."
                                 +"<br>"+response.seqFilesizes.length+" associated Sequence files."
                                 +"<br><br>Deletion actions below may take several minutes.",
-                                "⚠ Search Deletion", 
-                                ["⚠ Delete These Searches", "⚠ Delete These Searches and Files"], 
+                                "⚠ Search Deletion",
+                                ["⚠ Delete These Searches", "⚠ Delete These Searches and Files"],
                                 [{}, {deleteFiles: true}],
                                 function (postOptions) {
                                     var waitDialogID = "databaseLoading";
@@ -343,7 +343,7 @@ CLMSUI.history = {
                                 }
                             );
                         };
-						
+
 						// button to clear aggregation checkboxes
 						function addClearAggInputsButton (buttonContainer, d3rowFunc, data) {
 							buttonContainer
@@ -356,7 +356,7 @@ CLMSUI.history = {
 								})
                         	;
 						}
-						
+
 						// cookie store if allowed
 						function storeColumnHiding (value, checked) {
 							var visibilities = self.getCookieValue("visibility");
@@ -365,7 +365,7 @@ CLMSUI.history = {
 								self.updateCookie ("visibility", visibilities);
 							}
 						}
-						
+
 						function storeOrdering (sortColumn, sortDesc) {
 							var sort = self.getCookieValue("sort");
 							if (sort) {
@@ -374,7 +374,7 @@ CLMSUI.history = {
 								self.updateCookie ("sort", sort);
 							}
 						}
-						
+
 						function storeFiltering (filterVals) {
 							var filters = self.getCookieValue("filters");
 							if (filters) {
@@ -388,20 +388,20 @@ CLMSUI.history = {
 								self.updateCookie ("filters", fobj);
 							}
 						}
-                        
-					
+
+
 
                         // helper function for next bit
                         var displayColumn = function (columnIndex, show, table) {
                             table.selectAll("td:nth-child("+columnIndex+"), th:nth-child("+columnIndex+")").style("display", show ? null : "none");
                         };
-                        
+
                         // Add a multiple select widget for column visibility
 						function addColumnSelector (containerSelector, table, dispatch) {
 							var newtd = containerSelector;
 							newtd.append("span").text("Show Columns");
 							var datum = newtd.datum();
-							var removableColumns = datum.filter (function (d) { 
+							var removableColumns = datum.filter (function (d) {
 								return d.value.removable;
 							});
 							newtd.append("select")
@@ -414,7 +414,7 @@ CLMSUI.history = {
 									.property ("value", function(d) { return d.name; })
 									.property ("selected", function (d) { return d.value.visible; })
 							;
-							$(newtd.select("select").node()).multipleSelect ({  
+							$(newtd.select("select").node()).multipleSelect ({
 								selectAll: false,
 								onClick: function (view) {
 									// hide/show column chosen by user
@@ -431,8 +431,8 @@ CLMSUI.history = {
 								}
 							});
 						};
-						
-						
+
+
 						function hideColumns (table) {
 							// hide columns that are hid by default
 							columnMetaData.forEach (function (d, i) {
@@ -445,7 +445,7 @@ CLMSUI.history = {
 
 						function applyHeaderStyling (headers) {
 							headers.attr("title", function (d,i) {
-								return columnMetaData[i].tooltip;   
+								return columnMetaData[i].tooltip;
 							});
 							headers
 								.filter (function(d) { return cellStyles[d.key]; })
@@ -506,7 +506,7 @@ CLMSUI.history = {
                                      var doDelete = function() {
                                         $.ajax({
                                             type: "POST",
-                                            url:"./php/deleteSearch.php", 
+                                            url:"./php/deleteSearch.php",
                                             data: {searchID: d.id, setHiddenState: !isTruthy(d.hidden)},
                                             dataType: 'json',
                                             success: function (response, responseType, xmlhttp) {
@@ -518,25 +518,25 @@ CLMSUI.history = {
                                             }
                                         });
                                     };
-                                
+
                                     var basicMsg = (isTruthy(d.hidden) ? "Restore" : "Delete") + " Search "+d.id+"?";
                                     var msg = isTruthy(d.hidden) ?
                                         (response.userRights.isSuperUser ? basicMsg : "You don't have permission for this action") :
                                         (response.userRights.isSuperUser ? basicMsg+"<br>(As a superuser you can restore this search later)" : basicMsg+"<br>This action cannot be undone (by yourself).<br>Are You Sure?")
                                     ;
-                                
+
                                     // Dialog
                                     CLMSUI.jqdialogs.areYouSureDialog (
-                                        "popChoiceDialog", 
-                                        msg, 
-                                        "Please Confirm", "Yes, "+(isTruthy(d.hidden) ? "Restore" : "Delete") + " this Search", "No, Cancel this Action", 
+                                        "popChoiceDialog",
+                                        msg,
+                                        "Please Confirm", "Yes, "+(isTruthy(d.hidden) ? "Restore" : "Delete") + " this Search", "No, Cancel this Action",
                                         doDelete
                                     );
                                 })
                             ;
                         };
-                        
-						
+
+
 						var addRestartButtonFunctionality = function (selection) {
                             selection.select("button.restartButton")
                                 .classed("btn btn-1 btn-1a", true)
@@ -545,7 +545,7 @@ CLMSUI.history = {
                                     var updateCurrentRow = function (currentData, newData) {
                                         var thisID = currentData.id;
 										// select correct row
-                                        var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });	
+                                        var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
 										d3.keys(currentData).forEach (function (key) {	// copy new data points to row data
 											var newVal = newData[0][key];
 											if (newVal !== undefined) {
@@ -574,23 +574,23 @@ CLMSUI.history = {
 												 console.log ("error", arguments);
 											 }
                                         });
-										
+
                                     };
-                                
+
 									var dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', minute: 'numeric', hour: 'numeric', second: 'numeric' };
 									var dateStr = new Date(Date.parse(d.submit_date)).toLocaleDateString("en-GB-u-hc-h23", dateOptions)
                                     var msg = "Restart Search "+d.id+"?<br>Originally Submitted: "+dateStr;
                                     // Dialog
                                     CLMSUI.jqdialogs.areYouSureDialog (
-                                        "popChoiceDialog", 
-                                        msg, 
-                                        "Please Confirm", "Yes, Restart this Search", "No, Cancel this Action", 
+                                        "popChoiceDialog",
+                                        msg,
+                                        "Please Confirm", "Yes, Restart this Search", "No, Cancel this Action",
                                         doRestart
                                     );
                                 })
                             ;
                         };
-						
+
 						var addBaseNewButtonFunctionality = function (selection) {
 							selection.select(".baseNewButton")
 								.classed("btn btn-1 btn-1a", true)
@@ -600,8 +600,8 @@ CLMSUI.history = {
 								})
 							;
 						}
-						
-						
+
+
 						var addValidationFunctionality = function (selection) {
 							var lowScore = "&lowestScore=2";
 							selection.select(".validateButton")
@@ -611,22 +611,22 @@ CLMSUI.history = {
 									   return makeValidationUrl (d.id+"-"+d.random_id, "&unval=1"+deltaUrl);
 									});
 
-									CLMSUI.jqdialogs.choicesDialog ("popChoiceDialog", "Choose Validation Option", "Validate "+d.id, 
-										["Validate", "Validate with Decoys", "Validate with Linears", "Validate with Decoys & Linears"], 
+									CLMSUI.jqdialogs.choicesDialog ("popChoiceDialog", "Choose Validation Option", "Validate "+d.id,
+										["Validate", "Validate with Decoys", "Validate with Linears", "Validate with Decoys & Linears"],
 										baseUrls
 									);
 								})
 							;
 						};
-						
-						
+*/
+
 						var addAggregateFunctionality = function (selection) {
 							selection.select(".aggregateInput")
 								.on ("input", function(d) {
 									// set value to 0-9
 									this.value = this.value.slice (0,1); // equiv to maxlength for text
 									// set backing data to this value
-									if (d.value) { 
+									if (d.value) {
 										d.value[d.key] = this.value;
 									} else {
 										d.aggregate = this.value;
@@ -635,8 +635,8 @@ CLMSUI.history = {
 								})
 							;
 						};
-						
-						
+
+
 						var empowerRows = function (rowSelection) {
 							addDeleteButtonFunctionality (rowSelection);
 							addRestartButtonFunctionality (rowSelection);
@@ -645,13 +645,13 @@ CLMSUI.history = {
 							addAggregateFunctionality (rowSelection);
 							updateHiddenRowStates (rowSelection);
 						};
-						
-						
+
+
 						var headerEntries = columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; });
 						var d3tab = d3.select(".container").append("div").attr("class", "d3tableContainer")
 							.datum({
-								data: response.data, 
-								headerEntries: headerEntries, 
+								data: response.data,
+								headerEntries: headerEntries,
 								cellStyles: cellStyles,
 								tooltips: tooltips,
 								columnOrder: headerEntries.map (function (hentry) { return hentry.key; }),
@@ -661,7 +661,7 @@ CLMSUI.history = {
 						table (d3tab);
 						applyHeaderStyling (d3tab.selectAll("thead tr:first-child").selectAll("th"));
 						console.log ("table", table);
-						
+
 						// set initial filters
 						var keyedFilters = {};
 						headerEntries.forEach (function (hentry) {
@@ -670,13 +670,13 @@ CLMSUI.history = {
 							keyedFilters[hentry.key] = {value: initialValues.filters[findex], type: hentry.value.type}	
 						});
 						//console.log ("keyedFilters", keyedFilters);
-						
+
 						table
 							.filter(keyedFilters)
 							.dataToHTML (modifiers)
 							.postUpdate (empowerRows)
 						;
-						
+
 						// set initial sort
 						if (initialValues.sort && initialValues.sort.column) {
 							table
@@ -686,38 +686,38 @@ CLMSUI.history = {
 							;
 						}
 						table.update();
-						
+
 						var dispatch = table.dispatch();
 						dispatch.on ("columnHiding", storeColumnHiding);
 						dispatch.on ("filtering", storeFiltering);
 						dispatch.on ("ordering", storeOrdering);
-						
+
 						// add column selector, header entries has initial visibilities incorporated
 						addColumnSelector (d3tab.select("div.d3tableControls").datum(headerEntries), d3tab, dispatch);
-						
+
 						// hide delete filter if not superuser as pointless
-						table.showHeaderFilter ("hidden", response.userRights.isSuperUser);
-						
+						//table.showHeaderFilter ("hidden", response.userRights.isSuperUser);
+
 						// add clear aggregation button to specific header
 						var aggregateColumn = table.getColumnIndex("aggregate") + 1;
 						var aggButtonCell = d3tab.selectAll("thead tr:nth-child(2)").select("th:nth-child("+aggregateColumn+")");
 						addClearAggInputsButton (
 							aggButtonCell,
-							function() { return d3tab.selectAll("tbody tr"); }, 
+							function() { return d3tab.selectAll("tbody tr"); },
 							response.data
 						);
 						CLMSUI.history.anyAggGroupsDefined (response.data, false);   // disable clear button as well to start with
-						
+
                     }
                 }
-            }, 
+            },
            error: function () {
                 console.log ("error", arguments);
                //window.location.href = "../../xi3/login.html";
            }
        });
     },
-				
+
     aggregate: function (tableData, fdrCapable) {
 		var values = tableData
 			.filter (function (d) {
@@ -727,7 +727,7 @@ CLMSUI.history = {
 					valid = !(isNaN(agg) || agg.length > 1);
 					if (!valid) { alert ("Group identifiers must be a single digit."); }
 				}
-				return valid; 
+				return valid;
 			})
 			.map (function (d) { return d.id +"-" + d.random_id + "-" + d.aggregate})
 		;
@@ -745,11 +745,11 @@ CLMSUI.history = {
 		data.forEach (function (d) { d.aggregate = ""; });
         CLMSUI.history.anyAggGroupsDefined (data, false);
     },
-    
+
     anyAggGroupsDefined: function (tableData, anySelected) {
         if (anySelected === undefined || anySelected === true) {
             var sel = tableData.filter (function(d) { return d.aggregate; });
-            anySelected = sel.length > 0;  
+            anySelected = sel.length > 0;
             var groups = d3.nest().key(function(d) { return d.aggregate; }).entries(sel);
             d3.selectAll("#selectedCounter").text(sel.length+" Selected across "+groups.length+(groups.length > 1 ? " Groups" : " Group"));
         }
@@ -768,7 +768,7 @@ CLMSUI.history = {
         );
         d3.select("#username").text("A Xi User");
     },
-	
+
 	/*
 	getCookieValue: function (field) {
 		if (this.cookieContext.Cookies !== undefined) {
@@ -779,7 +779,7 @@ CLMSUI.history = {
 		}
 		return undefined;
 	},
-	
+
 	updateCookie: function (field, value) {
 		if (this.cookieContext.Cookies !== undefined) {
 			var xiCookie = this.cookieContext.Cookies.getJSON("xiHistory");
@@ -790,7 +790,7 @@ CLMSUI.history = {
 		}
 	},
 	*/
-	
+
 	getCookieValue: function (field, force) {
 		if (force || this.youMayRememberMe()) {
 			var xiCookie = localStorage.getItem ("xiHistory");
@@ -799,10 +799,10 @@ CLMSUI.history = {
 				return field ? xiCookie[field] : xiCookie;
 			}
 		}
-		
+
 		return this.tempValues[field];
 	},
-	
+
 	updateCookie: function (field, value, force) {
 		if (force || this.youMayRememberMe()) {
 			var xiCookie = localStorage.getItem("xiHistory");
@@ -814,23 +814,23 @@ CLMSUI.history = {
 			xiCookie[field] = value;
 			localStorage.setItem ("xiHistory", JSON.stringify(xiCookie));
 		}
-		
+
 		this.tempValues[field] = value;	// store values temporarily in case the user decides to press 'keep' later on
 	},
-	
+
 	/*
 	askCookiePermission: function (context) {
 		this.cookieContext = context;
 		var self = this;
-		
+
 		if (this.cookieContext.Cookies !== undefined && this.cookieContext.Cookies.get("xiHistory") === undefined) {
 			CLMSUI.jqdialogs.areYouSureDialog (
-				"popChoiceDialog", 
-				"Can we use cookies to track your preferences on this page?", 
-				"Cookies", "Yes", "No", 
+				"popChoiceDialog",
+				"Can we use cookies to track your preferences on this page?",
+				"Cookies", "Yes", "No",
 				function () {
-					self.cookieContext.Cookies.set("xiHistory", 
-						self.defaultValues, 
+					self.cookieContext.Cookies.set("xiHistory",
+						self.defaultValues,
 						{ expires : 365 }
 					);
 				}
@@ -838,7 +838,7 @@ CLMSUI.history = {
 		}
 	},
 	*/
-	
+
 	// is local storage viable?
 	canLocalStorage: function () {
 		try {
@@ -849,16 +849,16 @@ CLMSUI.history = {
 			return false;
 		}
 	},
-	
-	
+
+
 	youMayRememberMe: function () {
 		if (this.canLocalStorage()) {
 			return this.getCookieValue ("rememberMe", true) || false;
 		}
 		return false;
 	},
-	
-	
+
+
 	setRemember: function (event) {
 		if (this.canLocalStorage()) {
 			this.updateCookie ("rememberMe", event.target.checked ? true : false, true);
