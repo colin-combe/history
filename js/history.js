@@ -1,12 +1,12 @@
 /*jslint browser: true, white: true, stupid: true, vars: true*/
 var CLMSUI = CLMSUI || {};
 
-CLMSUI.history = { 
-                
+CLMSUI.history = {
+
     makeResultsUrl: function (sid, params) {
         return "../xi3/network.php?sid="+sid+params;
     },
-	
+
 	defaultValues: {
 		visibility: {
 			"Visualise Search": true,
@@ -101,11 +101,11 @@ CLMSUI.history = {
         var pluck = function (data, prop) {
             return data.map (function (d) { return d[prop]; });
         };
-		
-              
+
+
         var userOnly = initialValues.searchScope === "mySearches";
         var params = userOnly ? "searches=MINE" : "searches=ALL";
-             
+
         if (d3.select(".container #clmsErrorBox").empty()) {
             d3.select(".container")
                 .append("div")
@@ -116,7 +116,7 @@ CLMSUI.history = {
 
        $.ajax({
             type:"POST",
-            url:"./php/searches.php", 
+            url:"./php/searches.php",
             data: params,
             contentType: "application/x-www-form-urlencoded",
             dataType: 'json',
@@ -137,7 +137,7 @@ CLMSUI.history = {
                             d3.select("#logout")
                                 .attr ("onclick", null)
                                 .on ("click", function () {
-                                    window.location.replace ("../../util/logout.php");    
+                                    window.location.replace ("../../util/logout.php");
                                 })
                             ;
                         }
@@ -210,15 +210,15 @@ CLMSUI.history = {
                         };
 
                         var modifiers = {
-                            name: function(d) { 
+                            name: function(d) {
                                 var completed = d.status === "completed";
 								var name = d.name.length < 200 ? d.name : (d.name.substring (0, 200) + "…");
                                 var nameHtml = completed ? makeResultsLink (d.id+"-"+d.random_id, "", name)
                                     : "<span class='unviewableSearch'>"+name+"</span>"
                                 ;
                                 var error = !completed && d.status.substring(0,4) === "XiDB";
-                                return nameHtml + (error ? "<span class='xierror'>" : "") + " ["+d.status.substring(0,16)+"]" + (error ? "</span>" : "") /*+ 
-                                    (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>")*/; 
+                                return nameHtml + (error ? "<span class='xierror'>" : "") + " ["+d.status.substring(0,16)+"]" + (error ? "</span>" : "") /*+
+                                    (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>")*/;
                             },
                             fdr: function (d) {
                                 var unuseable = d.status.substring(0,4) === "XiDB" || d.status !== "completed";
@@ -300,13 +300,13 @@ CLMSUI.history = {
                         //console.log ("sanity in", b, "ms.");
 
                         /* Everything up to this point helps generates the dynamic table */
-						
-						
+
+
                         if (userOnly) {
                             var hideIndex = pluck(columnMetaData, "name").indexOf ("User");
                             columnMetaData[hideIndex].visible = false;
                         }
-                        
+
 						// not used (and not linked to any deadly php functions so dont worry)
                         var setupFinalDeletionDialog = function (response) {
                             var dialog = CLMSUI.jqdialogs.choicesDialog (
@@ -324,7 +324,7 @@ CLMSUI.history = {
                                     /*
                                      $.ajax({
                                         type: "POST",
-                                        url:"./php/queryDeletedSearches.php", 
+                                        url:"./php/queryDeletedSearches.php",
                                         data: postOptions || {},
                                         dataType: 'json',
                                         success: function (response, responseType, xmlhttp) {
@@ -335,8 +335,8 @@ CLMSUI.history = {
                                      });
                                      */
                                     // testing dialogs
-                                    setTimeout (function() { 
-                                        CLMSUI.jqdialogs.killWaitDialog (waitDialogID); 
+                                    setTimeout (function() {
+                                        CLMSUI.jqdialogs.killWaitDialog (waitDialogID);
                                         CLMSUI.history.loadSearchList();
                                     }, 3000);
                                     return true;
@@ -466,8 +466,8 @@ CLMSUI.history = {
 								})
 							;
 						};
-						   
-                        
+
+
 						// hidden row state can change when restore/delete pressed or when restart pressed
 						function updateHiddenRowStates (selectedRows) {
 							// reset button text and row appearance
@@ -476,8 +476,8 @@ CLMSUI.history = {
 							});
                             selectedRows.classed ("hiddenSearch", function(d) { return isTruthy(d.hidden); });
 						}
-						
-                        // Add functionality to buttons / links in table     
+
+                        // Add functionality to buttons / links in table
                         var addDeleteButtonFunctionality = function (selection) {
                             selection.select("button.deleteButton")
                                 .classed("btn btn-1 btn-1a", true)
@@ -561,7 +561,7 @@ CLMSUI.history = {
 
 										 $.ajax({
                                             type: "POST",
-                                            url:"./php/restartSearch.php", 
+                                            url:"./php/restartSearch.php",
                                             data: {searchID: d.id},
                                             dataType: 'json',
                                             success: function (response, responseType, xmlhttp) {
@@ -618,7 +618,6 @@ CLMSUI.history = {
 								})
 							;
 						};
-*/
 
 						var addAggregateFunctionality = function (selection) {
 							selection.select(".aggregateInput")
@@ -667,7 +666,7 @@ CLMSUI.history = {
 						headerEntries.forEach (function (hentry) {
 							var findex = table.getColumnIndex (hentry.key);
 							//console.log (hentry, "ind", findex, initialValues.filters);
-							keyedFilters[hentry.key] = {value: initialValues.filters[findex], type: hentry.value.type}	
+							keyedFilters[hentry.key] = {value: initialValues.filters[findex], type: hentry.value.type}
 						});
 						//console.log ("keyedFilters", keyedFilters);
 
@@ -759,7 +758,7 @@ CLMSUI.history = {
             .style ("visibility", anySelected ? "visible" : null)
         ;
     },
-    
+
     anonForScreenshot: function () {
         // Anon usernames, search names, current user. Remember to filter to completed searches only.
         d3.selectAll("tbody").selectAll("td:nth-child(8)").text(function() { return ["bert", "bob", "allan", "audrey", "fiona"][Math.floor(Math.random() * 5)]; });
