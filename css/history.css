@@ -216,6 +216,16 @@ TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
     color:#091D42;
 }
 
+.d3table-filterInput {
+	border: 1px solid #a9a9a9;
+	padding: 2px;
+}
+
+.d3table-filterInput:valid {
+	color: #222;
+	background: #afa;
+}
+
 /*
 div.tooltip {
 	position: absolute;

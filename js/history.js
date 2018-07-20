@@ -695,8 +695,11 @@ CLMSUI.history = {
 						addColumnSelector (d3tab.select("div.d3tableControls").datum(headerEntries), d3tab, dispatch);
 
 						// hide delete filter if not superuser as pointless
-						//table.showHeaderFilter ("hidden", response.userRights.isSuperUser);
-
+						table.showHeaderFilter ("hidden", response.userRights.isSuperUser);
+						
+						// allows css trick to highlight filter inputs with content so more visible to user
+						d3.selectAll(".d3table-filterInput").property("required", true);
+						
 						// add clear aggregation button to specific header
 						var aggregateColumn = table.getColumnIndex("aggregate") + 1;
 						var aggButtonCell = d3tab.selectAll("thead tr:nth-child(2)").select("th:nth-child("+aggregateColumn+")");
