@@ -547,7 +547,7 @@ CLMSUI.history = {
 										// select correct row
                                         var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });	
 										d3.keys(currentData).forEach (function (key) {	// copy new data points to row data
-											var newVal = newData[0][key];
+											var newVal = newData[key];
 											if (newVal !== undefined) {
 												currentData[key] = newVal;
 											}
@@ -566,8 +566,8 @@ CLMSUI.history = {
                                             dataType: 'json',
                                             success: function (response, responseType, xmlhttp) {
                                                 if (response.status === "success") {
-                                                    //console.log ("response", response);
-                                                    updateCurrentRow (d, response.result);
+                                                    //console.log ("response", response, d);
+                                                    updateCurrentRow (d, response.result[0]);
                                                 }
                                             },
 											 error: function (jqxhr, text, error) {
