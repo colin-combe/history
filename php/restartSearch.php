@@ -25,6 +25,10 @@
 				$rows = resultsAsArray ($result);
 			}
 		}
+		
+		if (isset ($rows)) {
+			$rows[0]["miss_ping"] = false;
+		}
         
         pg_query("COMMIT");
         echo json_encode (array("status"=>"success", "result"=>(isset($rows) ? $rows : array()) ));
