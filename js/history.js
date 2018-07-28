@@ -21,7 +21,7 @@ CLMSUI.history = {
 			"Bib. Refs": false,
 			"Spectra Formats": false,
 			"Agg Group": true,
-			"Delete": false,
+			"Delete": true,
 		},
 		filters: {},
 		searchScope: "mySearches",
@@ -85,7 +85,7 @@ CLMSUI.history = {
             {name: "Bib. Refs", type: "alpha", tooltip: "", visible: true, removable: true, id: "bib_refs"},
             {name: "Spectra Formats", type: "alpha", tooltip: "", visible: true, removable: true, id: "spectra_formats"},
             {name: "Agg Group", type: "clearCheckboxes", tooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false, id: "aggregate"},
-            {name: "Delete", type: "boolean", tooltip: "", visible: true, removable: true, id: "hidden"},
+            {name: "Delete", type: "none", tooltip: "", visible: true, removable: true, id: "hidden"},
         ];
 
 		// Set visibilities of columns according to cookies or default values
@@ -209,6 +209,9 @@ CLMSUI.history = {
 								var completed = true;//d.status === "completed";
                                 return completed ? "<input type='number' pattern='\\d*' class='aggregateInput' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
                             },
+                            hidden: function(d) {
+                                return "<button class='deleteButton unpadButton'>Delete</button>";
+                            }
                         };
 
 
@@ -253,44 +256,6 @@ CLMSUI.history = {
                         //console.log ("sanity in", b, "ms.");
 
                         /* Everything up to this point helps generates the dynamic table */
-
-
-						// not used (and not linked to any deadly php functions so dont worry)
-                        var setupFinalDeletionDialog = function (response) {
-                            var dialog = CLMSUI.jqdialogs.choicesDialog (
-                                "popChoiceDialog",
-                                response.deadSearches+" Searches marked for deletion."
-                                +"<br>"+response.acqFilesizes.length+" associated Acqusition files."
-                                +"<br>"+response.seqFilesizes.length+" associated Sequence files."
-                                +"<br><br>Deletion actions below may take several minutes.",
-                                "⚠ Search Deletion",
-                                ["⚠ Delete These Searches", "⚠ Delete These Searches and Files"],
-                                [{}, {deleteFiles: true}],
-                                function (postOptions) {
-                                    var waitDialogID = "databaseLoading";
-                                    CLMSUI.jqdialogs.waitDialog (waitDialogID, "This will take a while...", "Deleting Searches");
-                                    /*
-                                     $.ajax({
-                                        type: "POST",
-                                        url:"./php/queryDeletedSearches.php",
-                                        data: postOptions || {},
-                                        dataType: 'json',
-                                        success: function (response, responseType, xmlhttp) {
-                                            console.log ("lol", response);
-                                            CLMSUI.jqdialogs.killWaitDialog (waitDialogID);
-                                            CLMSUI.history.loadSearchList();
-                                        },
-                                     });
-                                     */
-                                    // testing dialogs
-                                    setTimeout (function() {
-                                        CLMSUI.jqdialogs.killWaitDialog (waitDialogID);
-                                        CLMSUI.history.loadSearchList();
-                                    }, 3000);
-                                    return true;
-                                }
-                            );
-                        };
 
 						// button to clear aggregation checkboxes
 						function addClearAggInputsButton (buttonContainer, d3rowFunc, data) {
@@ -415,7 +380,7 @@ CLMSUI.history = {
 							;
 						};
 
-/*
+
 						// hidden row state can change when restore/delete pressed or when restart pressed
 						function updateHiddenRowStates (selectedRows) {
 							// reset button text and row appearance
@@ -438,15 +403,15 @@ CLMSUI.history = {
                                         var thisID = d.id;
 										var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
                                         // if superuser change state of delete/restore button otherwise remove row from view
-                                        if (response.userRights.isSuperUser) {
+                                        //if (response.userRights.isSuperUser) {
 											updateHiddenRowStates (selRows);
-                                        } else {
-											var index = pluck(response.data, "id").indexOf(d.id);
-											if (index >= 0) {
-												response.data.splice (index, 1);
-												table.filter(table.filter()).update();
-											}
-                                        }
+                                        // } else {
+										// 	var index = pluck(response.data, "id").indexOf(d.id);
+										// 	if (index >= 0) {
+										// 		response.data.splice (index, 1);
+										// 		table.filter(table.filter()).update();
+										// 	}
+                                        // }
                                     };
                                     //deleteRowVisibly (d); // alternative to following code for testing without doing database delete
 
@@ -455,7 +420,7 @@ CLMSUI.history = {
                                         $.ajax({
                                             type: "POST",
                                             url:"./php/deleteSearch.php",
-                                            data: {searchID: d.id, setHiddenState: !isTruthy(d.hidden)},
+                                            data: {searchID: d.id+"-"+d.random_id},
                                             dataType: 'json',
                                             success: function (response, responseType, xmlhttp) {
                                                 if (response.status === "success") {
@@ -467,11 +432,8 @@ CLMSUI.history = {
                                         });
                                     };
 
-                                    var basicMsg = (isTruthy(d.hidden) ? "Restore" : "Delete") + " Search "+d.id+"?";
-                                    var msg = isTruthy(d.hidden) ?
-                                        (response.userRights.isSuperUser ? basicMsg : "You don't have permission for this action") :
-                                        (response.userRights.isSuperUser ? basicMsg+"<br>(As a superuser you can restore this search later)" : basicMsg+"<br>This action cannot be undone (by yourself).<br>Are You Sure?")
-                                    ;
+                                    var basicMsg = "Delete" + " Upload "+d.filename+"?";
+                                    var msg = basicMsg + "<br>This action cannot be undone (by yourself or anyone else).<br>Are You Sure?";
 
                                     // Dialog
                                     CLMSUI.jqdialogs.areYouSureDialog (
@@ -484,7 +446,7 @@ CLMSUI.history = {
                             ;
                         };
 
-
+/*
 						var addRestartButtonFunctionality = function (selection) {
                             selection.select("button.restartButton")
                                 .classed("btn btn-1 btn-1a", true)
@@ -586,12 +548,12 @@ CLMSUI.history = {
 
 
 						var empowerRows = function (rowSelection) {
-							// addDeleteButtonFunctionality (rowSelection);
+							addDeleteButtonFunctionality (rowSelection);
 							// addRestartButtonFunctionality (rowSelection);
 							// addBaseNewButtonFunctionality (rowSelection);
 							//addValidationFunctionality (rowSelection);
 							addAggregateFunctionality (rowSelection);
-							//updateHiddenRowStates (rowSelection);
+							// updateHiddenRowStates (rowSelection);
 						};
 
 
@@ -818,5 +780,10 @@ CLMSUI.history = {
 				localStorage.setItem ("xiHistory", JSON.stringify(this.tempValues));	// write temp values into localstorage if keep switched to on
 			}
 		}
-	}
+	},
+
+    deleteAccountDialog: function (){
+        CLMSUI.jqdialogs.areYouSureDialog("Delete_account", "Delete account and all data - are your sure?", "Delete Account", "DELETE EVERYTHING", "CANCEL", function() {alert("ok, its gone");});
+    }
+
 };

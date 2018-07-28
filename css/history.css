@@ -24,7 +24,8 @@ td:last-child {
 }
 
 tbody tr.hiddenSearch {
-    background-color: #ddd;
+    /*background-color: #ddd;*/
+	display: none;
 }
 
 

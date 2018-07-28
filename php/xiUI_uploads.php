@@ -14,7 +14,7 @@
             //error_log (print_r ($_SESSION, true));
             //error_log (print_r ($_POST, true));
 
-            $qPart1 = "select * from uploads where user_id = $1 ORDER BY id DESC;";
+            $qPart1 = "SELECT * FROM uploads WHERE user_id = $1 AND deleted IS NOT TRUE ORDER BY id DESC;";
             pg_prepare($dbconn, "my_query", $qPart1);
             $result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
             echo json_encode (array("user"=>$_SESSION['session_name'], "data"=>pg_fetch_all($result)));
