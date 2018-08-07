@@ -17,19 +17,17 @@
             $qPart1 = "SELECT * FROM uploads WHERE user_id = $1 AND deleted IS NOT TRUE ORDER BY id DESC;";
             pg_prepare($dbconn, "my_query", $qPart1);
             $result = pg_execute($dbconn, "my_query", [$_SESSION['user_id']]);
-            echo json_encode (array("user"=>$_SESSION['session_name'], "data"=>pg_fetch_all($result)));
+            echo json_encode(array("user"=>$_SESSION['session_name'], "data"=>pg_fetch_all($result)));
 
             //close connection
             pg_close($dbconn);
         } else {
-            throw new Exception ("Cannot connect to Database ☹");
+            throw new Exception("Cannot connect to Database ☹");
         }
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
         if ($dbconn) {
-            pg_close ($dbconn);
+            pg_close($dbconn);
         }
         $msg = $e->getMessage();
-        echo (json_encode(array ("status"=>"fail", "error"=> "Error - ".$msg)));
+        echo(json_encode(array("status"=>"fail", "error"=> "Error - ".$msg)));
     }
-?>
