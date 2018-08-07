@@ -560,8 +560,13 @@ CLMSUI.history = {
 						var headerEntries = columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; });
 						var d3tab = d3.select(".container").append("div").attr("class", "d3tableContainer")
 							.datum({
+<<<<<<< HEAD
 								data: response.data,
 								headerEntries: headerEntries,
+=======
+								data: response.data || [], 
+								headerEntries: headerEntries, 
+>>>>>>> 3da78af59d2cc14b3ae706317325fd60736f1192
 								cellStyles: cellStyles,
 								tooltips: tooltips,
 								columnOrder: headerEntries.map (function (hentry) { return hentry.key; }),

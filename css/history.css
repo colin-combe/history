@@ -230,6 +230,14 @@ TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
 	background: #afa;
 }
 
+TABLE.d3table tfoot {
+	border-top: 2px solid #ccc;
+}
+
+TABLE.d3table tfoot td {
+	padding-top: 0.3em;
+}
+
 /*
 div.tooltip {
 	position: absolute;
