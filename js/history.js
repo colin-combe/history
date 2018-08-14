@@ -163,10 +163,13 @@ CLMSUI.history = {
                              return "<a href='"+CLMSUI.history.makeResultsUrl(sid, params)+"'>"+label+"</a>";
                         };
 
-
                         var makeValidationUrl = function (sid, params) {
                              return "../xi3/validate.php?sid="+sid+params;
                         };  
+						
+						var makeBaseNewLink = function (d, params, label) {
+							 return "<a href='../../searchSubmit/submitSearch.html?base="+d.id+"-"+d.random_id+"'>"+label+"</a>";
+						};
                         
                         var isTruthy = function (val) {
                             return val === true || val === "t" || val === "true";
@@ -242,7 +245,8 @@ CLMSUI.history = {
                             enzyme: function (d) { return d.enzyme; },
                             crosslinkers: function (d) { return d.crosslinkers; },
 							base_new: function (d) {
-								return "<button class='baseNewButton unpadButton'>New</button>";
+								return makeBaseNewLink (d, null, "Base New");
+								//return "<button class='baseNewButton unpadButton'>New</button>";
 							},
                             submit_date: function(d) {
                                 return d.submit_date.substring(0, d.submit_date.indexOf("."));
@@ -590,17 +594,7 @@ CLMSUI.history = {
                                 })
                             ;
                         };
-						
-						var addBaseNewButtonFunctionality = function (selection) {
-							selection.select(".baseNewButton")
-								.classed("btn btn-1 btn-1a", true)
-								.on ("click", function (d) {
-									console.log ("hi", d);
-									window.location.href = "../../searchSubmit/submitSearch.html?base="+d.id+"-"+d.random_id;
-								})
-							;
-						}
-						
+				
 						
 						var addValidationFunctionality = function (selection) {
 							var lowScore = "&lowestScore=2";
@@ -640,7 +634,7 @@ CLMSUI.history = {
 						var empowerRows = function (rowSelection) {
 							addDeleteButtonFunctionality (rowSelection);
 							addRestartButtonFunctionality (rowSelection);
-							addBaseNewButtonFunctionality (rowSelection);
+							//addBaseNewButtonFunctionality (rowSelection);
 							addValidationFunctionality (rowSelection);
 							addAggregateFunctionality (rowSelection);
 							updateHiddenRowStates (rowSelection);
