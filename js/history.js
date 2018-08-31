@@ -211,6 +211,10 @@ CLMSUI.history = {
                             aggregate: "6em",
                             hidden: "5em",
                         };
+						
+						var isErrorMsg = function (msg) {
+							return (msg.substr(0,4) === "XiDB" || msg.substr(0,10) === "UNFINISHED");
+						};
 
                         var modifiers = {
                             name: function(d) { 
@@ -219,12 +223,12 @@ CLMSUI.history = {
                                 var nameHtml = completed ? makeResultsLink (d.id+"-"+d.random_id, "", name)
                                     : "<span class='unviewableSearch'>"+name+"</span>"
                                 ;
-                                var error = !completed && d.status.substring(0,4) === "XiDB";
+                                var error = !completed && isErrorMsg (d.status);
                                 return nameHtml + (error ? "<span class='xierror'>" : "") + " ["+d.status.substring(0,16)+"]" + (error ? "</span>" : "") /*+ 
                                     (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>")*/; 
                             },
                             fdr: function (d) {
-                                var unuseable = d.status.substring(0,4) === "XiDB" || d.status !== "completed";
+                                var unuseable = isErrorMsg (d.status) || d.status !== "completed";
                                 return unuseable ? "" : makeResultsLink (d.id+"-"+d.random_id, "&decoys=1&unval=1", "+FDR");
                             },
 							restart: function(d) {
