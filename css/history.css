@@ -189,13 +189,19 @@ TABLE.d3table tbody tr td.varWidthCell2, TABLE.d3table tr th.varWidthCell2 {
     white-space: nowrap;
 }
 
-TABLE.d3table thead th:not(:first-child) span {
+TABLE.d3table thead th:not(:first-child) span.d3table-headerSpan {
     border-left: 1px solid #091d42;
-    padding: 5px;
+    padding: 5px 4px;
 }
 
-TABLE.d3table thead th.dottedBorder span {
+TABLE.d3table thead span.d3table-headerSpan svg.d3table-arrow {
+	vertical-align: middle;
+	margin-left: 0;
+}
+
+TABLE.d3table thead th.dottedBorder span.d3table-headerSpan {
     border-left: 1px dashed #091d42;
+	padding: 5px 4px;
 }
 
 span.d3table-pageInfo {
@@ -218,7 +224,8 @@ TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
 
 .d3table-filterInput {
 	border: 1px solid #a9a9a9;
-	padding: 2px;
+	padding: 0;
+	margin: 0 0.25em 0 0;
 }
 
 .d3table-filterInput:valid {

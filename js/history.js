@@ -205,7 +205,7 @@ CLMSUI.history = {
                             submit_date: "10em",
                             id: "4em",
                             enzyme: "5em",
-                            crosslinkers: "7em",
+                            crosslinkers: "8.5em",
 							base_new: "5.5em",
                             user_name: "6em",
                             aggregate: "6em",
@@ -455,6 +455,13 @@ CLMSUI.history = {
 							headers.attr("title", function (d,i) {
 								return columnMetaData[i].tooltip;   
 							});
+							
+							var title = headers.select("svg").select("title");
+							if (title.empty()) {
+								title = headers.select("svg").append("title");
+							}
+							title.text(function(d, i) { return "Sort table by "+columnMetaData[i].name; });
+							
 							headers
 								.filter (function(d) { return cellStyles[d.key]; })
 								.each (function(d) {
@@ -665,7 +672,7 @@ CLMSUI.history = {
 						headerEntries.forEach (function (hentry) {
 							var findex = table.getColumnIndex (hentry.key);
 							//console.log (hentry, "ind", findex, initialValues.filters);
-							keyedFilters[hentry.key] = {value: initialValues.filters[findex], type: hentry.value.type}	
+							keyedFilters[hentry.key] = initialValues.filters[findex];	
 						});
 						//console.log ("keyedFilters", keyedFilters);
 						
