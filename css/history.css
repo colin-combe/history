@@ -194,6 +194,10 @@ TABLE.d3table thead th:not(:first-child) span.d3table-headerSpan {
     padding: 5px 4px;
 }
 
+TABLE.d3table thead th span.d3table-headerSpan {
+	padding: 5px 4px;
+}
+
 TABLE.d3table thead span.d3table-headerSpan svg.d3table-arrow {
 	vertical-align: middle;
 	margin-left: 0;
@@ -225,7 +229,7 @@ TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
 .d3table-filterInput {
 	border: 1px solid #a9a9a9;
 	padding: 0;
-	margin: 0 0.25em 0 0;
+	margin: 0 2px 0 5px;
 }
 
 .d3table-filterInput:valid {
