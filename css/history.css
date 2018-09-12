@@ -189,18 +189,18 @@ TABLE.d3table tbody tr td.varWidthCell2, TABLE.d3table tr th.varWidthCell2 {
     white-space: nowrap;
 }
 
-TABLE.d3table thead th:not(:first-child) span.d3table-headerSpan {
-    border-left: 1px solid #091d42;
-    padding: 5px 4px;
+TABLE.d3table thead th {
+	padding-left: 0;
+	padding-right: 0;
 }
 
 TABLE.d3table thead th span.d3table-headerSpan {
+    border-left: 1px solid #091d42;
 	padding: 5px 4px;
 }
 
-TABLE.d3table thead span.d3table-headerSpan svg.d3table-arrow {
-	vertical-align: middle;
-	margin-left: 0;
+TABLE.d3table thead th:first-child span.d3table-headerSpan {
+	border-color: transparent;
 }
 
 TABLE.d3table thead th.dottedBorder span.d3table-headerSpan {
@@ -243,6 +243,11 @@ TABLE.d3table tfoot {
 
 TABLE.d3table tfoot td {
 	padding-top: 0.3em;
+}
+
+/* firefox adds red drop-shadow to invalid (empty) input */
+input:invalid {
+	box-shadow: none;
 }
 
 /*
