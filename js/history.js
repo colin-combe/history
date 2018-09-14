@@ -74,27 +74,27 @@ CLMSUI.history = {
         
         var self = this;
 
-        var columnMetaData = [
-            {columnName: "Visualise Search", type: "alpha", tooltip: "", visible: true, removable: true, id: "name"},
-            {columnName: "+FDR", type: "none", tooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true, id: "fdr"},
-			{columnName: "Restart", type: "none", tooltip: "", visible: false, removable: true, id: "restart"},
-            {columnName: "Notes", type: "alpha", tooltip: "", visible: true, removable: true, id: "notes"},
-            {columnName: "Validate", type: "none", tooltip: "", visible: true, removable: true, id: "validate"},
-            {columnName: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true, id: "file_name"},
-            {columnName: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true, id: "enzyme"},
-            {columnName: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true, id: "crosslinkers"},
-			{columnName: "Base New", type: "none", tooltip: "Base a New Search's parameters on this Search", visible: false, removable: true, id: "base_new"},
-            {columnName: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true, id: "submit_date"},
-            {columnName: "ID", type: "alpha", tooltip: "", visible: true, removable: true, id: "id"},
-            {columnName: "User", type: "alpha", tooltip: "", visible: true, removable: true, id: "user_name"},
-            {columnName: "Agg Group", type: "clearCheckboxes", tooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false, id: "aggregate"},
-            //{name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
-			{columnName: "Delete", type: "boolean", tooltip: "", visible: true, removable: true, id: "hidden"},
-        ];
+        var columnSettings = {
+            name: {columnName: "Visualise Search", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            fdr: {columnName: "+FDR", type: "none", headerTooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true},
+			restart: {columnName: "Restart", type: "none", headerTooltip: "", visible: false, removable: true},
+            notes: {columnName: "Notes", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            validate: {columnName: "Validate", type: "none", headerTooltip: "", visible: true, removable: true},
+            file_name: {columnName: "Sequence", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            enzyme: {columnName: "Enzyme", type: "alpha", headerTooltip: "", visible: false, removable: true},
+            crosslinkers: {columnName: "Cross-Linkers", type: "alpha", headerTooltip: "", visible: false, removable: true},
+			base_new: {columnName: "Base New", type: "none", headerTooltip: "Base a New Search's parameters on this Search", visible: false, removable: true},
+            submit_date: {columnName: "Submit Date", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            id: {columnName: "ID", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            user_name: {columnName: "User", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            aggregate: {columnName: "Agg Group", type: "clearCheckboxes", headerTooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false},
+            //delete: {name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
+			hidden: {columnName: "Delete", type: "boolean", headerTooltip: "", visible: true, removable: true},
+		};
 		
 		// Set visibilities of columns according to cookies or default values
-		columnMetaData.forEach (function (column) {
-			column.visible = initialValues.visibility[column.columnName];
+		d3.entries(columnSettings).forEach (function (columnEntry) {
+			columnEntry.value.visible = initialValues.visibility[columnEntry.value.columnName];
 		}, this);
 		
         
@@ -265,6 +265,13 @@ CLMSUI.history = {
                                 return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>"+(isTruthy(d.hidden) ? "Restore" : "Delete")+"</button>" : "";
                             }
                         };
+						
+						var propertyNames = ["cellStyle", "dataToHTMLModifier", "tooltip"];
+						[cellStyles, modifiers, tooltips].forEach (function (obj, i) {
+							d3.entries(obj).forEach (function (entry) {
+								columnSettings[entry.key][propertyNames[i]] = entry.value;
+							});
+						});
 
 
                         d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
@@ -311,8 +318,7 @@ CLMSUI.history = {
 						
 						
                         if (userOnly) {
-                            var hideIndex = pluck(columnMetaData, "columnName").indexOf ("User");
-                            columnMetaData[hideIndex].visible = false;
+							columnSettings.user_name.visible = false;
                         }
                         
 						// not used (and not linked to any deadly php functions so dont worry)
@@ -403,7 +409,7 @@ CLMSUI.history = {
 							var newtd = containerSelector;
 							newtd.append("span").text("Show Columns");
 							var datum = newtd.datum();
-							var removableColumns = datum.filter (function (d) { 
+							var removableColumns = d3.entries(datum).filter (function (d) { 
 								return d.value.removable;
 							});
 							newtd.append("select")
@@ -413,38 +419,28 @@ CLMSUI.history = {
 									.enter()
 									.append("option")
 									.text (function(d) { return d.value.columnName; })
-									.property ("value", function(d) { return d.value.columnName; })
+									.property ("value", function(d) { return d.key; })
 									.property ("selected", function (d) { return d.value.visible; })
 							;
 							$(newtd.select("select").node()).multipleSelect ({  
 								selectAll: false,
 								onClick: function (view) {
 									// hide/show column chosen by user
-									var colNames = pluck (columnMetaData, "columnName");
-									var index = colNames.indexOf (view.value) + 1; // elements are 1-indexed in css selectors
-									var indexPoint = datum.filter (function (d) {
-										return d.value.columnName === view.value;
-									}).forEach (function(d) {
-										d.value.visible = view.checked;
-									});
-									d3table.showColumn (index, view.checked);
-
-									dispatch.columnHiding (view.value, view.checked);
+									var key = view.value;
+									datum[key].visible = view.checked;
+									d3table.showColumn (d3table.getColumnIndex(key) + 1, view.checked);
+									dispatch.columnHiding (view.label, view.checked);
 								}
 							});
 						};
 
 
 						function applyHeaderStyling (headers) {
-							headers.attr("title", function (d,i) {
-								return columnMetaData[i].tooltip;   
-							});
-							
 							var title = headers.select("svg").select("title");
 							if (title.empty()) {
 								title = headers.select("svg").append("title");
 							}
-							title.text(function(d, i) { return "Sort table by "+columnMetaData[i].columnName; });
+							title.text(function(d) { return "Sort table by "+columnSettings[d.key].columnName; });
 							
 							headers
 								.filter (function(d) { return cellStyles[d.key]; })
@@ -636,14 +632,11 @@ CLMSUI.history = {
 						};
 						
 						
-						var columnSettings = columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; });
-						var d3tableElem = d3.select(".container").append("div").attr("class", "d3tableContainer")
+						var d3tableElem = d3.select(".container").append("div")
 							.datum({
 								data: response.data || [], 
 								columnSettings: columnSettings, 
-								cellStyles: cellStyles,
-								tooltips: tooltips,
-								columnOrder: columnSettings.map (function (hentry) { return hentry.key; }),
+								columnOrder: d3.keys(columnSettings),
 							})
 						;
 						var d3table = CLMSUI.d3Table ();
@@ -653,21 +646,20 @@ CLMSUI.history = {
 						
 						// set initial filters
 						var keyedFilters = {};
-						columnSettings.forEach (function (hentry) {
-							var findex = d3table.getColumnIndex (hentry.key);
-							keyedFilters[hentry.key] = initialValues.filters[findex];	
+						d3.keys(columnSettings).forEach (function (columnKey) {
+							var findex = d3table.getColumnIndex (columnKey);
+							keyedFilters[columnKey] = initialValues.filters[findex];	
 						});
 						
 						d3table
 							.filter(keyedFilters)
-							.dataToHTML (modifiers)
 							.postUpdate (empowerRows)
 						;
 						
 						// set initial sort
 						if (initialValues.sort && initialValues.sort.column) {
 							d3table
-								.orderKey (columnSettings[initialValues.sort.column].key)
+								.orderKey (d3table.columnOrder()[initialValues.sort.column])
 								.orderDir (initialValues.sort.sortDesc ? "desc" : "asc")
 								.sort()
 							;
