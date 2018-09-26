@@ -13,13 +13,13 @@ CLMSUI.history = {
 			"Spectra Only": true,
 			"Peak List Files": true,
 			"Analysis Software": false,
-			"Provider": false,
-			"Audits": false,
-			"Samples": false,
-			"Analyses": false,
-			"Protocols": false,
-			"Bib. Refs": false,
-			"Spectra Formats": false,
+			// "Provider": false,
+			// "Audits": false,
+			// "Samples": false,
+			// "Analyses": false,
+			// "Protocols": false,
+			// "Bib. Refs": false,
+			// "Spectra Formats": false,
 			"Agg Group": true,
 			"Delete": true,
 		},
@@ -78,15 +78,30 @@ CLMSUI.history = {
             validate:{columnName: "Spectra Only", type: "none", headerTooltip: "", visible: true, removable: true},
             peak_list_file_names:{columnName: "Peak List Files", type: "alpha", headerTooltip: "", visible: true, removable: true},
             analysis_software:{columnName: "Analysis Software", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            provider:{columnName: "Provider", type: "alpha", headerTooltip: "", visible: true, removable: true},
             audits:{columnName: "Audits", type: "alpha", headerTooltip: "", visible: true, removable: true},
             samples:{columnName: "Samples", type: "alpha", headerTooltip: "", visible: true, removable: true},
             analyses:{columnName: "Analyses", type: "alpha", headerTooltip: "", visible: true, removable: true},
-            protocols:{columnName: "Protocols", type: "alpha", headerTooltip: "", visible: true, removable: true},
-            bib_refs:{columnName: "Bib. Refs", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            protocol:{columnName: "Protocols", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            bib:{columnName: "Bib. Refs", type: "alpha", headerTooltip: "", visible: true, removable: true},
             spectra_formats:{columnName: "Spectra Formats", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            upload_time:{columnName: "Upload Time", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            contains_crosslinks:{columnName: "Crosslinks", type: "boolean", headerTooltip: "", visible: true, removable: true},
+            upload_error:{columnName: "Upload Error", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            error_type:{columnName: "Error Type", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            upload_warnings:{columnName: "Upload Warnings", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            origin:{columnName: "Pride URL", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            ident_count:{columnName: "Ident. Count", type: "numeric", headerTooltip: "", visible: true, removable: true},
+            ident_file_size:{columnName: "Ident. File Size", type: "numeric", headerTooltip: "", visible: true, removable: true},
+            zipped_peak_list_file_size:{columnName: "Zipped Peak List Size", type: "numeric", headerTooltip: "", visible: true, removable: true},
             aggregate:{columnName: "Agg Group", type: "clearCheckboxes", headerTooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false},
             hidden:{columnName: "Delete", type: "none", headerTooltip: "", visible: true, removable: true},
         };
+
+
+// {"peak_list_file_names":"{}","analysis_software":"{}","provider":"{}","audits":"{}","samples":"{}",
+// "analyses":"{}","protocol":"{}","bib":"{}","spectra_formats":"{}","upload_time":"2018-09-26","default_pdb":null,"contains_crosslinks":null,"upload_error":null,"error_type":null,
+// "upload_warnings":"{}","origin":"{}","random_id":"74889-02651-89110-99309","deleted":"f","ident_count":null,"ident_file_size":null,"zipped_peak_list_file_size":null}
 
         // var columnSettings = {
         //     name: {columnName: "Visualise Search", type: "alpha", headerTooltip: "", visible: true, removable: true},
@@ -182,7 +197,7 @@ CLMSUI.history = {
 
                         var cellStyles = {
                             //name: "varWidthCell",
-                            filename: "varWidthCell2",
+                            filename: "varWidthCell",
                         };
 
                         var cellHeaderOnlyStyles = {
@@ -224,9 +239,18 @@ CLMSUI.history = {
                             audits: function (d) { return d.audits; },
                             samples: function (d) { return d.samples; },
                             analyses: function (d) { return d.analyses; },
-                            protocols: function (d) { return d.protocols; },
-                            bib_refs: function (d) { return d.bib; },
+                            protocol: function (d) { return d.protocol; },
+                            bib: function (d) { return d.bib; },
                             spectra_formats: function (d) { return d.spectra_formats; },
+                            upload_time: function (d) { return d.upload_time; },
+                            contains_crosslinks: function (d) { return d.contain_crosslinks; },
+                            upload_error: function (d) { return d.upload_error; },
+                            error_type: function (d) { return d.error_type; },
+                            upload_warnings: function (d) { return d.upload_warnings; },
+                            origin: function (d) { return d.origin; },
+                            ident_count: function (d) { return d.ident_count; },
+                            ident_file_size: function (d) { return d.ident_file_size; },
+                            zipped_peak_list_file_size: function (d) { return d.zipped_peak_list_file_size; },
                             aggregate: function(d) {
 								var completed = true;//d.status === "completed";
                                 return completed ? "<input type='number' pattern='\\d*' class='aggregateInput' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
@@ -235,6 +259,7 @@ CLMSUI.history = {
                                 return "<button class='deleteButton unpadButton'>Delete</button>";
                             }
                         };
+
 
 						var propertyNames = ["cellStyle", "dataToHTMLModifier", "tooltip"];
 						[cellStyles, modifiers, tooltips].forEach (function (obj, i) {
