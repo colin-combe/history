@@ -12,7 +12,7 @@ CLMSUI.history = {
 			"Visualise Data": true,
 			"Spectra Only": true,
 			"Peak List Files": true,
-			"Analysis Software": false,
+			"Analysis Software": true,
 			// "Provider": false,
 			// "Audits": false,
 			// "Samples": false,
@@ -165,7 +165,7 @@ CLMSUI.history = {
 							self.aggregate (response.data, true);
 						});
 
-                        d3.select("#username").text(response.user);
+                        d3.select("#username").text("(" + response.user + ")");
 
                         var makeResultsLink = function (sid, params, label) {
                              return "<a href='"+CLMSUI.history.makeResultsUrl(sid, params)+"'>"+label+"</a>";
@@ -188,16 +188,36 @@ CLMSUI.history = {
 							return d.value.id + ": " + d.value[field];
 						}
                         var tooltips = {
-                            //notes: function(d) { return tooltipHelper (d, "notes"); },
-                            // name: function(d) { return tooltipHelper (d, "status"); },
                             filename: function(d) { return tooltipHelper (d, "filename"); },
-                            // enzyme: function(d) { return tooltipHelper (d, "enzyme"); },
-                            // crosslinkers: function(d) { return tooltipHelper (d, "crosslinkers"); },
+                            peak_list_file_names: function (d) {
+                                return d.peak_list_file_names;
+                            },
+                            analysis_software: function (d) {
+                                return "<span>" + JSON.stringify(d.value.analysis_software, null, 4) + "</span>";
+                                //return d.value.analysis_software;
+                                //return tooltipHelper (d, "analysis_software");
+                            },
+                            audits: function (d) { return d.audits; },
+                            samples: function (d) { return d.samples; },
+                            analyses: function (d) { return d.analyses; },
+                            protocol: function (d) { return d.protocol; },
+                            bib: function (d) { return d.bib; },
+                            spectra_formats: function (d) { return d.spectra_formats; },
+                            upload_time: function (d) { return d.upload_time; },
+                            contains_crosslinks: function (d) { return d.contain_crosslinks; },
+                            upload_error: function (d) { return d.upload_error; },
+                            error_type: function (d) { return d.error_type; },
+                            upload_warnings: function (d) { return d.upload_warnings; },
+                            origin: function (d) { return d.origin; },
+                            ident_count: function (d) { return d.ident_count; },
+                            ident_file_size: function (d) { return d.ident_file_size; },
+                            zipped_peak_list_file_size: function (d) { return d.zipped_peak_list_file_size; },
+
                         };
 
                         var cellStyles = {
                             //name: "varWidthCell",
-                            filename: "varWidthCell",
+                            filename: "varWidthCell2",
                         };
 
                         var cellHeaderOnlyStyles = {
@@ -305,7 +325,7 @@ CLMSUI.history = {
                             }
                         };
                         //var a = performance.now();
-                        sanitise (response.data);
+                        //sanitise (response.data);
                         //var b = performance.now() - a;
                         //console.log ("sanity in", b, "ms.");
 
