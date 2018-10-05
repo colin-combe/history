@@ -136,7 +136,7 @@ CLMSUI.history = {
             d3.select(".container")
                 .append("div")
                 .attr ("id", "clmsErrorBox")
-                .text("You Currently Have No Searches in the Xi Database.")
+                .text("You Currently Have No Searches in the xiView Database.")
             ;
         }
 
@@ -175,7 +175,6 @@ CLMSUI.history = {
                              return "<a href='"+makeValidationUrl(sid, params)+"'>"+label+"</a>";
                         };
 
-
                         var makeValidationUrl = function (sid, params) {
                              return "../xi3/validate.php?upload="+sid+params;
                         };
@@ -187,32 +186,29 @@ CLMSUI.history = {
 						var tooltipHelper = function (d, field) {
 							return d.value.id + ": " + d.value[field];
 						}
+                        var jsonTooltipHelper = function (d, field) {
+							return JSON.stringify(d.value[field], null, 4);
+						}
                         var tooltips = {
                             filename: function(d) { return tooltipHelper (d, "filename"); },
-                            peak_list_file_names: function (d) {
-                                return d.peak_list_file_names;
-                            },
-                            analysis_software: function (d) {
-                                return "<span>" + JSON.stringify(d.value.analysis_software, null, 4) + "</span>";
-                                //return d.value.analysis_software;
-                                //return tooltipHelper (d, "analysis_software");
-                            },
-                            audits: function (d) { return d.audits; },
-                            samples: function (d) { return d.samples; },
-                            analyses: function (d) { return d.analyses; },
-                            protocol: function (d) { return d.protocol; },
-                            bib: function (d) { return d.bib; },
-                            spectra_formats: function (d) { return d.spectra_formats; },
-                            upload_time: function (d) { return d.upload_time; },
-                            contains_crosslinks: function (d) { return d.contain_crosslinks; },
+                            peak_list_file_names: function (d) { return jsonTooltipHelper (d, "peak_list_file_names");},
+                            analysis_software: function (d) { return jsonTooltipHelper (d, "analysis_software");},
+                            provider: function (d) {  return jsonTooltipHelper (d, "provider"); },
+                            audits: function (d) {  return jsonTooltipHelper (d, "audits"); },
+                            samples: function (d) {  return jsonTooltipHelper (d, "samples"); },
+                            analyses: function (d) {  return jsonTooltipHelper (d, "analyses"); },
+                            protocol: function (d) {  return jsonTooltipHelper (d, "protocol"); },
+                            bib: function (d) {  return jsonTooltipHelper (d, "bib"); },
+                            spectra_formats: function (d) {  return jsonTooltipHelper (d, "spectra_formats"); },
+
+                            upload_time: function (d) { return d.value.upload_time; },
                             upload_error: function (d) { return d.upload_error; },
                             error_type: function (d) { return d.error_type; },
-                            upload_warnings: function (d) { return d.upload_warnings; },
+                            upload_warnings: function (d) { return jsonTooltipHelper (d, "upload_warnings"); },
                             origin: function (d) { return d.origin; },
                             ident_count: function (d) { return d.ident_count; },
                             ident_file_size: function (d) { return d.ident_file_size; },
-                            zipped_peak_list_file_size: function (d) { return d.zipped_peak_list_file_size; },
-
+                            zipped_peak_list_file_size: function (d) { return d.zipped_peak_list_file_size; }
                         };
 
                         var cellStyles = {
@@ -254,23 +250,73 @@ CLMSUI.history = {
                                 return d.peak_list_file_names;
                             },
                             analysis_software: function (d) {
-                                return d.analysis_software;
+                                //return d.analysis_software;
+                                var text = "";
+                                for (var i = 0; i < d.analysis_software.length; i++) {
+                                    if (i > 0) {
+                                        text = text + "; ";
+                                    }
+                                    var software = d.analysis_software[i];
+                                    text = text + (software.name? software.name : software.id);
+                                    text = text + " " + software.version;
+                                }
+                                return text;
                             },
-                            audits: function (d) { return d.audits; },
-                            samples: function (d) { return d.samples; },
-                            analyses: function (d) { return d.analyses; },
-                            protocol: function (d) { return d.protocol; },
-                            bib: function (d) { return d.bib; },
-                            spectra_formats: function (d) { return d.spectra_formats; },
+                            provider: function (d) {
+                                return d.provider.ContactRole? d.provider.ContactRole[0].contact_ref : "";
+                            },
+                            audits: function (d) {
+                                var text = ""
+                                if (d.audits.Person && d.audits.Person.name) {
+                                    text += d.audits.Person.name;
+                                }
+                                if (d.audits.Organization &&  d.audits.Organization.name) {
+                                    if (text != "") {text += " "}
+                                    text += d.audits.Organization.name;
+                                }
+                                return text;
+                            },
+                            samples: function (d) {
+                                var text = ""
+                                for (var i = 0; i < d.samples.length; i++) {
+                                    if (text != "") {
+                                        text += "; ";
+                                    }
+                                    var sample = d.samples[i];
+                                    if (sample["sample name"]) {
+                                        text += sample["sample name"];
+                                    } else if (sample.id) {
+                                        text += sample.id;
+                                    } else if (sample.name) {
+                                        text += sample.name;
+                                    }
+                                }
+                                return text;
+                            },
+                            analyses: function (d) { return JSON.stringify(d.analyses); },
+                            protocol: function (d) { return JSON.stringify(d.protocol); },
+                            bib: function (d) {return JSON.stringify(d.bib); },
+                            spectra_formats: function (d) { JSON.stringify(d.spectra_formats); },
+
                             upload_time: function (d) { return d.upload_time; },
-                            contains_crosslinks: function (d) { return d.contain_crosslinks; },
+                            contains_crosslinks: function (d) { return isTruthy(d.contains_crosslinks); },
                             upload_error: function (d) { return d.upload_error; },
                             error_type: function (d) { return d.error_type; },
-                            upload_warnings: function (d) { return d.upload_warnings; },
+                            upload_warnings: function (d) {
+                                var text = ""
+                                for (var i = 0; i < d.upload_warnings.length; i++) {
+                                    if (text != "") {
+                                        text += "; ";
+                                    }
+                                    text += d.upload_warnings[i].type;
+                                }
+                                return text;
+                            },
                             origin: function (d) { return d.origin; },
                             ident_count: function (d) { return d.ident_count; },
                             ident_file_size: function (d) { return d.ident_file_size; },
                             zipped_peak_list_file_size: function (d) { return d.zipped_peak_list_file_size; },
+
                             aggregate: function(d) {
 								var completed = true;//d.status === "completed";
                                 return completed ? "<input type='number' pattern='\\d*' class='aggregateInput' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
