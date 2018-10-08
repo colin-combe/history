@@ -296,7 +296,23 @@ CLMSUI.history = {
                             analyses: function (d) { return JSON.stringify(d.analyses); },
                             protocol: function (d) { return JSON.stringify(d.protocol); },
                             bib: function (d) {return JSON.stringify(d.bib); },
-                            spectra_formats: function (d) { JSON.stringify(d.spectra_formats); },
+                            spectra_formats: function (d) {
+                                 //JSON.stringify(d.spectra_formats);
+                                 var text = ""
+                                 for (var i = 0; i < d.spectra_formats.length; i++) {
+                                     if (text != "") {
+                                         text += "; ";
+                                     }
+                                     var sf = d.spectra_formats[i];
+                                     if (sf.FileFormat) {
+                                         text += sf.FileFormat.name + ", ";
+                                     }
+                                     if (sf.SpectrumIDFormat) {
+                                         text += sf.SpectrumIDFormat.name;
+                                     }
+                                 }
+                                 return text;
+                             },
 
                             upload_time: function (d) { return d.upload_time; },
                             contains_crosslinks: function (d) { return isTruthy(d.contains_crosslinks); },
