@@ -10,7 +10,7 @@ CLMSUI.history = {
 	defaultValues: {
 		visibility: {
 			"Visualise Data": true,
-			"Spectra Only": true,
+			"Spectra Only": false,
 			"Peak List Files": true,
 			"Analysis Software": true,
 			// "Provider": false,
