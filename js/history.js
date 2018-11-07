@@ -74,27 +74,27 @@ CLMSUI.history = {
 
         var self = this;
 
-        var columnMetaData = [
-            {name: "Visualise Search", type: "alpha", tooltip: "", visible: true, removable: true, id: "name"},
-            {name: "+FDR", type: "none", tooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true, id: "fdr"},
-			{name: "Restart", type: "none", tooltip: "", visible: false, removable: true, id: "restart"},
-            {name: "Notes", type: "alpha", tooltip: "", visible: true, removable: true, id: "notes"},
-            {name: "Validate", type: "none", tooltip: "", visible: true, removable: true, id: "validate"},
-            {name: "Sequence", type: "alpha", tooltip: "", visible: true, removable: true, id: "file_name"},
-            {name: "Enzyme", type: "alpha", tooltip: "", visible: false, removable: true, id: "enzyme"},
-            {name: "Cross-Linkers", type: "alpha", tooltip: "", visible: false, removable: true, id: "crosslinkers"},
-			{name: "Base New", type: "none", tooltip: "Base a New Search's parameters on this Search", visible: false, removable: true, id: "base_new"},
-            {name: "Submit Date", type: "alpha", tooltip: "", visible: true, removable: true, id: "submit_date"},
-            {name: "ID", type: "alpha", tooltip: "", visible: true, removable: true, id: "id"},
-            {name: "User", type: "alpha", tooltip: "", visible: true, removable: true, id: "user_name"},
-            {name: "Agg Group", type: "clearCheckboxes", tooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false, id: "aggregate"},
-            //{name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
-			{name: "Delete", type: "boolean", tooltip: "", visible: true, removable: true, id: "hidden"},
-        ];
+        var columnSettings = {
+            name: {columnName: "Visualise Search", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            fdr: {columnName: "+FDR", type: "none", headerTooltip: "Visualise search with decoys to allow False Discovery Rate calculations", visible: true, removable: true},
+			restart: {columnName: "Restart", type: "none", headerTooltip: "", visible: false, removable: true},
+            notes: {columnName: "Notes", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            validate: {columnName: "Validate", type: "none", headerTooltip: "", visible: true, removable: true},
+            file_name: {columnName: "Sequence", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            enzyme: {columnName: "Enzyme", type: "alpha", headerTooltip: "", visible: false, removable: true},
+            crosslinkers: {columnName: "Cross-Linkers", type: "alpha", headerTooltip: "", visible: false, removable: true},
+			base_new: {columnName: "Base New", type: "none", headerTooltip: "Base a New Search's parameters on this Search", visible: false, removable: true},
+            submit_date: {columnName: "Submit Date", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            id: {columnName: "ID", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            user_name: {columnName: "User", type: "alpha", headerTooltip: "", visible: true, removable: true},
+            aggregate: {columnName: "Agg Group", type: "clearCheckboxes", headerTooltip: "Assign numbers to searches to make groups within an aggregated search", visible: true, removable: false},
+            //delete: {name: "Delete", type: "deleteHiddenSearchesOption", tooltip: "", visible: true, removable: true},
+			hidden: {columnName: "Delete", type: "boolean", headerTooltip: "", visible: true, removable: true},
+		};
 
 		// Set visibilities of columns according to cookies or default values
-		columnMetaData.forEach (function (column) {
-			column.visible = initialValues.visibility[column.name];
+		d3.entries(columnSettings).forEach (function (columnEntry) {
+			columnEntry.value.visible = initialValues.visibility[columnEntry.value.columnName];
 		}, this);
 
 
@@ -163,11 +163,14 @@ CLMSUI.history = {
                              return "<a href='"+CLMSUI.history.makeResultsUrl(sid, params)+"'>"+label+"</a>";
                         };
 
-
                         var makeValidationUrl = function (sid, params) {
                              return "../xi3/validate.php?sid="+sid+params;
                         };
 
+						var makeBaseNewLink = function (d, params, label) {
+							 return "<a href='../../searchSubmit/submitSearch.html?base="+d.id+"-"+d.random_id+"'>"+label+"</a>";
+						};
+                        
                         var isTruthy = function (val) {
                             return val === true || val === "t" || val === "true";
                         };
@@ -195,18 +198,22 @@ CLMSUI.history = {
                         var cellWidths = {
                             //name: "20em",
                             notes: "8em",
-                            fdr: "4em",
+                            fdr: "3.5em",
 							restart: "5em",
                             validate: "5em",
                             //file_name: "15em",
                             submit_date: "10em",
                             id: "4em",
                             enzyme: "5em",
-                            crosslinkers: "7em",
+                            crosslinkers: "8.5em",
 							base_new: "5.5em",
-                            user_name: "6em",
-                            aggregate: "6em",
-                            hidden: "5em",
+                            user_name: "5.5em",
+                            aggregate: "5.5em",
+                            hidden: "5.5em",
+                        };
+						
+						var isErrorMsg = function (msg) {
+							return (msg.substr(0,4) === "XiDB" || msg.substr(0,10) === "UNFINISHED");
                         };
 
                         var modifiers = {
@@ -216,12 +223,12 @@ CLMSUI.history = {
                                 var nameHtml = completed ? makeResultsLink (d.id+"-"+d.random_id, "", name)
                                     : "<span class='unviewableSearch'>"+name+"</span>"
                                 ;
-                                var error = !completed && d.status.substring(0,4) === "XiDB";
+                                var error = !completed && isErrorMsg (d.status);
                                 return nameHtml + (error ? "<span class='xierror'>" : "") + " ["+d.status.substring(0,16)+"]" + (error ? "</span>" : "") /*+
                                     (d.status.length <= 16 ? "" : "<div style='display:none'>"+d.status+"</div>")*/;
                             },
                             fdr: function (d) {
-                                var unuseable = d.status.substring(0,4) === "XiDB" || d.status !== "completed";
+                                var unuseable = isErrorMsg (d.status) || d.status !== "completed";
                                 return unuseable ? "" : makeResultsLink (d.id+"-"+d.random_id, "&decoys=1&unval=1", "+FDR");
                             },
 							restart: function(d) {
@@ -242,7 +249,8 @@ CLMSUI.history = {
                             enzyme: function (d) { return d.enzyme; },
                             crosslinkers: function (d) { return d.crosslinkers; },
 							base_new: function (d) {
-								return "<button class='baseNewButton unpadButton'>New</button>";
+								return makeBaseNewLink (d, null, "Base New");
+								//return "<button class='baseNewButton unpadButton'>New</button>";
 							},
                             submit_date: function(d) {
                                 return d.submit_date.substring(0, d.submit_date.indexOf("."));
@@ -257,6 +265,13 @@ CLMSUI.history = {
                                 return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>"+(isTruthy(d.hidden) ? "Restore" : "Delete")+"</button>" : "";
                             }
                         };
+
+						var propertyNames = ["cellStyle", "dataToHTMLModifier", "tooltip"];
+						[cellStyles, modifiers, tooltips].forEach (function (obj, i) {
+							d3.entries(obj).forEach (function (entry) {
+								columnSettings[entry.key][propertyNames[i]] = entry.value;
+							});
+						});
 
 
                         d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
@@ -303,8 +318,7 @@ CLMSUI.history = {
 
 
                         if (userOnly) {
-                            var hideIndex = pluck(columnMetaData, "name").indexOf ("User");
-                            columnMetaData[hideIndex].visible = false;
+							columnSettings.user_name.visible = false;
                         }
 
 						// not used (and not linked to any deadly php functions so dont worry)
@@ -390,18 +404,12 @@ CLMSUI.history = {
 						}
 
 
-
-                        // helper function for next bit
-                        var displayColumn = function (columnIndex, show, table) {
-                            table.selectAll("td:nth-child("+columnIndex+"), th:nth-child("+columnIndex+")").style("display", show ? null : "none");
-                        };
-
                         // Add a multiple select widget for column visibility
-						function addColumnSelector (containerSelector, table, dispatch) {
+						function addColumnSelector (containerSelector, d3table, dispatch) {
 							var newtd = containerSelector;
 							newtd.append("span").text("Show Columns");
 							var datum = newtd.datum();
-							var removableColumns = datum.filter (function (d) {
+							var removableColumns = d3.entries(datum).filter (function (d) { 
 								return d.value.removable;
 							});
 							newtd.append("select")
@@ -410,43 +418,30 @@ CLMSUI.history = {
 								.data(removableColumns, function(d) {return d.key; })
 									.enter()
 									.append("option")
-									.text (function(d) { return d.value.name; })
-									.property ("value", function(d) { return d.name; })
+									.text (function(d) { return d.value.columnName; })
+									.property ("value", function(d) { return d.key; })
 									.property ("selected", function (d) { return d.value.visible; })
 							;
 							$(newtd.select("select").node()).multipleSelect ({
 								selectAll: false,
 								onClick: function (view) {
 									// hide/show column chosen by user
-									var colNames = pluck (columnMetaData, "name");
-									var index = colNames.indexOf (view.value) + 1; // elements are 1-indexed in css selectors
-									var indexPoint = datum.filter (function (d) {
-										return d.value.name === view.value;
-									}).forEach (function(d) {
-										d.value.visible = view.checked;
-									});
-									displayColumn (index, view.checked, table);
-
-									dispatch.columnHiding (view.value, view.checked);
+									var key = view.value;
+									datum[key].visible = view.checked;
+									d3table.showColumn (d3table.getColumnIndex(key) + 1, view.checked);
+									dispatch.columnHiding (view.label, view.checked);
 								}
 							});
 						};
 
 
-						function hideColumns (table) {
-							// hide columns that are hid by default
-							columnMetaData.forEach (function (d, i) {
-								if (!d.visible) {
-									displayColumn (i + 1, false, table);
-								}
-							});
-						}
-
-
 						function applyHeaderStyling (headers) {
-							headers.attr("title", function (d,i) {
-								return columnMetaData[i].tooltip;
-							});
+							var title = headers.select("svg").select("title");
+							if (title.empty()) {
+								title = headers.select("svg").append("title");
+						}
+							title.text(function(d) { return "Sort table by "+columnSettings[d.key].columnName; });
+
 							headers
 								.filter (function(d) { return cellStyles[d.key]; })
 								.each (function(d) {
@@ -496,7 +491,7 @@ CLMSUI.history = {
 											var index = pluck(response.data, "id").indexOf(d.id);
 											if (index >= 0) {
 												response.data.splice (index, 1);
-												table.filter(table.filter()).update();
+												d3table.filter(d3table.filter()).update();
 											}
                                         }
                                     };
@@ -552,7 +547,7 @@ CLMSUI.history = {
 												currentData[key] = newVal;
 											}
 										});
-										table.update();
+										d3table.update();
                                     };
                                     //updateCurrentRow (d, {}); // alternative to following code for testing without doing database actions
 
@@ -590,16 +585,6 @@ CLMSUI.history = {
                                 })
                             ;
                         };
-
-						var addBaseNewButtonFunctionality = function (selection) {
-							selection.select(".baseNewButton")
-								.classed("btn btn-1 btn-1a", true)
-								.on ("click", function (d) {
-									console.log ("hi", d);
-									window.location.href = "../../searchSubmit/submitSearch.html?base="+d.id+"-"+d.random_id;
-								})
-							;
-						}
 
 
 						var addValidationFunctionality = function (selection) {
@@ -639,73 +624,67 @@ CLMSUI.history = {
 						var empowerRows = function (rowSelection) {
 							addDeleteButtonFunctionality (rowSelection);
 							addRestartButtonFunctionality (rowSelection);
-							addBaseNewButtonFunctionality (rowSelection);
+							//addBaseNewButtonFunctionality (rowSelection);
 							addValidationFunctionality (rowSelection);
 							addAggregateFunctionality (rowSelection);
 							updateHiddenRowStates (rowSelection);
 						};
 
 
-						var headerEntries = columnMetaData.map (function (cmd) { return {key: cmd.id, value: cmd}; });
-						var d3tab = d3.select(".container").append("div").attr("class", "d3tableContainer")
+						var d3tableElem = d3.select(".container").append("div")
 							.datum({
-								data: response.data,
-								headerEntries: headerEntries,
-								cellStyles: cellStyles,
-								tooltips: tooltips,
-								columnOrder: headerEntries.map (function (hentry) { return hentry.key; }),
+								data: response.data || [], 
+								columnSettings: columnSettings, 
+								columnOrder: d3.keys(columnSettings),
 							})
 						;
-						var table = CLMSUI.d3Table ();
-						table (d3tab);
-						applyHeaderStyling (d3tab.selectAll("thead tr:first-child").selectAll("th"));
-						console.log ("table", table);
+						var d3table = CLMSUI.d3Table ();
+						d3table (d3tableElem);
+						applyHeaderStyling (d3table.getHeaderCells());
+						console.log ("d3table", d3table);
 
 						// set initial filters
 						var keyedFilters = {};
-						headerEntries.forEach (function (hentry) {
-							var findex = table.getColumnIndex (hentry.key);
-							//console.log (hentry, "ind", findex, initialValues.filters);
-							keyedFilters[hentry.key] = {value: initialValues.filters[findex], type: hentry.value.type}
+						d3.keys(columnSettings).forEach (function (columnKey) {
+							var findex = d3table.getColumnIndex (columnKey);
+							keyedFilters[columnKey] = initialValues.filters[findex];	
 						});
-						//console.log ("keyedFilters", keyedFilters);
 
-						table
+						d3table
 							.filter(keyedFilters)
-							.dataToHTML (modifiers)
 							.postUpdate (empowerRows)
 						;
 
 						// set initial sort
 						if (initialValues.sort && initialValues.sort.column) {
-							table
-								.orderKey (headerEntries[initialValues.sort.column].key)
+							d3table
+								.orderKey (d3table.columnOrder()[initialValues.sort.column])
 								.orderDir (initialValues.sort.sortDesc ? "desc" : "asc")
 								.sort()
 							;
 						}
-						table.update();
+						d3table.update();
 
-						var dispatch = table.dispatch();
+						var dispatch = d3table.dispatch();
 						dispatch.on ("columnHiding", storeColumnHiding);
 						dispatch.on ("filtering", storeFiltering);
 						dispatch.on ("ordering", storeOrdering);
 
 						// add column selector, header entries has initial visibilities incorporated
-						addColumnSelector (d3tab.select("div.d3tableControls").datum(headerEntries), d3tab, dispatch);
+						addColumnSelector (d3tableElem.select("div.d3tableControls").datum(columnSettings), d3table, dispatch);
 
 						// hide delete filter if not superuser as pointless
-						table.showHeaderFilter ("hidden", response.userRights.isSuperUser);
+						d3table.showFilterCell ("hidden", response.userRights.isSuperUser);
 						
 						// allows css trick to highlight filter inputs with content so more visible to user
 						d3.selectAll(".d3table-filterInput").property("required", true);
 						
 						// add clear aggregation button to specific header
-						var aggregateColumn = table.getColumnIndex("aggregate") + 1;
-						var aggButtonCell = d3tab.selectAll("thead tr:nth-child(2)").select("th:nth-child("+aggregateColumn+")");
+						var aggregateColumn = d3table.getColumnIndex("aggregate") + 1;
+						var aggButtonCell = d3tableElem.selectAll("thead tr:nth-child(2)").select("th:nth-child("+aggregateColumn+")");
 						addClearAggInputsButton (
 							aggButtonCell,
-							function() { return d3tab.selectAll("tbody tr"); },
+							function() { return d3table.getAllRowsSelection(); }, 
 							response.data
 						);
 						CLMSUI.history.anyAggGroupsDefined (response.data, false);   // disable clear button as well to start with
