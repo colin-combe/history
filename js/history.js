@@ -512,14 +512,14 @@ CLMSUI.history = {
                             selection.select("button.deleteButton")
                                 .classed("btn btn-1 btn-1a", true)
                                 .on ("click", function(d) {
-                                    //console.log ("d", d);
-
-                                    // Post deletion/restoration code
+                                    // Post deletion code
                                     var deleteRowVisibly = function (d) {
                                         // delete row from table somehow
-                                        var thisID = d.id;
-										var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
-                                        // if superuser change state of delete/restore button otherwise remove row from view
+											var index = pluck(response.data, "id").indexOf(d.id);
+											if (index >= 0) {
+												response.data.splice (index, 1);
+												d3table.filter(d3table.filter()).update();
+											}
                                     };
                                     //deleteRowVisibly (d); // alternative to following code for testing without doing database delete
 
