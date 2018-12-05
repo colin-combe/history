@@ -252,43 +252,53 @@ CLMSUI.history = {
                             analysis_software: function (d) {
                                 //return d.analysis_software;
                                 var text = "";
-                                for (var i = 0; i < d.analysis_software.length; i++) {
-                                    if (i > 0) {
-                                        text = text + "; ";
+                                if (d.analysis_software) {
+                                    for (var i = 0; i < d.analysis_software.length; i++) {
+                                        if (i > 0) {
+                                            text = text + "; ";
+                                        }
+                                        var software = d.analysis_software[i];
+                                        text = text + (software.name? software.name : software.id);
+                                        text = text + " " + software.version;
                                     }
-                                    var software = d.analysis_software[i];
-                                    text = text + (software.name? software.name : software.id);
-                                    text = text + " " + software.version;
                                 }
                                 return text;
                             },
                             provider: function (d) {
-                                return d.provider.ContactRole? d.provider.ContactRole[0].contact_ref : "";
+                                if (d.provider) {
+                                    return d.provider.ContactRole? d.provider.ContactRole[0].contact_ref : "";
+                                } else {
+                                    return "";
+                                }
                             },
                             audits: function (d) {
                                 var text = ""
-                                if (d.audits.Person && d.audits.Person.name) {
-                                    text += d.audits.Person.name;
-                                }
-                                if (d.audits.Organization &&  d.audits.Organization.name) {
-                                    if (text != "") {text += " "}
-                                    text += d.audits.Organization.name;
+                                if (d.audits) {
+                                    if (d.audits.Person && d.audits.Person.name) {
+                                        text += d.audits.Person.name;
+                                    }
+                                    if (d.audits.Organization &&  d.audits.Organization.name) {
+                                        if (text != "") {text += " "}
+                                        text += d.audits.Organization.name;
+                                    }
                                 }
                                 return text;
                             },
                             samples: function (d) {
                                 var text = ""
-                                for (var i = 0; i < d.samples.length; i++) {
-                                    if (text != "") {
-                                        text += "; ";
-                                    }
-                                    var sample = d.samples[i];
-                                    if (sample["sample name"]) {
-                                        text += sample["sample name"];
-                                    } else if (sample.id) {
-                                        text += sample.id;
-                                    } else if (sample.name) {
-                                        text += sample.name;
+                                if (d.samples) {
+                                    for (var i = 0; i < d.samples.length; i++) {
+                                        if (text != "") {
+                                            text += "; ";
+                                        }
+                                        var sample = d.samples[i];
+                                        if (sample["sample name"]) {
+                                            text += sample["sample name"];
+                                        } else if (sample.id) {
+                                            text += sample.id;
+                                        } else if (sample.name) {
+                                            text += sample.name;
+                                        }
                                     }
                                 }
                                 return text;
@@ -297,21 +307,23 @@ CLMSUI.history = {
                             protocol: function (d) { return JSON.stringify(d.protocol); },
                             bib: function (d) {return JSON.stringify(d.bib); },
                             spectra_formats: function (d) {
-                                 //JSON.stringify(d.spectra_formats);
-                                 var text = ""
-                                 for (var i = 0; i < d.spectra_formats.length; i++) {
-                                     if (text != "") {
-                                         text += "; ";
-                                     }
-                                     var sf = d.spectra_formats[i];
-                                     if (sf.FileFormat) {
-                                         text += sf.FileFormat.name + ", ";
-                                     }
-                                     if (sf.SpectrumIDFormat) {
-                                         text += sf.SpectrumIDFormat.name;
-                                     }
-                                 }
-                                 return text;
+                                //JSON.stringify(d.spectra_formats);
+                                var text = ""
+                                if (d.spectra_formats){
+                                    for (var i = 0; i < d.spectra_formats.length; i++) {
+                                        if (text != "") {
+                                            text += "; ";
+                                        }
+                                        var sf = d.spectra_formats[i];
+                                        if (sf.FileFormat) {
+                                            text += sf.FileFormat.name + ", ";
+                                        }
+                                        if (sf.SpectrumIDFormat) {
+                                            text += sf.SpectrumIDFormat.name;
+                                        }
+                                    }
+                                }
+                                return text;
                              },
 
                             upload_time: function (d) { return d.upload_time; },
@@ -320,11 +332,13 @@ CLMSUI.history = {
                             error_type: function (d) { return d.error_type; },
                             upload_warnings: function (d) {
                                 var text = ""
-                                for (var i = 0; i < d.upload_warnings.length; i++) {
-                                    if (text != "") {
-                                        text += "; ";
+                                if (d.upload_warnings) {
+                                    for (var i = 0; i < d.upload_warnings.length; i++) {
+                                        if (text != "") {
+                                            text += "; ";
+                                        }
+                                        text += d.upload_warnings[i].type;
                                     }
-                                    text += d.upload_warnings[i].type;
                                 }
                                 return text;
                             },
