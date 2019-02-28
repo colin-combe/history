@@ -569,6 +569,78 @@ CLMSUI.history = {
                         };
 
 
+						var addRestartButtonFunctionality = function (selection) {
+                            selection.select("button.restartButton")
+                                .classed("btn btn-1 btn-1a", true)
+                                .on ("click", function(d) {
+									// Post restart code
+                                    var updateCurrentRow = function (currentData, newData) {
+                                        var thisID = currentData.id;
+										// select correct row
+                                        var selRows = d3.selectAll("tbody tr").filter(function(d) { return d.id === thisID; });
+										d3.keys(currentData).forEach (function (key) {	// copy new data points to row data
+											var newVal = newData[key];
+											if (newVal !== undefined) {
+												currentData[key] = newVal;
+											}
+										});
+										d3table.update();
+                                    };
+                                    //updateCurrentRow (d, {}); // alternative to following code for testing without doing database actions
+
+                                    // Ajax restart call
+                                     var doRestart = function() {
+
+										 $.ajax({
+                                            type: "POST",
+                                            url:"./php/restartSearch.php",
+                                            data: {searchID: d.id},
+                                            dataType: 'json',
+                                            success: function (response, responseType, xmlhttp) {
+                                                if (response.status === "success") {
+                                                    //console.log ("response", response, d);
+                                                    updateCurrentRow (d, response.result[0]);
+                                                }
+                                            },
+											 error: function (jqxhr, text, error) {
+												 console.log ("error", arguments);
+											 }
+                                        });
+
+                                    };
+
+									var dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', minute: 'numeric', hour: 'numeric', second: 'numeric' };
+									var dateStr = new Date(Date.parse(d.submit_date)).toLocaleDateString("en-GB-u-hc-h23", dateOptions)
+                                    var msg = "Restart Search "+d.id+"?<br>Originally Submitted: "+dateStr;
+                                    // Dialog
+                                    CLMSUI.jqdialogs.areYouSureDialog (
+                                        "popChoiceDialog",
+                                        msg,
+                                        "Please Confirm", "Yes, Restart this Search", "No, Cancel this Action",
+                                        doRestart
+                                    );
+                                })
+                            ;
+                        };
+
+
+						var addValidationFunctionality = function (selection) {
+							var lowScore = "&lowestScore=2";
+							selection.select(".validateButton")
+								.on ("click", function (d) {
+									var deltaUrls = ["", "&decoys=1"+lowScore, "&linears=1"+lowScore, "&decoys=1&linears=1"+lowScore];
+									var baseUrls = deltaUrls.map (function (deltaUrl) {
+									   return makeValidationUrl (d.id+"-"+d.random_id, "&unval=1"+deltaUrl);
+									});
+
+									CLMSUI.jqdialogs.choicesDialog ("popChoiceDialog", "Choose Validation Option", "Validate "+d.id,
+										["Validate", "Validate with Decoys", "Validate with Linears", "Validate with Decoys & Linears"],
+										baseUrls
+									);
+								})
+							;
+						};
+
 						var addAggregateFunctionality = function (selection) {
 							selection.select(".aggregateInput")
 								.on ("input", function(d) {
