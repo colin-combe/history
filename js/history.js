@@ -259,7 +259,7 @@ CLMSUI.history = {
                             user_name: function(d) { return d.user_name; },
                             aggregate: function(d) {
 								var completed = d.status === "completed";
-                                return completed ? "<input type='number' pattern='\\d*' class='aggregateInput' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
+                                return completed ? "<input type='number' pattern='\\d*' class='aggregateInput' id='agg_"+d.id+"-"+d.random_id+"' maxlength='2' min='1' max='99'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
                             },
                             hidden: function(d) {
                                 return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>"+(isTruthy(d.hidden) ? "Restore" : "Delete")+"</button>" : "";
@@ -609,7 +609,7 @@ CLMSUI.history = {
 							selection.select(".aggregateInput")
 								.on ("input", function(d) {
 									// set value to 0-9
-									this.value = this.value.slice (0,1); // equiv to maxlength for text
+									this.value = this.value.slice (0,2); // equiv to maxlength for text
 									// set backing data to this value
 									if (d.value) { 
 										d.value[d.key] = this.value;
@@ -706,15 +706,15 @@ CLMSUI.history = {
 				var valid = false;
 				var agg = d.aggregate;
 				if (agg) {
-					valid = !(isNaN(agg) || agg.length > 1);
-					if (!valid) { alert ("Group identifiers must be a single digit."); }
+					valid = !(isNaN(agg) || agg.length > 2);
+					if (!valid) { alert ("Group identifiers must be between 0 and 100."); }
 				}
 				return valid; 
 			})
 			.map (function (d) { return d.id +"-" + d.random_id + "-" + d.aggregate})
 		;
 
-        if (!values.length) { alert ("Cannot aggregate: no selection - use text field in right most table column."); }
+        if (!values.length) { alert ("Cannot aggregate: no selection - must set numeric identifiers in 'Agg Group' table column."); }
         else {
             var url = CLMSUI.history.makeResultsUrl (values.join(','), fdrCapable ? "&unval=1&decoys=1" : "");
             window.open (url, "_self");
