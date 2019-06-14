@@ -105,14 +105,21 @@ CLMSUI.history = {
               
         var userOnly = initialValues.searchScope === "mySearches";
         var params = userOnly ? "searches=MINE" : "searches=ALL";
-             
-        if (d3.select(".container #clmsErrorBox").empty()) {
-            d3.select(".container")
+        
+        if (d3.select(".container #clmsErrorBox").empty()) {         
+            var statusBox = d3.select(".container")
                 .append("div")
                 .attr ("id", "clmsErrorBox")
-                .text("You Currently Have No Searches in the Xi Database.")
+                    .append("div")
+                    .attr("class", "spinGap")
             ;
         }
+        d3.select(".container #clmsErrorBox")
+            .style("display", null)
+            .select ("div.spinGap")
+                .text("Loading Search Metadata from Xi Database.");
+        ;
+        var spinner = new Spinner({scale: 1, left: 12}).spin (d3.select("#clmsErrorBox").node());
                 
        $.ajax({
             type:"POST",
@@ -121,7 +128,9 @@ CLMSUI.history = {
             contentType: "application/x-www-form-urlencoded",
             dataType: 'json',
             success: function(response, responseType, xmlhttp) {
-                if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                spinner.stop();
+                
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     console.log ("response", response, responseType);
                     if (response.redirect) {
                         window.location.replace (response.redirect);
@@ -131,7 +140,6 @@ CLMSUI.history = {
                         console.log ("response error", response);
                     }
                     else {
-
                          // This is a catch until new usergui is rolled out */
                         if (response.utilsLogout) {
                             d3.select("#logout")
@@ -274,7 +282,10 @@ CLMSUI.history = {
 						});
 
 
-                        d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
+                        d3.select("#clmsErrorBox").style("display", response.data ? "none" : null);    // hide no searches message box if data is returned
+                        if (!response.data) {
+                             d3.select("#clmsErrorBox").text ("You Currently Have No Searches in the Xi Database.");
+                        }
 
                         //console.log ("rights", response.userRights);
                         //console.log ("data", response.data);
