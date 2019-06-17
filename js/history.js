@@ -117,10 +117,29 @@ CLMSUI.history = {
         d3.select(".container #clmsErrorBox")
             .style("display", null)
             .select ("div.spinGap")
-                .text("Loading Search Metadata from Xi Database.");
+                .text("Loading Search Metadata from Xi Database.")
         ;
         var spinner = new Spinner({scale: 1, left: 12}).spin (d3.select("#clmsErrorBox").node());
-                
+            
+           
+        var t1 = performance.now();
+        /*
+        console.log ("START OBOE", t1);
+        oboe('./php/searches.php?'+params)
+            .done (function (response) {
+                var t2 = performance.now();
+                console.log ("STOP OBOE +", t2-t1, "I/O", ((t2-t1)/1000) - response.time);
+                console.log ("things", response);
+                t1 = performance.now();
+                console.log ("START AJAX", t1);
+            })
+            .fail (function () {
+            
+            })
+        ;
+        */
+        
+
        $.ajax({
             type:"POST",
             url:"./php/searches.php", 
@@ -128,10 +147,12 @@ CLMSUI.history = {
             contentType: "application/x-www-form-urlencoded",
             dataType: 'json',
             success: function(response, responseType, xmlhttp) {
+                var t2 = performance.now();
+                console.log ("STOP AJAX +", t2-t1, "DB", response.time, "I/O", ((t2-t1)/1000) - response.time);
                 spinner.stop();
                 
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    console.log ("response", response, responseType);
+                    //console.log ("response", response, responseType);
                     if (response.redirect) {
                         window.location.replace (response.redirect);
                     }
@@ -443,7 +464,7 @@ CLMSUI.history = {
 									dispatch.columnHiding (view.label, view.checked);
 								}
 							});
-						};
+						}
 
 
 						function applyHeaderStyling (headers) {
@@ -471,7 +492,7 @@ CLMSUI.history = {
 									d3.select(this).style("width", cellWidths[d.key]);
 								})
 							;
-						};
+						}
 						   
                         
 						// hidden row state can change when restore/delete pressed or when restart pressed
