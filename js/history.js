@@ -107,12 +107,38 @@ CLMSUI.history = {
         var params = userOnly ? "searches=MINE" : "searches=ALL";
 
         if (d3.select(".container #clmsErrorBox").empty()) {
-            d3.select(".container")
+            var statusBox = d3.select(".container")
                 .append("div")
                 .attr ("id", "clmsErrorBox")
-                .text("You Currently Have No Searches in the Xi Database.")
+                    .append("div")
+                    .attr("class", "spinGap")
             ;
         }
+        d3.select(".container #clmsErrorBox")
+            .style("display", null)
+            .select ("div.spinGap")
+                .text("Loading Search Metadata from Xi Database.")
+        ;
+        var spinner = new Spinner({scale: 1, left: 12}).spin (d3.select("#clmsErrorBox").node());
+            
+           
+        var t1 = performance.now();
+        /*
+        console.log ("START OBOE", t1);
+        oboe('./php/searches.php?'+params)
+            .done (function (response) {
+                var t2 = performance.now();
+                console.log ("STOP OBOE +", t2-t1, "I/O", ((t2-t1)/1000) - response.time);
+                console.log ("things", response);
+                t1 = performance.now();
+                console.log ("START AJAX", t1);
+            })
+            .fail (function () {
+            
+            })
+        ;
+        */
+        
 
        $.ajax({
             type:"POST",
@@ -121,8 +147,12 @@ CLMSUI.history = {
             contentType: "application/x-www-form-urlencoded",
             dataType: 'json',
             success: function(response, responseType, xmlhttp) {
+                var t2 = performance.now();
+                console.log ("STOP AJAX +", t2-t1, "DB", response.time, "I/O", ((t2-t1)/1000) - response.time);
+                spinner.stop();
+                
                 if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    console.log ("response", response, responseType);
+                    //console.log ("response", response, responseType);
                     if (response.redirect) {
                         window.location.replace (response.redirect);
                     }
@@ -131,7 +161,6 @@ CLMSUI.history = {
                         console.log ("response error", response);
                     }
                     else {
-
                          // This is a catch until new usergui is rolled out */
                         if (response.utilsLogout) {
                             d3.select("#logout")
@@ -259,7 +288,7 @@ CLMSUI.history = {
                             user_name: function(d) { return d.user_name; },
                             aggregate: function(d) {
 								var completed = d.status === "completed";
-                                return completed ? "<input type='number' pattern='\\d*' class='aggregateInput' id='agg_"+d.id+"-"+d.random_id+"' maxlength='1' min='1' max='9'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
+                                return completed ? "<input type='number' pattern='\\d*' class='aggregateInput' id='agg_"+d.id+"-"+d.random_id+"' maxlength='2' min='1' max='99'"+(d.aggregate ? " value='"+d.aggregate+"'" : "") + ">" : "";
                             },
                             hidden: function(d) {
                                 return d.user_name === response.user || response.userRights.isSuperUser ? "<button class='deleteButton unpadButton'>"+(isTruthy(d.hidden) ? "Restore" : "Delete")+"</button>" : "";
@@ -274,7 +303,10 @@ CLMSUI.history = {
 						});
 
 
-                        d3.select("#clmsErrorBox").style("display", response.data ? "none" : "block");    // hide no searches message box if data is returned
+                        d3.select("#clmsErrorBox").style("display", response.data ? "none" : null);    // hide no searches message box if data is returned
+                        if (!response.data) {
+                             d3.select("#clmsErrorBox").text ("You Currently Have No Searches in the Xi Database.");
+                        }
 
                         //console.log ("rights", response.userRights);
                         //console.log ("data", response.data);
@@ -432,7 +464,7 @@ CLMSUI.history = {
 									dispatch.columnHiding (view.label, view.checked);
 								}
 							});
-						};
+						}
 
 
 						function applyHeaderStyling (headers) {
@@ -460,7 +492,7 @@ CLMSUI.history = {
 									d3.select(this).style("width", cellWidths[d.key]);
 								})
 							;
-						};
+						}
 
 
 						// hidden row state can change when restore/delete pressed or when restart pressed
@@ -608,7 +640,7 @@ CLMSUI.history = {
 							selection.select(".aggregateInput")
 								.on ("input", function(d) {
 									// set value to 0-9
-									this.value = this.value.slice (0,1); // equiv to maxlength for text
+									this.value = this.value.slice (0,2); // equiv to maxlength for text
 									// set backing data to this value
 									if (d.value) {
 										d.value[d.key] = this.value;
@@ -705,15 +737,15 @@ CLMSUI.history = {
 				var valid = false;
 				var agg = d.aggregate;
 				if (agg) {
-					valid = !(isNaN(agg) || agg.length > 1);
-					if (!valid) { alert ("Group identifiers must be a single digit."); }
+					valid = !(isNaN(agg) || agg.length > 2);
+					if (!valid) { alert ("Group identifiers must be between 0 and 100."); }
 				}
 				return valid;
 			})
 			.map (function (d) { return d.id +"-" + d.random_id + "-" + d.aggregate})
 		;
 
-        if (!values.length) { alert ("Cannot aggregate: no selection - use text field in right most table column."); }
+        if (!values.length) { alert ("Cannot aggregate: no selection - must set numeric identifiers in 'Agg Group' table column."); }
         else {
             var url = CLMSUI.history.makeResultsUrl (values.join(','), fdrCapable ? "&unval=1&decoys=1" : "");
             window.open (url, "_self");
