@@ -78,7 +78,7 @@
 
             $utilsLogout = file_exists ("../../util/logout.php");
 
-            echo json_encode (array("user"=>$_SESSION['session_name'], "userRights"=>$userRights, "data"=>pg_fetch_all($result), "utilsLogout"=>$utilsLogout, "time"=>$time));
+            echo json_encode (array("user"=>$_SESSION['session_name'], "userRights"=>$userRights, "data"=>resultsAsArray($result), "utilsLogout"=>$utilsLogout, "time"=>$time));
 
             //close connection
             pg_close($dbconn);
