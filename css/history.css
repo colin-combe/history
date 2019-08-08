@@ -224,6 +224,8 @@ TABLE.d3table tbody tr.hiddenSearch {
 
 TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
     color:#091D42;
+    line-height: 1.5em;
+    padding-bottom: 0.4em;
 }
 
 .d3table-filterInput {
