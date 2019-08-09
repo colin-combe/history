@@ -182,6 +182,11 @@ TABLE.d3table tbody tr td.varWidthCell, TABLE.d3table tr th.varWidthCell {
     white-space: normal;
 }
 
+TABLE.d3table tbody tr td.varWidthCell {
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+}
+
 TABLE.d3table tbody tr td.varWidthCell2, TABLE.d3table tr th.varWidthCell2 {
     width: 15%;
     min-width: 2em;
@@ -208,6 +213,10 @@ TABLE.d3table thead th.dottedBorder span.d3table-headerSpan {
 	padding: 5px 4px;
 }
 
+TABLE.d3table tbody tr {
+    line-height: 1.5em;
+}
+
 span.d3table-pageInfo {
 	margin-right: 0.5em;
 	border-right: 1px solid grey;
@@ -224,8 +233,6 @@ TABLE.d3table tbody tr.hiddenSearch {
 
 TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
     color:#091D42;
-    line-height: 1.5em;
-    padding-bottom: 0.4em;
 }
 
 .d3table-filterInput {
