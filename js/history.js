@@ -396,7 +396,7 @@ CLMSUI.history = {
 								.append("button")
 								.text ("Clear ↓")
 								.attr ("class", "btn btn-1 btn-1a clearChx unpadButton")
-								.attr ("title", "Clear all searches chosen for aggregation")
+								.attr ("title", "Clear all aggregation group values")
 								.on ("click", function () {
 									CLMSUI.history.clearAggregationInputs (d3rowFunc(), data);
 								})
@@ -711,6 +711,34 @@ CLMSUI.history = {
 						
 						// allows css trick to highlight filter inputs with content so more visible to user
 						d3.selectAll(".d3table-filterInput").property("required", true);
+                        
+                        var interval, timer2;
+                        var firstInterval = true;
+                        d3.selectAll(".d3table-pageInput").selectAll(".buttonIncr")
+                            .data([{text: "+", incr: 1}, {text: "-", incr: -1}], function(d) { return d.incr; })
+                            .enter()
+                            .insert("button", ":last-child")
+                                .attr("class", "buttonIncr").text(function(d) { return d.text; })
+                                //.on ("click", function (d) {
+                                    //var currentPage = d3table.page();
+                                    //d3table.page (currentPage + d.incr).update();
+                                //})
+                                .on ("mousedown", function (d) {
+                                    var currentPage = d3table.page();
+                                    d3table.page (currentPage + d.incr).update();
+                                    timer2 = window.setTimeout (function() {
+                                        interval = window.setInterval(function(){
+                                          var currentPage = d3table.page();
+                                          d3table.page (currentPage + d.incr).update();
+                                        }, 50);
+                                    }, 500);
+                                })
+                                .on ("mouseup", function() {
+                                    window.clearTimeout (timer2);
+                                    window.clearInterval(interval);
+                                    firstInterval = true;
+                                })
+                        ;
 						
 						// add clear aggregation button to specific header
 						var aggregateColumn = d3table.getColumnIndex("aggregate") + 1;

@@ -296,3 +296,35 @@ button:hover {
 .spinGap {
     margin-left: 35px;
 }
+
+input[type="number"] {
+  -webkit-appearance: textfield;
+     -moz-appearance: textfield;
+          appearance: textfield;
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none;
+}
+
+.buttonIncr {
+    /*border: 1px solid #888;*/
+    border: none;
+    background: white;
+    color: grey;
+    margin: 2px;
+    font-size: 1em;
+    line-height: 1.75em;
+    font-weight: bold;
+}
+
+.buttonIncr:hover {
+    background: #ff8;
+    border-color: #444;
+    color: black;
+}
+
+.buttonIncr:focus {
+    border: none;
+    outline: none;
+}
