@@ -182,6 +182,11 @@ TABLE.d3table tbody tr td.varWidthCell, TABLE.d3table tr th.varWidthCell {
     white-space: normal;
 }
 
+TABLE.d3table tbody tr td.varWidthCell {
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+}
+
 TABLE.d3table tbody tr td.varWidthCell2, TABLE.d3table tr th.varWidthCell2 {
     width: 15%;
     min-width: 2em;
@@ -206,6 +211,10 @@ TABLE.d3table thead th:first-child span.d3table-headerSpan {
 TABLE.d3table thead th.dottedBorder span.d3table-headerSpan {
     border-left: 1px dashed #091d42;
 	padding: 5px 4px;
+}
+
+TABLE.d3table tbody tr {
+    line-height: 1.5em;
 }
 
 span.d3table-pageInfo {
@@ -286,4 +295,36 @@ button:hover {
 
 .spinGap {
     margin-left: 35px;
+}
+
+input[type="number"] {
+  -webkit-appearance: textfield;
+     -moz-appearance: textfield;
+          appearance: textfield;
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none;
+}
+
+.buttonIncr {
+    /*border: 1px solid #888;*/
+    border: none;
+    background: white;
+    color: grey;
+    margin: 2px;
+    font-size: 1em;
+    line-height: 1.75em;
+    font-weight: bold;
+}
+
+.buttonIncr:hover {
+    background: #ff8;
+    border-color: #444;
+    color: black;
+}
+
+.buttonIncr:focus {
+    border: none;
+    outline: none;
 }

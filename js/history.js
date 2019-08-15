@@ -396,7 +396,7 @@ CLMSUI.history = {
 								.append("button")
 								.text ("Clear ↓")
 								.attr ("class", "btn btn-1 btn-1a clearChx unpadButton")
-								.attr ("title", "Clear all searches chosen for aggregation")
+								.attr ("title", "Clear all aggregation group values")
 								.on ("click", function () {
 									CLMSUI.history.clearAggregationInputs (d3rowFunc(), data);
 								})
@@ -711,6 +711,10 @@ CLMSUI.history = {
 						// allows css trick to highlight filter inputs with content so more visible to user
 						d3.selectAll(".d3table-filterInput").property("required", true);
 						
+                        // add plus minus buttons to replace number spinner
+                        CLMSUI.history.addPlusMinusTableButtons (d3table);
+                        console.log ("d3table", d3table);
+                        
 						// add clear aggregation button to specific header
 						var aggregateColumn = d3table.getColumnIndex("aggregate") + 1;
 						var aggButtonCell = d3tableElem.selectAll("thead tr:nth-child(2)").select("th:nth-child("+aggregateColumn+")");
@@ -775,13 +779,32 @@ CLMSUI.history = {
 
     anonForScreenshot: function () {
         // Anon usernames, search names, current user. Remember to filter to completed searches only.
-        d3.selectAll("tbody").selectAll("td:nth-child(8)").text(function() { return ["bert", "bob", "allan", "audrey", "fiona"][Math.floor(Math.random() * 5)]; });
+        d3.selectAll("tbody").selectAll("td:nth-child(12)").text(function() { return ["bert", "bob", "allan", "audrey", "fiona"][Math.floor(Math.random() * 5)]; });
         d3.selectAll("tbody").selectAll("td:nth-child(1) a").text(
             function() { return "anonymised "+(d3.shuffle("abcdefghijklmnopqrstuvwxyz".split("")).join("").substring(Math.ceil(Math.random()*25))); }
         );
         d3.select("#username").text("A Xi User");
     },
 
+    addPlusMinusTableButtons: function (d3table) {
+        d3table.getSelection()
+            .selectAll(".d3table-pageInput .d3table-pageWidget")
+            .each (function () {
+                var spinner = $(this).spinner({
+                    min: 1, 
+                    icons: { up: "ui-icon-plus", down: "ui-icon-minus"},
+                    spin: function (event, ui) {
+                        //console.log ("spin evt", event, ui);
+                        d3table.page(+ui.value).update();
+                        //console.log ("val", ui.value, d3table.page());
+                        event.stopPropagation();
+                        event.preventDefault(); // let d3table take care of input value setting (otherwise spinner shoots past max page value)
+                    },
+                });
+            })
+        ;
+    },
+	
 	/*
 	getCookieValue: function (field) {
 		if (this.cookieContext.Cookies !== undefined) {
