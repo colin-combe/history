@@ -279,7 +279,6 @@ CLMSUI.history = {
                             crosslinkers: function (d) { return d.crosslinkers; },
 							base_new: function (d) {
 								return makeBaseNewLink (d, null, "Base New");
-								//return "<button class='baseNewButton unpadButton'>New</button>";
 							},
                             submit_date: function(d) {
                                 return d.submit_date.substring(0, d.submit_date.indexOf("."));
@@ -395,7 +394,7 @@ CLMSUI.history = {
 							buttonContainer
 								.append("button")
 								.text ("Clear ↓")
-								.attr ("class", "btn btn-1 btn-1a clearChx unpadButton")
+								.attr ("class", "btn btn-1 btn-1a clearChx")
 								.attr ("title", "Clear all aggregation group values")
 								.on ("click", function () {
 									CLMSUI.history.clearAggregationInputs (d3rowFunc(), data);

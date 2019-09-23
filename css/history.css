@@ -76,6 +76,7 @@ tbody tr:hover button {
 .unpadButton {
     padding: 0 6px;
     margin: 2px 0;
+    height: 24px;
 }
 .xierror {
     color: red;
@@ -223,22 +224,25 @@ span.d3table-pageInfo {
 	padding-right: 0.5em;
 }
 
-TABLE.d3table tr.hiddenSearch {
-    background-color: #ddd;  
+TABLE.d3table tbody tr:nth-child(odd) {
+	background: #f4ffff;
 }
 
 TABLE.d3table tbody tr.hiddenSearch {
 	border-top: 1px dotted #888;
+    background-color: #ddd;  
 }
+
 
 TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
     color:#091D42;
 }
 
-.d3table-filterInput {
+.d3table .d3table-filterInput {
 	border: 1px solid #a9a9a9;
 	padding: 0;
 	margin: 0 2px 0 5px;
+    font-size: 1.25em;
 }
 
 .d3table-filterInput:valid {
@@ -327,4 +331,12 @@ input[type=number]::-webkit-outer-spin-button {
 .buttonIncr:focus {
     border: none;
     outline: none;
+}
+
+.deleteButton {
+    visibility: hidden;
+}
+
+tbody tr:hover .deleteButton {
+    visibility: visible;
 }
