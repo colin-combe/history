@@ -214,8 +214,9 @@ TABLE.d3table thead th.dottedBorder span.d3table-headerSpan {
 	padding: 5px 4px;
 }
 
-TABLE.d3table tbody tr {
+.d3tableContainer TABLE.d3table tbody tr {
     line-height: 1.5em;
+    border-top: 1px solid #ddd;
 }
 
 span.d3table-pageInfo {
@@ -225,11 +226,11 @@ span.d3table-pageInfo {
 }
 
 TABLE.d3table tbody tr:nth-child(odd) {
-	background: #f4ffff;
+	background: #eeffff;
 }
 
 TABLE.d3table tbody tr.hiddenSearch {
-	border-top: 1px dotted #888;
+	border-top: 1px solid #bbb;
     background-color: #ddd;  
 }
 
