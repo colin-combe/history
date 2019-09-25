@@ -464,6 +464,13 @@ CLMSUI.history = {
 								}
 							});
 						}
+                        
+                        function addFilterReporter (containerSelector, d3table) {
+                            var freporter = containerSelector.append("span")
+                                .attr("class", "filterReporter")
+                                .attr ("title", "Number of searches that satisfy table filters")
+                            ;
+                        }
 
 
 						function applyHeaderStyling (headers) {
@@ -697,11 +704,22 @@ CLMSUI.history = {
 						}
 						d3table.update();
 						
+                        // function that updates filter report text on filter updates
+                        var filterReportUpdate = function (filterVals) {
+                            var anyFilterValueSet = pluck(d3.values(filterVals), "value").some (function (f) { return f; });
+                            var comma = d3.format(",");
+                            var str = comma(d3table.getFilteredSize()) + (anyFilterValueSet ? " of " + comma(d3table.getData().length) : "") + " Searches";
+                            d3.selectAll(".filterReporter").text(str);
+                        };
 						var dispatch = d3table.dispatch();
 						dispatch.on ("columnHiding", storeColumnHiding);
-						dispatch.on ("filtering", storeFiltering);
+						dispatch.on ("filtering.store", storeFiltering);  // add two functions to filtering events by distinguishing with .
+                        dispatch.on ("filtering.report", filterReportUpdate);
 						dispatch.on ("ordering", storeOrdering);
 						
+                        // add filter reporter, details effect of filter on row count
+                        addFilterReporter (d3tableElem.select("div.d3tableControls"), d3table);
+                        
 						// add column selector, header entries has initial visibilities incorporated
 						addColumnSelector (d3tableElem.select("div.d3tableControls").datum(columnSettings), d3table, dispatch);
 						
@@ -713,7 +731,6 @@ CLMSUI.history = {
                         
                         // add plus minus buttons to replace number spinner
                         CLMSUI.history.addPlusMinusTableButtons (d3table);
-                        console.log ("d3table", d3table);
                         
 						// add clear aggregation button to specific header
 						var aggregateColumn = d3table.getColumnIndex("aggregate") + 1;
@@ -724,7 +741,9 @@ CLMSUI.history = {
 							response.data
 						);
 						CLMSUI.history.anyAggGroupsDefined (response.data, false);   // disable clear button as well to start with
-						
+                        
+                        // populate filter report span with initial filter state
+                        filterReportUpdate (d3.values(d3table.filter()).map (function (d) { return {value: d}; }));
                     }
                 }
             }, 
