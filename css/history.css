@@ -176,6 +176,11 @@ button.ms-choice:hover {
     margin-left: 0.5em;
 }
 
+TABLE.d3table tbody {
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+}
+
 TABLE.d3table tbody tr td.varWidthCell, TABLE.d3table tr th.varWidthCell {
     width: 45%;
     min-width: 5em;
@@ -216,7 +221,8 @@ TABLE.d3table thead th.dottedBorder span.d3table-headerSpan {
 
 .d3tableContainer TABLE.d3table tbody tr {
     line-height: 1.5em;
-    border-top: 1px solid #ddd;
+    /*border-top: 1px solid #ddd;*/
+    border-top: none;
 }
 
 span.d3table-pageInfo {
@@ -226,12 +232,12 @@ span.d3table-pageInfo {
 }
 
 TABLE.d3table tbody tr:nth-child(odd) {
-	background: #eeffff;
+	background: #f4f4f4;
 }
 
 TABLE.d3table tbody tr.hiddenSearch {
-	border-top: 1px solid #bbb;
-    background-color: #ddd;  
+	border-top: 1px solid #ddd;
+    background-color: #eff;  
 }
 
 
