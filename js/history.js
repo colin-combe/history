@@ -211,6 +211,7 @@ CLMSUI.history = {
                             notes: function(d) { return tooltipHelper (d, "notes"); },
                             name: function(d) { return tooltipHelper (d, "status"); },
                             file_name: function(d) { return tooltipHelper (d, "file_name"); },
+                            //file_name: function(d) { return d.value.id + ": " + modifiers.file_name(d.value); },
                             enzyme: function(d) { return tooltipHelper (d, "enzyme"); },
                             crosslinkers: function(d) { return tooltipHelper (d, "crosslinkers"); },
                         };
@@ -296,8 +297,9 @@ CLMSUI.history = {
 						
 						var propertyNames = ["cellStyle", "dataToHTMLModifier", "tooltip"];
 						[cellStyles, modifiers, tooltips].forEach (function (obj, i) {
+                            var propName = propertyNames[i];
 							d3.entries(obj).forEach (function (entry) {
-								columnSettings[entry.key][propertyNames[i]] = entry.value;
+								columnSettings[entry.key][propName] = entry.value;
 							});
 						});
 
@@ -340,8 +342,19 @@ CLMSUI.history = {
                                 });
                             }
                         };
+                        
+                        var preformatData = function (data) {
+                            if (data.length) {
+                                data.forEach (function (d) {
+                                    var snlength = d.seq_name.length;
+                                    d.file_name = (snlength > d.file_name.length || d.file_name.substr(0, snlength) !== d.seq_name) ? d.seq_name+" ("+d.file_name+")" : d.file_name;     
+                                });
+                            }
+                        };
+                        
                         //var a = performance.now();
                         sanitise (response.data);
+                        preformatData (response.data);  // update data with some pre-conditions / formatting
                         //var b = performance.now() - a;
                         //console.log ("sanity in", b, "ms.");
 

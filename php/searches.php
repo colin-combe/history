@@ -18,12 +18,12 @@
 			$restrictSearches = ($searches == "MINE") || (!$userRights["canSeeAll"] && !$userRights["isSuperUser"]);
             
 			// figure out why epoch from now() isn't working here
-            $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, hidden, file_name, enzyme, crosslinkers, is_executing, completed, miss_ping from
+            $qPart1 = "SELECT id, notes, user_name, submit_date, name, status, random_id, hidden, file_name, seq_name, enzyme, crosslinkers, is_executing, completed, miss_ping from
 
             (select search.id, search.completed, search.is_executing, search.hidden, search.notes, user_name as user_name, search.submit_date AS submit_date, 
 			(search.ping is not NULL) and (extract (EPOCH FROM (NOW()::timestamp - search.ping)) > 30*60) AS miss_ping,
             search.name AS name, search.status AS status, search.random_id AS random_id,
-           	string_agg(sequence_file.file_name,',') AS file_name
+           	string_agg(sequence_file.file_name,',') AS file_name, string_agg(left(sequence_file.name, -21),',') AS seq_name
             FROM search
             INNER JOIN users on search.uploadedby = users.id 
             INNER JOIN search_sequencedb on search.id = search_sequencedb.search_id
