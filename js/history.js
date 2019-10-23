@@ -476,11 +476,13 @@ CLMSUI.history = {
 									dispatch.columnHiding (view.label, view.checked);
 								}
 							});
+                            
+                            newtd.select("button.ms-choice").attr("title", "Check 'Keep Settings' to remember these choices.");
 						}
                         
                         function addFilterReporter (containerSelector, d3table) {
                             var freporter = containerSelector.append("span")
-                                .attr("class", "filterReporter")
+                                .attr("class", "filterReporter dividerSection")
                                 .attr ("title", "Number of searches that satisfy table filters")
                             ;
                         }
@@ -740,7 +742,13 @@ CLMSUI.history = {
 						d3table.showFilterCell ("hidden", response.userRights.isSuperUser);
 						
 						// allows css trick to highlight filter inputs with content so more visible to user
-						d3.selectAll(".d3table-filterInput").property("required", true);
+						d3.selectAll(".d3table-filterInput")
+                            .property("required", true)
+                            .attr ("title", function(d,i) { return "Filter the table by "+d.value.columnName; })
+                        ;
+                        
+                        // add right-hand side divider bars to first page info widget
+                        d3.selectAll(".d3table-pageInfo").classed("dividerSection", function(d,i) { return i === 0; });
                         
                         // add plus minus buttons to replace number spinner
                         CLMSUI.history.addPlusMinusTableButtons (d3table);

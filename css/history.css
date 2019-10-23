@@ -159,12 +159,6 @@ button.ms-choice:hover {
     margin-left: 0.5em;
 }
 
-span.d3table-pageInfo {
-	margin-right: 0.5em;
-	border-right: 1px solid grey;
-	padding-right: 0.5em;
-}
-
 TABLE.d3table tbody {
     border-bottom: 1px solid #ddd;
     border-top: 1px solid #ddd;
@@ -266,7 +260,7 @@ tbody tr:hover .deleteButton {
     visibility: visible;
 }
 
-.filterReporter {
+.dividerSection {
     border-right: 1px solid grey;
     margin-right: 0.5em;
     padding-right: 0.5em;
