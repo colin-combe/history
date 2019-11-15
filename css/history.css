@@ -23,11 +23,6 @@ td:last-child {
 	padding-right: 0px;
 }
 
-tbody tr.hiddenSearch {
-    background-color: #ddd;  
-}
-
-
 tbody tr:hover td, tbody tr:hover td a, tbody tr:hover, tbody tr:hover .unviewableSearch, tbody tr:hover .fauxLink, .btn {
     color: white;
 	transition: none;
@@ -76,6 +71,7 @@ tbody tr:hover button {
 .unpadButton {
     padding: 0 6px;
     margin: 2px 0;
+    height: 24px;
 }
 .xierror {
     color: red;
@@ -96,14 +92,6 @@ button:disabled {
 	color: #091d42;
 	border-color: #091d42;
 }
-
-/*
-.page-header p {
-	display: inline-block;
-	padding-right:1px;
-	padding-left:10px;
-}
-*/
 
 .container #clmsErrorBox {
     transform: scale(0.5);
@@ -167,12 +155,13 @@ button.ms-choice:hover {
 	background: #ffa;
 }
 
-.d3table th {
-	white-space: nowrap;
-}
-
 .d3table-pagerInfo .ms-parent {
     margin-left: 0.5em;
+}
+
+TABLE.d3table tbody {
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
 }
 
 TABLE.d3table tbody tr td.varWidthCell, TABLE.d3table tr th.varWidthCell {
@@ -197,6 +186,7 @@ TABLE.d3table tbody tr td.varWidthCell2, TABLE.d3table tr th.varWidthCell2 {
 TABLE.d3table thead th {
 	padding-left: 0;
 	padding-right: 0;
+    white-space: nowrap;
 }
 
 TABLE.d3table thead th span.d3table-headerSpan {
@@ -213,32 +203,29 @@ TABLE.d3table thead th.dottedBorder span.d3table-headerSpan {
 	padding: 5px 4px;
 }
 
-TABLE.d3table tbody tr {
+.d3tableContainer TABLE.d3table tbody tr {
     line-height: 1.5em;
+    border-top: none;
 }
 
-span.d3table-pageInfo {
-	margin-right: 0.5em;
-	border-right: 1px solid grey;
-	padding-right: 0.5em;
-}
-
-TABLE.d3table tr.hiddenSearch {
-    background-color: #ddd;  
+TABLE.d3table tbody tr:nth-child(odd) {
+	background: #f4f4f4;
 }
 
 TABLE.d3table tbody tr.hiddenSearch {
-	border-top: 1px dotted #888;
+	border-top: 1px solid #ddd;
+    background-color: #eff;  
 }
 
 TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
-    color:#091D42;
+    color: #091D42;
 }
 
-.d3table-filterInput {
+.d3table .d3table-filterInput {
 	border: 1px solid #a9a9a9;
 	padding: 0;
 	margin: 0 2px 0 5px;
+    font-size: 1.25em;
 }
 
 .d3table-filterInput:valid {
@@ -246,52 +233,10 @@ TABLE.d3table a, tbody tr td .unviewableSearch, tbody tr td .fauxLink {
 	background: #afa;
 }
 
-TABLE.d3table tfoot {
-	border-top: 2px solid #ccc;
-}
-
-TABLE.d3table tfoot td {
-	padding-top: 0.3em;
-}
-
 /* firefox adds red drop-shadow to invalid (empty) input */
 input:invalid {
 	box-shadow: none;
 }
-
-/*
-div.tooltip {
-	position: absolute;
-	opacity: 0;
-	text-align: left;							
-    padding: 2px;				
-    font: 12px sans-serif;		
-    background: lightsteelblue;	
-    border: 0px;		
-    border-radius: 8px;	
-	padding: 8px;
-    pointer-events: none;
-    -webkit-box-shadow: 10px 10px 5px 0 rgba(0,0,0,0.5);
-    -moz-box-shadow: 10px 10px 5px 0 rgba(0,0,0,0.5);
-    box-shadow: 10px 10px 5px 0 rgba(0,0,0,0.5);
-}
-
-P.tooltipTitle {
-	color: black;
-	text-transform: capitalize;
-	padding-bottom: 0.3em;
-}
-
-P.tooltipContents {
-	color: #666;
-}
-*/
-
-/*
-button:hover {
-	font-weight:bold;
-}
-*/
 
 .spinGap {
     margin-left: 35px;
@@ -307,24 +252,16 @@ input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
 }
 
-.buttonIncr {
-    /*border: 1px solid #888;*/
-    border: none;
-    background: white;
-    color: grey;
-    margin: 2px;
-    font-size: 1em;
-    line-height: 1.75em;
-    font-weight: bold;
+.deleteButton {
+    visibility: hidden;
 }
 
-.buttonIncr:hover {
-    background: #ff8;
-    border-color: #444;
-    color: black;
+tbody tr:hover .deleteButton {
+    visibility: visible;
 }
 
-.buttonIncr:focus {
-    border: none;
-    outline: none;
+.dividerSection {
+    border-right: 1px solid grey;
+    margin-right: 0.5em;
+    padding-right: 0.5em;
 }

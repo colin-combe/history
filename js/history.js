@@ -211,6 +211,7 @@ CLMSUI.history = {
                             notes: function(d) { return tooltipHelper (d, "notes"); },
                             name: function(d) { return tooltipHelper (d, "status"); },
                             file_name: function(d) { return tooltipHelper (d, "file_name"); },
+                            //file_name: function(d) { return d.value.id + ": " + modifiers.file_name(d.value); },
                             enzyme: function(d) { return tooltipHelper (d, "enzyme"); },
                             crosslinkers: function(d) { return tooltipHelper (d, "crosslinkers"); },
                         };
@@ -279,7 +280,6 @@ CLMSUI.history = {
                             crosslinkers: function (d) { return d.crosslinkers; },
 							base_new: function (d) {
 								return makeBaseNewLink (d, null, "Base New");
-								//return "<button class='baseNewButton unpadButton'>New</button>";
 							},
                             submit_date: function(d) {
                                 return d.submit_date.substring(0, d.submit_date.indexOf("."));
@@ -297,8 +297,9 @@ CLMSUI.history = {
 
 						var propertyNames = ["cellStyle", "dataToHTMLModifier", "tooltip"];
 						[cellStyles, modifiers, tooltips].forEach (function (obj, i) {
+                            var propName = propertyNames[i];
 							d3.entries(obj).forEach (function (entry) {
-								columnSettings[entry.key][propertyNames[i]] = entry.value;
+								columnSettings[entry.key][propName] = entry.value;
 							});
 						});
 
@@ -341,8 +342,19 @@ CLMSUI.history = {
                                 });
                             }
                         };
+                        
+                        var preformatData = function (data) {
+                            if (data.length) {
+                                data.forEach (function (d) {
+                                    var snlength = d.seq_name.length;
+                                    d.file_name = (snlength > d.file_name.length || d.file_name.substr(0, snlength) !== d.seq_name) ? d.seq_name+" ("+d.file_name+")" : d.file_name;     
+                                });
+                            }
+                        };
+                        
                         //var a = performance.now();
                         sanitise (response.data);
+                        preformatData (response.data);  // update data with some pre-conditions / formatting
                         //var b = performance.now() - a;
                         //console.log ("sanity in", b, "ms.");
 
@@ -395,7 +407,7 @@ CLMSUI.history = {
 							buttonContainer
 								.append("button")
 								.text ("Clear ↓")
-								.attr ("class", "btn btn-1 btn-1a clearChx unpadButton")
+								.attr ("class", "btn btn-1 btn-1a clearChx")
 								.attr ("title", "Clear all aggregation group values")
 								.on ("click", function () {
 									CLMSUI.history.clearAggregationInputs (d3rowFunc(), data);
@@ -464,6 +476,15 @@ CLMSUI.history = {
 									dispatch.columnHiding (view.label, view.checked);
 								}
 							});
+                            
+                            newtd.select("button.ms-choice").attr("title", "Check 'Keep Settings' to remember these choices.");
+						}
+                        
+                        function addFilterReporter (containerSelector, d3table) {
+                            var freporter = containerSelector.append("span")
+                                .attr("class", "filterReporter dividerSection")
+                                .attr ("title", "Number of searches that satisfy table filters")
+                            ;
 						}
 
 
@@ -697,11 +718,22 @@ CLMSUI.history = {
 						}
 						d3table.update();
 
+                        // function that updates filter report text on filter updates
+                        var filterReportUpdate = function (filterVals) {
+                            var anyFilterValueSet = pluck(d3.values(filterVals), "value").some (function (f) { return f; });
+                            var comma = d3.format(",");
+                            var str = comma(d3table.getFilteredSize()) + (anyFilterValueSet ? " of " + comma(d3table.getData().length) : "") + " Searches";
+                            d3.selectAll(".filterReporter").text(str);
+                        };
 						var dispatch = d3table.dispatch();
 						dispatch.on ("columnHiding", storeColumnHiding);
-						dispatch.on ("filtering", storeFiltering);
+						dispatch.on ("filtering.store", storeFiltering);  // add two functions to filtering events by distinguishing with .
+                        dispatch.on ("filtering.report", filterReportUpdate);
 						dispatch.on ("ordering", storeOrdering);
 
+                        // add filter reporter, details effect of filter on row count
+                        addFilterReporter (d3tableElem.select("div.d3tableControls"), d3table);
+                        
 						// add column selector, header entries has initial visibilities incorporated
 						addColumnSelector (d3tableElem.select("div.d3tableControls").datum(columnSettings), d3table, dispatch);
 
@@ -709,11 +741,16 @@ CLMSUI.history = {
 						d3table.showFilterCell ("hidden", response.userRights.isSuperUser);
 						
 						// allows css trick to highlight filter inputs with content so more visible to user
-						d3.selectAll(".d3table-filterInput").property("required", true);
+						d3.selectAll(".d3table-filterInput")
+                            .property("required", true)
+                            .attr ("title", function(d,i) { return "Filter the table by "+d.value.columnName; })
+                        ;
+                        
+                        // add right-hand side divider bars to first page info widget
+                        d3.selectAll(".d3table-pageInfo").classed("dividerSection", function(d,i) { return i === 0; });
 						
                         // add plus minus buttons to replace number spinner
                         CLMSUI.history.addPlusMinusTableButtons (d3table);
-                        console.log ("d3table", d3table);
                         
 						// add clear aggregation button to specific header
 						var aggregateColumn = d3table.getColumnIndex("aggregate") + 1;
@@ -725,6 +762,8 @@ CLMSUI.history = {
 						);
 						CLMSUI.history.anyAggGroupsDefined (response.data, false);   // disable clear button as well to start with
 
+                        // populate filter report span with initial filter state
+                        filterReportUpdate (d3.values(d3table.filter()).map (function (d) { return {value: d}; }));
                     }
                 }
             },
