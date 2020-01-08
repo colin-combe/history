@@ -478,6 +478,8 @@ CLMSUI.history = {
 							});
                             
                             newtd.select("button.ms-choice").attr("title", "Check 'Keep Settings' to remember these choices.");
+
+                            newtd.append("span").attr("class", "dividerSection");
 						}
                         
                         function addFilterReporter (containerSelector, d3table) {
@@ -486,6 +488,23 @@ CLMSUI.history = {
                                 .attr ("title", "Number of searches that satisfy table filters")
                             ;
 						}
+
+                        function addCancelSort (containerSelector, d3table) {
+                            var sortCanceller = containerSelector.append("button")
+                                .attr ("class", "btn btn-1 btn-1a darkBackground")
+                                .attr ("title", "Revert table to database sort ordering")
+                                .text ("Cancel Sort")
+                                .on ("click", function () {
+                                    storeOrdering (null, null);
+                                    d3table
+                                        .orderKey (null)
+                                        .orderDir (null)
+                                        .refilter()
+                                        .update()
+                                    ;
+                                })
+                            ;
+                        }
 
 
 						function applyHeaderStyling (headers) {
@@ -736,6 +755,9 @@ CLMSUI.history = {
                         
 						// add column selector, header entries has initial visibilities incorporated
 						addColumnSelector (d3tableElem.select("div.d3tableControls").datum(columnSettings), d3table, dispatch);
+
+                        // add button to cancel table sort
+                        addCancelSort (d3tableElem.select("div.d3tableControls"), d3table);
 
 						// hide delete filter if not superuser as pointless
 						d3table.showFilterCell ("hidden", response.userRights.isSuperUser);
