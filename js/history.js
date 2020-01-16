@@ -1,12 +1,24 @@
 /*jslint browser: true, white: true, stupid: true, vars: true*/
 var CLMSUI = CLMSUI || {};
-
+  
+/**
+ * Javascript code for constructing a paged table of xi search results
+ * from a returned database query.
+ * @version 1.0
+ * @namespace CLMSUI.history
+ */
 CLMSUI.history = {
 
+    /**
+     * Make a reachable xi URL from this search id and parameters
+     * @param sid - xi searchID
+     * @param params - extra parameters for URL query string such as decoys and lowestScore
+     */
     makeResultsUrl: function (sid, params) {
         return "../xi3/network.php?sid="+sid+params;
     },
 
+    
     defaultValues: {
         visibility: {
             "Visualise Search": true,
@@ -34,6 +46,9 @@ CLMSUI.history = {
 
     tempValues: {},	// store user values temporarily, in case they decide to 'keep' later on
 
+    /**
+     * Get initial values by merging defaults with values in localStorage
+     */
     getInitialValues: function () {
         var cookieValues = this.getCookieValue() || {};
         //console.log ("cookieValues", cookieValues);
